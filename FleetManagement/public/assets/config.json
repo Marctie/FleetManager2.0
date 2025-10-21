@@ -1,0 +1,146 @@
+{
+  "apiConfig": {
+    "baseUrl": "http://10.0.90.9/Stage/FleetManagement",
+    "timeout": 30000,
+    "retryAttempts": 3
+  },
+  "endpoints": {
+    "auth": {
+      "login": "/api/Auth/login",
+      "refresh": "/api/Auth/refresh",
+      "logout": "/api/Auth/logout"
+    },
+    "vehicles": {
+      "getAll": "/api/Vehicles",
+      "getById": "/api/Vehicles/{id}",
+      "create": "/api/Vehicles",
+      "update": "/api/Vehicles/{id}",
+      "delete": "/api/Vehicles/{id}",
+      "updateStatus": "/api/Vehicles/{id}/status",
+      "assignDriver": "/api/Vehicles/{id}/assign"
+    },
+    "telemetry": {
+      "getByVehicle": "/api/Telemetry/vehicle/{vehicleId}",
+      "getLatest": "/api/Telemetry/vehicle/{vehicleId}/latest",
+      "getFleetLocations": "/api/Telemetry/fleet-locations",
+      "create": "/api/Telemetry"
+    },
+    "assignments": {
+      "getAll": "/api/Assignments",
+      "create": "/api/Assignments",
+      "getByDriver": "/api/Assignments/driver/{driverId}",
+      "getByVehicle": "/api/Assignments/vehicle/{vehicleId}",
+      "complete": "/api/Assignments/{id}/complete"
+    },
+    "users": {
+      "getAll": "/api/Users",
+      "getById": "/api/Users/{id}",
+      "create": "/api/Users",
+      "update": "/api/Users/{id}",
+      "delete": "/api/Users/{id}"
+    },
+    "documents": {
+      "getByVehicle": "/api/vehicles/{vehicleId}/Documents",
+      "create": "/api/vehicles/{vehicleId}/Documents",
+      "getById": "/api/vehicles/{vehicleId}/Documents/{id}",
+      "delete": "/api/vehicles/{vehicleId}/Documents/{id}"
+    },
+    "reports": {
+      "fleetSummary": "/api/Reports/fleet-summary",
+      "maintenanceDue": "/api/Reports/maintenance-due"
+    }
+  },
+  "enums": {
+    "vehicleStatus": {
+      "available": 0,
+      "inUse": 1,
+      "maintenance": 2,
+      "outOfService": 3
+    },
+    "fuelType": {
+      "gasoline": 0,
+      "diesel": 1,
+      "electric": 2,
+      "hybrid": 3,
+      "lpg": 4,
+      "cng": 5
+    },
+    "userRole": {
+      "admin": 0,
+      "manager": 1,
+      "driver": 2,
+      "viewer": 3
+    },
+    "documentType": {
+      "insurance": 0,
+      "registration": 1,
+      "maintenance": 2,
+      "inspection": 3,
+      "contract": 4,
+      "other": 5
+    }
+  },
+  "pagination": {
+    "defaultPageSize": 20,
+    "maxPageSize": 100
+  },
+  "maps": {
+    "defaultCenter": {
+      "lat": 41.9028,
+      "lng": 12.4964
+    },
+    "defaultZoom": 13
+  },
+  "mqtt": {
+    "brokerUrl": "wss://rabbitmq.test.intellitronika.com/ws",
+    "keepalive": 120,
+    "port": 443,
+    "path": "/ws",
+    "protocol": "wss",
+    "username": "intellitronika",
+    "password": "intellitronika",
+    "hostname": "rabbitmq.test.intellitronika.com"
+  },
+  "realtime": {
+    "telemetryUpdateInterval": 30000,
+    "locationUpdateInterval": 60000
+  },
+  "notifications": {
+    "enabled": true,
+    "types": {
+      "maintenanceAlert": true,
+      "insuranceExpiry": true,
+      "assignmentComplete": true,
+      "lowFuel": true
+    }
+  },
+  "features": {
+    "enableReports": true,
+    "enableDocuments": true,
+    "enableTelemetry": true,
+    "enableAssignments": true,
+    "enableNotifications": true
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 300000,
+    "vehiclesCacheTTL": 60000,
+    "telemetryCacheTTL": 30000
+  },
+  "dateFormat": {
+    "display": "MM/DD/YYYY",
+    "api": "YYYY-MM-DDTHH:mm:ss",
+    "locale": "en-En"
+  },
+  "validation": {
+    "licensePlate": {
+      "pattern": "^[A-Z]{2}[0-9]{3}[A-Z]{2}$",
+      "message": "Formato targa non valido (es. AB123CD)"
+    },
+    "vin": {
+      "minLength": 17,
+      "maxLength": 17,
+      "message": "Il VIN deve essere di 17 caratteri"
+    }
+  }
+}
