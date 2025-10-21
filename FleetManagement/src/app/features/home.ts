@@ -2,7 +2,7 @@ import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { MqttService, VehicleStats } from '../services/mqtt.service';
+import { MqttService } from '../services/mqtt.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -492,15 +492,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentUser = this.authService.getCurrentUser();
   isGuest = this.authService.isGuestMode();
 
-  vehicleStats: VehicleStats = {
-    totalVehicles: 0,
-    movingVehicles: 0,
-    parkedVehicles: 0,
-    activeDrivers: 0,
-    maintenanceVehicles: 0,
-    gpsActive: 0,
-  };
-
   mqttConnected = false;
 
   ngOnInit() {
@@ -512,13 +503,6 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Subscribe to connection status
     this.mqttService.connectionStatus$.subscribe((status) => {
       this.mqttConnected = status;
-    });
-
-    // Subscribe to vehicle stats updates
-    this.subscription = this.mqttService.vehicleStats$.subscribe((stats) => {
-      if (stats) {
-        this.vehicleStats = stats;
-      }
     });
   }
 

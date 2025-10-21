@@ -14,7 +14,6 @@ import * as L from 'leaflet';
 import { VehiclePosition } from '../../models/vehicle-position';
 import { Vehicle } from '../../models/vehicle';
 import { VehicleService } from '../../services/vehicle.service';
-import { MqttService } from '../../services/mqtt.service';
 
 @Component({
   selector: 'app-general-map',
@@ -383,7 +382,6 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private markers: L.Marker[] = [];
   private router = inject(Router);
   private vehicleService = inject(VehicleService);
-  private mqttService = inject(MqttService);
 
   // Signals
   vehicleList = signal<Vehicle[]>([]);
@@ -425,32 +423,6 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit(): void {
     this.loadVehicles();
     this.startAutoUpdate();
-
-    // 🔥 SUBSCRIBE AL TOPIC UNICO vehicles/# (cattura tutti i messaggi)
-    this.mqttService.subscribeAndTrack('vehicles/#', (msg) => {
-      try {
-        const payload = JSON.parse(msg.payload.toString());
-        const topic = msg.topic;
-
-        console.log(`MQTT message on topic '${topic}':`, payload);
-
-        // Determina il tipo di messaggio dal topic
-        if (topic.includes('/status')) {
-          // Messaggio di stato
-          console.log('  └─ Type: STATUS');
-          this.mqttService.ingestStatusMessage(msg);
-        } else if (topic.includes('/position')) {
-          // Messaggio di posizione
-          console.log('  └─ Type: POSITION');
-          this.mqttService.ingestPositionMessage(msg);
-        } else {
-          // Altro tipo di messaggio
-          console.log('  └─ Type: UNKNOWN - Ignoring');
-        }
-      } catch (error) {
-        console.error('❌ Error processing MQTT message:', error);
-      }
-    });
   }
 
   ngAfterViewInit(): void {
@@ -494,68 +466,6 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
       iconSize: [25, 41],
       iconAnchor: [12, 41],
       popupAnchor: [1, -34],
-    });
-  }
-
-  private loadVehicles(preserveMapView: boolean = false): void {
-    // 1. Ottieni veicoli dal database
-    this.vehicleService.getListVehicles(1, 1000).subscribe((response) => {
-      console.log(`Loaded ${response.items.length} vehicles from database`);
-
-      // 2. RECUPERA I DATI MQTT DAL SERVIZIO
-      const mqttPositions = this.mqttService.positionVeiclesList(); // Signal con posizioni MQTT
-      const statusesById = this.mqttService.statusById(); // Signal con stati MQTT
-
-      console.log(
-        `📡 MQTT data: ${mqttPositions.length} positions, ${
-          Object.keys(statusesById).length
-        } statuses`
-      );
-
-      // 3. 🔥 MERGE: Combina dati DB + dati MQTT
-      const updatedVehicles = response.items.map((v) => {
-        let next = { ...v };
-
-        // 🔥 CONTROLLA SE ESISTE UNA POSIZIONE MQTT PIÙ RECENTE
-        const p = mqttPositions.find((mp) => mp.vehicleId === v.id);
-        if (p) {
-          const tPos = new Date(p.timestamp).getTime();
-          const tDb = new Date(v.lastPosition?.timestamp ?? 0).getTime();
-
-          // Se la posizione MQTT è più recente, usala
-          if (tPos > tDb) {
-            console.log(
-              `🔄 Vehicle ${v.id}: MQTT position is newer (MQTT: ${new Date(
-                tPos
-              ).toLocaleString()}, DB: ${new Date(tDb).toLocaleString()})`
-            );
-            next.lastPosition = p;
-          }
-        }
-
-        // 🔥 AGGIORNA LO STATO CON I DATI MQTT
-        const s = statusesById[v.id]?.status;
-        if (s) {
-          const normalizedStatus = this.normalizeStatus(s);
-          if (normalizedStatus !== v.status) {
-            console.log(
-              `🔄 Vehicle ${v.id}: Status updated from '${v.status}' to '${normalizedStatus}'`
-            );
-          }
-          next.status = normalizedStatus;
-        }
-
-        return next;
-      });
-
-      // 4. Aggiorna il signal con i dati combinati
-      this.vehicleList.set(updatedVehicles);
-      console.log(`Vehicle list updated with ${updatedVehicles.length} vehicles`);
-
-      // 5. Ridisegna i marker sulla mappa
-      if (this.map) {
-        this.addVehicleMarkers(preserveMapView);
-      }
     });
   }
 
