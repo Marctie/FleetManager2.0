@@ -1,8 +1,7 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { MqttService } from '../services/mqtt.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -27,9 +26,8 @@ import { Subscription } from 'rxjs';
           </div>
           <div class="user-section">
             <div class="user-info" *ngIf="currentUser">
-              <div class="user-details">
+              <div class="user-info">
                 <span class="username">{{ currentUser.username }}</span>
-                <span class="role">{{ currentUser.role }}</span>
               </div>
             </div>
             <button class="btn-logout" (click)="onLogout()">Logout</button>
@@ -46,15 +44,6 @@ import { Subscription } from 'rxjs';
               <strong>Guest Mode</strong>
               <p>You are browsing with limited access. Some features may be restricted.</p>
             </div>
-          </div>
-
-          <div
-            class="connection-status"
-            [class.connected]="mqttConnected"
-            [class.disconnected]="!mqttConnected"
-          >
-            <span class="status-indicator"></span>
-            {{ mqttConnected ? 'MQTT Connected' : 'MQTT Disconnected' }}
           </div>
         </div>
         <div class="cards-grid">
@@ -186,11 +175,6 @@ import { Subscription } from 'rxjs';
         font-size: 0.875rem;
       }
 
-      .role {
-        font-size: 0.75rem;
-        color: #718096;
-      }
-
       .btn-logout {
         display: flex;
         align-items: center;
@@ -256,55 +240,6 @@ import { Subscription } from 'rxjs';
         to {
           opacity: 1;
           transform: translateY(0);
-        }
-      }
-
-      .connection-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
-        font-size: 0.875rem;
-        font-weight: 500;
-        margin-top: 1rem;
-        transition: all 0.3s ease;
-      }
-
-      .connection-status.connected {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-      }
-
-      .connection-status.disconnected {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-      }
-
-      .status-indicator {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        animation: pulse 2s ease-in-out infinite;
-      }
-
-      .connection-status.connected .status-indicator {
-        background-color: #28a745;
-      }
-
-      .connection-status.disconnected .status-indicator {
-        background-color: #dc3545;
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.5;
         }
       }
 
@@ -486,32 +421,20 @@ import { Subscription } from 'rxjs';
 export class HomeComponent implements OnInit, OnDestroy {
   private authService = inject(AuthService);
   private router = inject(Router);
-  private mqttService = inject(MqttService);
   private subscription?: Subscription;
 
   currentUser = this.authService.getCurrentUser();
   isGuest = this.authService.isGuestMode();
 
-  mqttConnected = false;
-
   ngOnInit() {
-    // Connect to MQTT and subscribe to vehicle stats
-    this.mqttService.connect().catch((error) => {
-      console.error('Failed to connect to MQTT:', error);
-    });
-
-    // Subscribe to connection status
-    this.mqttService.connectionStatus$.subscribe((status) => {
-      this.mqttConnected = status;
-    });
+    // Component initialization
   }
 
   ngOnDestroy() {
-    // Clean up subscription and disconnect from MQTT
+    // Clean up subscription
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
-    this.mqttService.disconnect();
   }
 
   navigateTo(route: string) {

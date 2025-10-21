@@ -41,28 +41,3 @@ export const guestGuard: CanActivateFn = (route, state) => {
   router.navigate(['/']);
   return false;
 };
-
-/**
- * Role Guard per controllare i ruoli degli utenti
- * Uso: canActivate: [roleGuard], data: { roles: ['admin', 'manager'] }
- */
-export const roleGuard: CanActivateFn = (route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-
-  if (!authService.isAuthenticated()) {
-    router.navigate(['/login']);
-    return false;
-  }
-
-  const userRole = authService.getUserRole();
-  const allowedRoles = route.data['roles'] as string[];
-
-  if (allowedRoles && allowedRoles.includes(userRole || '')) {
-    return true;
-  }
-
-  console.warn('🚫 Accesso negato. Ruolo non autorizzato:', userRole);
-  router.navigate(['/']);
-  return false;
-};

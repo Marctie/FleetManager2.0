@@ -33,9 +33,7 @@ import { VehicleService } from '../../services/vehicle.service';
               <option value="cycle">Cycling</option>
             </select>
           </div>
-          <button class="btn-refresh" (click)="refreshAllVehiclesWithMqtt()">
-            Update Positions
-          </button>
+          <button class="btn-refresh" (click)="refreshAllVehicles()">Update Positions</button>
           <button class="btn-back" (click)="goBack()">Back to Home</button>
         </div>
       </header>
@@ -397,7 +395,6 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private satelliteLayer!: L.TileLayer;
   private cycleLayer!: L.TileLayer;
 
-  // Auto update interval
   private autoUpdateInterval: any = null;
 
   // Status colors
@@ -435,6 +432,26 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.map) {
       this.map.remove();
     }
+  }
+
+  private loadVehicles(silent: boolean = false): void {
+    this.vehicleService.getListVehicles().subscribe({
+      next: (response) => {
+        this.vehicleList.set(response.items || []);
+        if (this.map) {
+          this.addVehicleMarkers(true);
+        }
+        if (!silent) {
+          console.log(`Loaded ${response.items?.length || 0} vehicles`);
+        }
+      },
+      error: (error) => {
+        console.error('Error loading vehicles:', error);
+        if (!silent) {
+          this.showToastNotification('Error loading vehicles', 'error');
+        }
+      },
+    });
   }
 
   private startAutoUpdate(): void {
@@ -697,70 +714,9 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     return v;
   }
 
-  public refreshAllVehiclesWithMqtt(): void {
-    // 🔥 RECUPERA GLI STATI MQTT
-    const statusesById = this.mqttService.statusById();
-    let updatedCount = 0;
-
-    // 🔥 AGGIORNA OGNI VEICOLO CON DATI MQTT
-    const updated = this.vehicleList().map((v) => {
-      // Cerca posizione MQTT usando il metodo helper
-      const mqttPos = this.getMqttPositionFromService(v.id);
-
-      // Cerca stato MQTT
-      const s = statusesById[v.id]?.status;
-
-      if (mqttPos || s) {
-        updatedCount++;
-      }
-
-      return {
-        ...v,
-        // Aggiorna stato se disponibile
-        status: s ? this.normalizeStatus(s) : v.status,
-
-        // Aggiorna posizione se disponibile
-        lastPosition: mqttPos
-          ? {
-              vehicleId: mqttPos.vehicleId,
-              latitude: mqttPos.latitude,
-              longitude: mqttPos.longitude,
-              speed: mqttPos.speed ?? 0,
-              heading: mqttPos.heading ?? 0,
-              timestamp: mqttPos.timestamp ?? Date.now(),
-            }
-          : v.lastPosition,
-      };
-    });
-
-    // Aggiorna il signal e ridisegna i marker
-    this.vehicleList.set(updated);
-    this.addVehicleMarkers(true);
-
-    // Mostra notifica toast
-    const message = updatedCount > 0 ? `Updated ${updatedCount} vehicles` : 'Update successful';
-    this.showToastNotification(message, 'success');
-  }
-
-  /**
-   * 🔥 HELPER: Cerca posizione MQTT per un veicolo specifico
-   * Recupera dal signal del servizio MQTT
-   */
-  private getMqttPositionFromService(vehicleId: number): VehiclePosition | null {
-    try {
-      const mqttPositions = this.mqttService.positionVeiclesList();
-      const position = mqttPositions.find((pos) => pos.vehicleId === vehicleId);
-
-      if (position) {
-        console.log(`Position found in MQTT service for vehicle ID ${vehicleId}`);
-        return position;
-      }
-
-      return null;
-    } catch (error) {
-      console.error('❌ Error retrieving MQTT position:', error);
-      return null;
-    }
+  public refreshAllVehicles(): void {
+    this.loadVehicles();
+    this.showToastNotification('Refreshing vehicle data...', 'success');
   }
 
   private showToastNotification(

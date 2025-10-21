@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { IAuthResponse } from '../models/IAutentication';
 import { ILoginRequest } from '../models/ILogin';
 import { IUserInfo } from '../models/IUserInfo';
-import { UserRole } from '../models/user-roles';
 
 @Injectable({
   providedIn: 'root',
@@ -152,7 +151,6 @@ export class AuthService {
       userId: 'guest',
       username: 'Guest User',
       email: 'guest@fleetmanagement.com',
-      role: 'guest',
     };
 
     localStorage.setItem(this.STORAGE_KEYS.userId, 'guest');
@@ -197,19 +195,15 @@ export class AuthService {
     id: number;
     username: string;
     email?: string;
-    role: UserRole;
     assignedVehicleId?: number;
   } | null {
     const user = this.getCurrentUser();
     if (!user) return null;
 
-    const role = user.userId === 'guest' ? UserRole.GUEST : UserRole.ADMINISTRATOR;
-
     return {
       id: parseInt(user.userId) || 0,
       username: user.username,
       email: user.email,
-      role: role,
     };
   }
 
@@ -219,14 +213,6 @@ export class AuthService {
    */
   getUserId(): string | null {
     return localStorage.getItem(this.STORAGE_KEYS.userId);
-  }
-
-  /**
-   * @returns Il ruolo dell'utente
-   */
-  getUserRole(): string | null {
-    const currentUser = this.getCurrentUserInfo();
-    return currentUser?.role || null;
   }
 
   /**
@@ -244,7 +230,6 @@ export class AuthService {
     const token = this.getToken();
     return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
-
 
   /**
    * Salva i dati di autenticazione nel localStorage
@@ -267,7 +252,6 @@ export class AuthService {
     });
   }
 
- 
   private hasValidToken(): boolean {
     const token = this.getToken();
     return token !== null && !this.isTokenExpired();
@@ -279,8 +263,7 @@ export class AuthService {
     const email = localStorage.getItem(this.STORAGE_KEYS.email);
 
     if (userId && username && email) {
-      const role = userId === 'guest' ? 'guest' : 'user';
-      return { userId, username, email, role };
+      return { userId, username, email };
     }
     return null;
   }
@@ -290,7 +273,6 @@ export class AuthService {
       userId: response.userId,
       username: response.username,
       email: response.email,
-      role: response.role,
     };
   }
 
