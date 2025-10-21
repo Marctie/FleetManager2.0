@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-associations',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="page-container">
       <header class="page-header">
@@ -30,7 +29,8 @@ import { Router } from '@angular/router';
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let assoc of associations">
+              @for (assoc of associations; track assoc.vehicleId + assoc.driverName) {
+              <tr>
                 <td>
                   <div class="vehicle-cell">
                     <strong>{{ assoc.vehicleId }}</strong>
@@ -49,6 +49,7 @@ import { Router } from '@angular/router';
                   <button class="btn-action danger">Remove</button>
                 </td>
               </tr>
+              }
             </tbody>
           </table>
         </div>
@@ -261,7 +262,7 @@ export class AssociationsComponent {
     },
   ];
 
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   goBack() {
     this.router.navigate(['/home']);

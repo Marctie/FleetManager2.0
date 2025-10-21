@@ -1,5 +1,4 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { PageHeaderComponent } from '../../shared/page-header.component';
 import { StatCardComponent } from '../../shared/stat-card.component';
@@ -7,7 +6,7 @@ import { StatCardComponent } from '../../shared/stat-card.component';
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [CommonModule, PageHeaderComponent, StatCardComponent],
+  imports: [PageHeaderComponent, StatCardComponent],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 p-8">
       <app-page-header title="Dashboard" (onBack)="goBack()"></app-page-header>
@@ -25,7 +24,7 @@ import { StatCardComponent } from '../../shared/stat-card.component';
   styles: [],
 })
 export class DashboardComponent {
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   goBack() {
     this.router.navigate(['/home']);

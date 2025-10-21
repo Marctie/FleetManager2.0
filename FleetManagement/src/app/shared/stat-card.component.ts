@@ -1,10 +1,9 @@
 import { Component, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-stat-card',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div
       class="bg-white p-6 rounded-2xl shadow-xl transition-transform duration-300 hover:transform hover:-translate-y-2"
@@ -14,7 +13,9 @@ import { CommonModule } from '@angular/common';
           {{ title }}
         </h3>
         <p class="text-3xl font-bold text-indigo-600 mb-2">{{ value }}</p>
-        <span *ngIf="label" class="text-sm text-gray-500">{{ label }}</span>
+        @if (label) {
+        <span class="text-sm text-gray-500">{{ label }}</span>
+        }
       </div>
     </div>
   `,

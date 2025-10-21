@@ -57,9 +57,11 @@ import { AuthService } from './services/auth.service';
             />
           </div>
 
-          <div class="error-message" *ngIf="errorMessage">
+          @if (errorMessage) {
+          <div class="error-message">
             {{ errorMessage }}
           </div>
+          }
 
           <button
             type="submit"
@@ -67,8 +69,11 @@ import { AuthService } from './services/auth.service';
             [disabled]="isLoading"
             [class.loading]="isLoading"
           >
-            <span *ngIf="!isLoading">Login</span>
-            <span *ngIf="isLoading" class="spinner">Loading...</span>
+            @if (!isLoading) {
+            <span>Login</span>
+            } @if (isLoading) {
+            <span class="spinner">Loading...</span>
+            }
           </button>
         </form>
       </div>

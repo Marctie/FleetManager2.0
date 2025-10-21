@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-documents',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 p-8">
       <header
@@ -54,9 +53,9 @@ import { Router } from '@angular/router';
         <div class="bg-white rounded-2xl p-8 shadow-xl">
           <h2 class="text-2xl font-bold text-gray-800 mb-6">Recent Documents</h2>
           <div class="space-y-4">
+            @for (doc of documents; track doc.name) {
             <div
               class="flex items-center p-4 border border-gray-200 rounded-xl hover:shadow-lg transition-all duration-300 hover:transform hover:translate-x-2"
-              *ngFor="let doc of documents"
             >
               <div
                 class="flex-shrink-0 w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mr-4"
@@ -129,6 +128,7 @@ import { Router } from '@angular/router';
                 </button>
               </div>
             </div>
+            }
           </div>
         </div>
       </main>
@@ -304,6 +304,8 @@ import { Router } from '@angular/router';
   ],
 })
 export class DocumentsComponent {
+  private router = inject(Router);
+
   documents = [
     {
       name: 'Insurance Certificate',
@@ -331,8 +333,6 @@ export class DocumentsComponent {
       date: '28/09/2025',
     },
   ];
-
-  constructor(private router: Router) {}
 
   goBack() {
     this.router.navigate(['/home']);

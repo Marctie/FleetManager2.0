@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="page-container">
       <header class="page-header">
@@ -20,7 +19,8 @@ import { Router } from '@angular/router';
         </div>
 
         <div class="users-grid">
-          <div class="user-card" *ngFor="let user of users">
+          @for (user of users; track user.email) {
+          <div class="user-card">
             <div class="user-avatar">{{ user.initials }}</div>
             <div class="user-info">
               <h3>{{ user.name }}</h3>
@@ -32,6 +32,7 @@ import { Router } from '@angular/router';
               <button class="btn-icon" title="Delete">Delete</button>
             </div>
           </div>
+          }
         </div>
       </main>
     </div>
@@ -189,6 +190,8 @@ import { Router } from '@angular/router';
   ],
 })
 export class UserManagementComponent {
+  private router = inject(Router);
+
   users = [
     { name: 'John Doe', role: 'Administrator', email: 'john@example.com', initials: 'JD' },
     { name: 'Jane Smith', role: 'Fleet Manager', email: 'jane@example.com', initials: 'JS' },
@@ -196,8 +199,6 @@ export class UserManagementComponent {
     { name: 'Alice Brown', role: 'Driver', email: 'alice@example.com', initials: 'AB' },
     { name: 'Charlie Davis', role: 'Mechanic', email: 'charlie@example.com', initials: 'CD' },
   ];
-
-  constructor(private router: Router) {}
 
   goBack() {
     this.router.navigate(['/home']);

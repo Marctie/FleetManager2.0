@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-vehicle-list',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="page-container">
       <header class="page-header">
@@ -32,7 +31,8 @@ import { Router } from '@angular/router';
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let vehicle of vehicles">
+              @for (vehicle of vehicles; track vehicle.id) {
+              <tr>
                 <td>{{ vehicle.id }}</td>
                 <td>{{ vehicle.model }}</td>
                 <td>{{ vehicle.plate }}</td>
@@ -47,6 +47,7 @@ import { Router } from '@angular/router';
                   <button class="btn-action">Edit</button>
                 </td>
               </tr>
+              }
             </tbody>
           </table>
         </div>
@@ -239,7 +240,7 @@ export class VehicleListComponent {
     },
   ];
 
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   goBack() {
     this.router.navigate(['/home']);

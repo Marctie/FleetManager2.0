@@ -1,13 +1,12 @@
-import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, DestroyRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
-import { Subscription } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="home-container">
       <header class="header">
@@ -25,11 +24,13 @@ import { Subscription } from 'rxjs';
             <h1>FleetManagement</h1>
           </div>
           <div class="user-section">
-            <div class="user-info" *ngIf="currentUser">
+            @if (currentUser) {
+            <div class="user-info">
               <div class="user-info">
                 <span class="username">{{ currentUser.username }}</span>
               </div>
             </div>
+            }
             <button class="btn-logout" (click)="onLogout()">Logout</button>
           </div>
         </div>
@@ -39,12 +40,14 @@ import { Subscription } from 'rxjs';
           <h2>Welcome to Fleet Management System!</h2>
 
           <!-- Guest Mode Banner -->
-          <div class="guest-banner" *ngIf="isGuest">
+          @if (isGuest) {
+          <div class="guest-banner">
             <div class="guest-content">
               <strong>Guest Mode</strong>
               <p>You are browsing with limited access. Some features may be restricted.</p>
             </div>
           </div>
+          }
         </div>
         <div class="cards-grid">
           <div class="card" (click)="navigateTo('/dashboard')">
@@ -418,24 +421,13 @@ import { Subscription } from 'rxjs';
     `,
   ],
 })
-export class HomeComponent implements OnInit, OnDestroy {
+export class HomeComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
-  private subscription?: Subscription;
+  private destroyRef = inject(DestroyRef);
 
   currentUser = this.authService.getCurrentUser();
   isGuest = this.authService.isGuestMode();
-
-  ngOnInit() {
-    // Component initialization
-  }
-
-  ngOnDestroy() {
-    // Clean up subscription
-    if (this.subscription) {
-      this.subscription.unsubscribe();
-    }
-  }
 
   navigateTo(route: string) {
     this.router.navigate([route]);
@@ -443,15 +435,18 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onLogout() {
     if (confirm('Are you sure you want to logout?')) {
-      this.authService.logout().subscribe({
-        next: () => {
-          console.log('Logout completed');
-        },
-        error: (error) => {
-          console.error('Error during logout:', error);
-          this.router.navigate(['/login']);
-        },
-      });
+      this.authService
+        .logout()
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: () => {
+            console.log('Logout completed');
+          },
+          error: (error) => {
+            console.error('Error during logout:', error);
+            this.router.navigate(['/login']);
+          },
+        });
     }
   }
 }

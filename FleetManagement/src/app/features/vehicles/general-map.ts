@@ -8,7 +8,6 @@ import {
   input,
   effect,
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { IVehicle } from '../../models/IVehicle';
@@ -17,7 +16,7 @@ import { VehicleService } from '../../services/vehicle.service';
 @Component({
   selector: 'app-general-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="page-container">
       <!-- Header -->
