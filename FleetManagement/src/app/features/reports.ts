@@ -7,209 +7,218 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Reports and Statistics</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 p-8">
+      <header
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 md:gap-0 max-w-7xl mx-auto"
+      >
+        <h1 class="text-3xl font-bold text-gray-800">Reports and Statistics</h1>
+        <button
+          (click)="goBack()"
+          class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg 
+                 transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/30"
+        >
+          Back to Home
+        </button>
       </header>
 
-      <main class="page-content">
-        <div class="stats-overview">
-          <div class="stat-card">
-            <div class="stat-content">
-              <h3>Total Distance</h3>
-              <p class="stat-value">125,450 km</p>
-              <span class="stat-trend positive">+12% vs last month</span>
-            </div>
+      <main class="max-w-7xl mx-auto space-y-8">
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div class="bg-white p-6 rounded-2xl shadow-xl">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              Total Distance
+            </h3>
+            <p class="text-2xl font-bold text-gray-800 mb-2">125,450 km</p>
+            <span
+              class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"
+            >
+              +12% vs last month
+            </span>
           </div>
-          <div class="stat-card">
-            <div class="stat-content">
-              <h3>Fuel Consumption</h3>
-              <p class="stat-value">8,240 L</p>
-              <span class="stat-trend negative">-5% vs last month</span>
-            </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow-xl">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              Fuel Consumption
+            </h3>
+            <p class="text-2xl font-bold text-gray-800 mb-2">8,240 L</p>
+            <span
+              class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"
+            >
+              -5% vs last month
+            </span>
           </div>
-          <div class="stat-card">
-            <div class="stat-content">
-              <h3>Total Costs</h3>
-              <p class="stat-value">€15,320</p>
-              <span class="stat-trend positive">+8% vs last month</span>
-            </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow-xl">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              Total Costs
+            </h3>
+            <p class="text-2xl font-bold text-gray-800 mb-2">€15,320</p>
+            <span
+              class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800"
+            >
+              +8% vs last month
+            </span>
           </div>
-          <div class="stat-card">
-            <div class="stat-content">
-              <h3>Maintenance</h3>
-              <p class="stat-value">€3,450</p>
-              <span class="stat-trend negative">-15% vs last month</span>
-            </div>
+
+          <div class="bg-white p-6 rounded-2xl shadow-xl">
+            <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              Maintenance
+            </h3>
+            <p class="text-2xl font-bold text-gray-800 mb-2">€3,450</p>
+            <span
+              class="inline-flex px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"
+            >
+              -15% vs last month
+            </span>
           </div>
         </div>
 
-        <div class="reports-grid">
-          <div class="report-card">
-            <h3>Monthly Report</h3>
-            <p>Comprehensive monthly fleet analysis</p>
-            <button class="btn-download">Download PDF</button>
+        <!-- Reports Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div
+            class="bg-white p-8 rounded-2xl shadow-xl transition-all duration-300 hover:transform hover:-translate-y-2"
+          >
+            <div class="mb-6">
+              <div
+                class="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Monthly Report</h3>
+              <p class="text-gray-600 text-sm">Comprehensive monthly fleet analysis</p>
+            </div>
+            <button
+              class="w-full px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-semibold rounded-lg 
+                           transition-all duration-300 hover:from-blue-600 hover:to-indigo-700 hover:transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              Download PDF
+            </button>
           </div>
-          <div class="report-card">
-            <h3>Trip History</h3>
-            <p>Detailed trip logs and routes</p>
-            <button class="btn-download">Download PDF</button>
+
+          <div
+            class="bg-white p-8 rounded-2xl shadow-xl transition-all duration-300 hover:transform hover:-translate-y-2"
+          >
+            <div class="mb-6">
+              <div
+                class="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Trip History</h3>
+              <p class="text-gray-600 text-sm">Detailed trip logs and routes</p>
+            </div>
+            <button
+              class="w-full px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-lg 
+                           transition-all duration-300 hover:from-green-600 hover:to-emerald-700 hover:transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              Download PDF
+            </button>
           </div>
-          <div class="report-card">
-            <h3>Maintenance Log</h3>
-            <p>All maintenance activities</p>
-            <button class="btn-download">Download PDF</button>
+
+          <div
+            class="bg-white p-8 rounded-2xl shadow-xl transition-all duration-300 hover:transform hover:-translate-y-2"
+          >
+            <div class="mb-6">
+              <div
+                class="w-12 h-12 bg-gradient-to-r from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Maintenance Log</h3>
+              <p class="text-gray-600 text-sm">All maintenance activities</p>
+            </div>
+            <button
+              class="w-full px-4 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-semibold rounded-lg 
+                           transition-all duration-300 hover:from-yellow-600 hover:to-orange-700 hover:transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              Download PDF
+            </button>
           </div>
-          <div class="report-card">
-            <h3>Cost Analysis</h3>
-            <p>Expense breakdown and trends</p>
-            <button class="btn-download">Download PDF</button>
+
+          <div
+            class="bg-white p-8 rounded-2xl shadow-xl transition-all duration-300 hover:transform hover:-translate-y-2"
+          >
+            <div class="mb-6">
+              <div
+                class="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center mb-4"
+              >
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                  />
+                </svg>
+              </div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Cost Analysis</h3>
+              <p class="text-gray-600 text-sm">Expense breakdown and trends</p>
+            </div>
+            <button
+              class="w-full px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white font-semibold rounded-lg 
+                           transition-all duration-300 hover:from-purple-600 hover:to-pink-700 hover:transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              Download PDF
+            </button>
           </div>
         </div>
       </main>
     </div>
   `,
-  styles: [
-    `
-      .page-container {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 2rem;
-      }
-
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-      }
-
-      .page-header h1 {
-        font-size: 2rem;
-        color: #2d3748;
-        font-weight: 700;
-      }
-
-      .btn-back {
-        padding: 0.75rem 1.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .btn-back:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-      }
-
-      .page-content {
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      .stats-overview {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .stat-content h3 {
-        font-size: 0.875rem;
-        color: #718096;
-        margin-bottom: 0.5rem;
-      }
-
-      .stat-value {
-        font-size: 1.75rem;
-        font-weight: 700;
-        color: #2d3748;
-        margin: 0.5rem 0;
-      }
-
-      .stat-trend {
-        font-size: 0.75rem;
-        font-weight: 600;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-      }
-
-      .stat-trend.positive {
-        background: #c6f6d5;
-        color: #22543d;
-      }
-
-      .stat-trend.negative {
-        background: #fed7d7;
-        color: #742a2a;
-      }
-
-      .reports-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 1.5rem;
-      }
-
-      .report-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: transform 0.3s ease;
-      }
-
-      .report-card:hover {
-        transform: translateY(-5px);
-      }
-
-      .report-card h3 {
-        font-size: 1.25rem;
-        color: #2d3748;
-        margin-bottom: 0.75rem;
-      }
-
-      .report-card p {
-        color: #718096;
-        margin-bottom: 1.5rem;
-        font-size: 0.875rem;
-      }
-
-      .btn-download {
-        width: 100%;
-        padding: 0.75rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .btn-download:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-      }
-
-      @media (max-width: 768px) {
-        .stats-overview {
-          grid-template-columns: 1fr;
-        }
-      }
-    `,
-  ],
+  styles: [],
 })
 export class ReportsComponent {
   constructor(private router: Router) {}

@@ -1,6 +1,6 @@
 import { VehiclePosition } from './vehicle-position';
 
-export interface Vehicle {
+export interface IVehicle {
   id: number;
   licensePlate: string;
   model: string;
@@ -9,9 +9,3 @@ export interface Vehicle {
   lastPosition?: VehiclePosition;
 }
 
-export interface VehicleListResponse {
-  items: Vehicle[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
