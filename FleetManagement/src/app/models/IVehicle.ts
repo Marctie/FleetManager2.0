@@ -1,4 +1,4 @@
-import { VehiclePosition } from './vehicle-position';
+import { IVehiclePosition } from './IVehiclePosition';
 
 export interface IVehicle {
   id: number;
@@ -6,6 +6,5 @@ export interface IVehicle {
   model: string;
   brand: string;
   status: string;
-  lastPosition?: VehiclePosition;
+  lastPosition?: IVehiclePosition;
 }
-

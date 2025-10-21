@@ -6,7 +6,7 @@ import { AuthService } from '../services/auth.service';
  * Auth Guard per proteggere le route che richiedono autenticazione
  * Uso: { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] }
  */
-export const authGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = (_route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -28,7 +28,7 @@ export const authGuard: CanActivateFn = (route, state) => {
  * (es. login, register)
  * Uso: { path: 'login', component: LoginComponent, canActivate: [guestGuard] }
  */
-export const guestGuard: CanActivateFn = (route, state) => {
+export const guestGuard: CanActivateFn = (_route, _state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
 

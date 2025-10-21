@@ -11,7 +11,6 @@ import {
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
-import { VehiclePosition } from '../../models/vehicle-position';
 import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
 

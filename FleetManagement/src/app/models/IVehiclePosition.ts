@@ -1,4 +1,4 @@
-export interface VehiclePosition {
+export interface IVehiclePosition {
   vehicleId: number;
   latitude: number;
   longitude: number;
