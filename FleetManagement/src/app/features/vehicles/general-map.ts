@@ -388,7 +388,6 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   toastType = signal<'success' | 'error'>('success');
   currentMapView = signal<'street' | 'satellite' | 'cycle'>('street');
 
-  // Map layers
   private currentBaseLayer!: L.TileLayer;
   private streetLayer!: L.TileLayer;
   private satelliteLayer!: L.TileLayer;

@@ -23,18 +23,6 @@ import { Router } from '@angular/router';
         <div class="bg-white rounded-2xl p-8 shadow-xl">
           <!-- Vehicle Header -->
           <div class="flex items-center gap-6 mb-8 pb-6 border-b-2 border-gray-100">
-            <div
-              class="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center"
-            >
-              <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
-                />
-                <path
-                  d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"
-                />
-              </svg>
-            </div>
             <div>
               <h2 class="text-2xl font-bold text-gray-800 mb-2">Ford Transit</h2>
               <p class="text-sm text-gray-500">ID: V001 | Plate: AB123CD</p>
