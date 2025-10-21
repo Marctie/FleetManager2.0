@@ -7,234 +7,122 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Vehicle Details</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 p-8">
+      <header class="flex justify-between items-center mb-8 max-w-4xl mx-auto">
+        <h1 class="text-3xl font-bold text-gray-800">Vehicle Details</h1>
+        <button
+          (click)="goBack()"
+          class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg 
+                 transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/30"
+        >
+          Back to Home
+        </button>
       </header>
 
-      <main class="page-content">
-        <div class="detail-card">
-          <div class="vehicle-header">
-            <div class="vehicle-title">
-              <h2>Ford Transit</h2>
-              <p>ID: V001 | Plate: AB123CD</p>
+      <main class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl p-8 shadow-xl">
+          <!-- Vehicle Header -->
+          <div class="flex items-center gap-6 mb-8 pb-6 border-b-2 border-gray-100">
+            <div
+              class="w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center"
+            >
+              <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"
+                />
+                <path
+                  d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1V5a1 1 0 00-1-1H3zM14 7a1 1 0 00-1 1v6.05A2.5 2.5 0 0115.95 16H17a1 1 0 001-1V8a1 1 0 00-1-1h-3z"
+                />
+              </svg>
+            </div>
+            <div>
+              <h2 class="text-2xl font-bold text-gray-800 mb-2">Ford Transit</h2>
+              <p class="text-sm text-gray-500">ID: V001 | Plate: AB123CD</p>
             </div>
           </div>
 
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Model</label>
-              <p>Ford Transit</p>
+          <!-- Detail Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wide"
+                >Model</label
+              >
+              <p class="text-lg text-gray-800 font-medium">Ford Transit</p>
             </div>
-            <div class="detail-item">
-              <label>Year</label>
-              <p>2022</p>
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wide"
+                >Year</label
+              >
+              <p class="text-lg text-gray-800 font-medium">2022</p>
             </div>
-            <div class="detail-item">
-              <label>Status</label>
-              <p><span class="status-badge active">Active</span></p>
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wide"
+                >Status</label
+              >
+              <span
+                class="inline-flex px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800"
+              >
+                Active
+              </span>
             </div>
-            <div class="detail-item">
-              <label>Driver</label>
-              <p>John Doe</p>
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wide"
+                >Driver</label
+              >
+              <p class="text-lg text-gray-800 font-medium">John Doe</p>
             </div>
-            <div class="detail-item">
-              <label>Mileage</label>
-              <p>45,230 km</p>
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wide"
+                >Mileage</label
+              >
+              <p class="text-lg text-gray-800 font-medium">45,230 km</p>
             </div>
-            <div class="detail-item">
-              <label>Fuel Type</label>
-              <p>Diesel</p>
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wide"
+                >Fuel Type</label
+              >
+              <p class="text-lg text-gray-800 font-medium">Diesel</p>
             </div>
-            <div class="detail-item">
-              <label>Last Service</label>
-              <p>15/09/2025</p>
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wide"
+                >Last Service</label
+              >
+              <p class="text-lg text-gray-800 font-medium">15/09/2025</p>
             </div>
-            <div class="detail-item">
-              <label>Next Service</label>
-              <p>15/12/2025</p>
+            <div class="space-y-2">
+              <label class="block text-sm font-semibold text-gray-500 uppercase tracking-wide"
+                >Next Service</label
+              >
+              <p class="text-lg text-gray-800 font-medium">15/12/2025</p>
             </div>
           </div>
 
-          <div class="actions">
-            <button class="btn-primary">Edit Vehicle</button>
-            <button class="btn-secondary">View History</button>
-            <button class="btn-danger">Delete</button>
+          <!-- Actions -->
+          <div class="flex flex-col sm:flex-row gap-4 pt-6 border-t-2 border-gray-100">
+            <button
+              class="px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg 
+                           transition-all duration-300 hover:bg-indigo-700 hover:transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              Edit Vehicle
+            </button>
+            <button
+              class="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-lg 
+                           transition-all duration-300 hover:bg-gray-300 hover:transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              View History
+            </button>
+            <button
+              class="px-6 py-3 bg-red-500 text-white font-semibold rounded-lg 
+                           transition-all duration-300 hover:bg-red-600 hover:transform hover:-translate-y-1 hover:shadow-lg"
+            >
+              Delete
+            </button>
           </div>
         </div>
       </main>
     </div>
   `,
-  styles: [
-    `
-      .page-container {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 2rem;
-      }
-
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-      }
-
-      .page-header h1 {
-        font-size: 2rem;
-        color: #2d3748;
-        font-weight: 700;
-      }
-
-      .btn-back {
-        padding: 0.75rem 1.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .btn-back:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-      }
-
-      .page-content {
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-
-      .detail-card {
-        background: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .vehicle-header {
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-        padding-bottom: 1.5rem;
-        border-bottom: 2px solid #e2e8f0;
-      }
-
-      .vehicle-icon {
-        font-size: 4rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        width: 80px;
-        height: 80px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 1rem;
-      }
-
-      .vehicle-title h2 {
-        font-size: 1.75rem;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-      }
-
-      .vehicle-title p {
-        color: #718096;
-        font-size: 0.875rem;
-      }
-
-      .detail-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      .detail-item label {
-        display: block;
-        font-size: 0.875rem;
-        font-weight: 600;
-        color: #718096;
-        margin-bottom: 0.5rem;
-      }
-
-      .detail-item p {
-        font-size: 1rem;
-        color: #2d3748;
-        margin: 0;
-      }
-
-      .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.875rem;
-        font-weight: 600;
-      }
-
-      .status-badge.active {
-        background: #c6f6d5;
-        color: #22543d;
-      }
-
-      .actions {
-        display: flex;
-        gap: 1rem;
-        padding-top: 1.5rem;
-        border-top: 2px solid #e2e8f0;
-      }
-
-      .btn-primary,
-      .btn-secondary,
-      .btn-danger {
-        padding: 0.75rem 1.5rem;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .btn-primary {
-        background: #667eea;
-        color: white;
-      }
-
-      .btn-primary:hover {
-        background: #5a67d8;
-      }
-
-      .btn-secondary {
-        background: #e2e8f0;
-        color: #2d3748;
-      }
-
-      .btn-secondary:hover {
-        background: #cbd5e0;
-      }
-
-      .btn-danger {
-        background: #fc8181;
-        color: white;
-      }
-
-      .btn-danger:hover {
-        background: #f56565;
-      }
-
-      @media (max-width: 768px) {
-        .detail-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .actions {
-          flex-direction: column;
-        }
-      }
-    `,
-  ],
+  styles: [],
 })
 export class VehicleDetailComponent {
   constructor(private router: Router) {}

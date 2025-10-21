@@ -1,0 +1,14 @@
+{
+  "tailwindCSS.includeLanguages": {
+    "typescript": "html",
+    "javascript": "html"
+  },
+  "tailwindCSS.classAttributes": [
+    "class",
+    "className",
+    "ngClass"
+  ],
+  "css.validate": false,
+  "scss.validate": false,
+  "less.validate": false
+}

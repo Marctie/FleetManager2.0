@@ -7,159 +7,89 @@ import { Router } from '@angular/router';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Vehicles Management</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 p-8">
+      <header
+        class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 md:gap-0 max-w-7xl mx-auto"
+      >
+        <h1 class="text-3xl font-bold text-gray-800">Vehicles Management</h1>
+        <button
+          (click)="goBack()"
+          class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold rounded-lg 
+                 transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/30"
+        >
+          Back to Home
+        </button>
       </header>
 
-      <main class="page-content">
-        <div class="stats-row">
-          <div class="stat-card">
-            <span class="stat-label">Total Vehicles</span>
+      <main class="max-w-7xl mx-auto">
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div
+            class="bg-white p-6 rounded-2xl shadow-xl text-center hover:transform hover:-translate-y-2 transition-all duration-300"
+          >
+            <div class="text-3xl font-bold text-indigo-600 mb-2">24</div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+              Total Vehicles
+            </div>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Active</span>
+          <div
+            class="bg-white p-6 rounded-2xl shadow-xl text-center hover:transform hover:-translate-y-2 transition-all duration-300"
+          >
+            <div class="text-3xl font-bold text-green-600 mb-2">18</div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Active</div>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Maintenance</span>
+          <div
+            class="bg-white p-6 rounded-2xl shadow-xl text-center hover:transform hover:-translate-y-2 transition-all duration-300"
+          >
+            <div class="text-3xl font-bold text-yellow-600 mb-2">4</div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">
+              Maintenance
+            </div>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Available</span>
+          <div
+            class="bg-white p-6 rounded-2xl shadow-xl text-center hover:transform hover:-translate-y-2 transition-all duration-300"
+          >
+            <div class="text-3xl font-bold text-blue-600 mb-2">2</div>
+            <div class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Available</div>
           </div>
         </div>
 
-        <div class="content-card">
-          <h2>Vehicle List</h2>
-          <p>Manage and monitor your fleet vehicles</p>
-          <div class="placeholder">
-            <p>Vehicle management interface will be implemented here</p>
+        <!-- Main Content -->
+        <div class="bg-white rounded-2xl p-8 shadow-xl">
+          <div class="mb-6">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Vehicle List</h2>
+            <p class="text-gray-600">Manage and monitor your fleet vehicles</p>
+          </div>
+
+          <div
+            class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300"
+          >
+            <div class="max-w-md mx-auto">
+              <svg
+                class="mx-auto h-16 w-16 text-gray-400 mb-4"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M8 16l2.5-3.5L13 16l5-7 3 4H8z"
+                />
+              </svg>
+              <h3 class="text-lg font-medium text-gray-900 mb-2">Vehicle Management Interface</h3>
+              <p class="text-gray-500">
+                The vehicle management interface will be implemented here with full CRUD operations,
+                filtering, and real-time updates.
+              </p>
+            </div>
           </div>
         </div>
       </main>
     </div>
   `,
-  styles: [
-    `
-      .page-container {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 2rem;
-      }
-
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-      }
-
-      .page-header h1 {
-        font-size: 2rem;
-        color: #2d3748;
-        font-weight: 700;
-      }
-
-      .btn-back {
-        padding: 0.75rem 1.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .btn-back:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-      }
-
-      .page-content {
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #667eea;
-        margin-bottom: 0.5rem;
-      }
-
-      .stat-label {
-        font-size: 0.875rem;
-        color: #718096;
-        text-align: center;
-      }
-
-      .content-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .content-card h2 {
-        font-size: 1.5rem;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-      }
-
-      .content-card p {
-        color: #718096;
-        margin-bottom: 2rem;
-      }
-
-      .placeholder {
-        text-align: center;
-        padding: 3rem;
-        background: #f7fafc;
-        border-radius: 0.5rem;
-        border: 2px dashed #e2e8f0;
-      }
-
-      .placeholder p {
-        color: #a0aec0;
-        font-size: 1rem;
-      }
-
-      @media (max-width: 768px) {
-        .page-container {
-          padding: 1rem;
-        }
-
-        .page-header {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: flex-start;
-        }
-
-        .page-header h1 {
-          font-size: 1.5rem;
-        }
-      }
-    `,
-  ],
+  styles: [],
 })
 export class VehiclesComponent {
   constructor(private router: Router) {}

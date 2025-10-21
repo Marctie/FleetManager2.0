@@ -1,4 +1,11 @@
 /* ========================================
+   TAILWIND CSS DIRECTIVES
+   ======================================== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
    RESET E STILI GLOBALI
    ======================================== */
 
