@@ -30,15 +30,8 @@ export class MqttService {
   private client: mqtt.MqttClient | null = null;
   private connected = false;
 
-  // BehaviorSubjects for reactive data
-  private vehicleStatsSubject = new BehaviorSubject<VehicleStats>({
-    totalVehicles: 0,
-    movingVehicles: 0,
-    parkedVehicles: 0,
-    activeDrivers: 0,
-    maintenanceVehicles: 0,
-    gpsActive: 0,
-  });
+  // BehaviorSubjects for reactive data - inizializzati vuoti, valori solo da MQTT
+  private vehicleStatsSubject = new BehaviorSubject<VehicleStats | null>(null);
 
   private vehicleLocationsSubject = new BehaviorSubject<VehicleLocation[]>([]);
   private connectionStatusSubject = new BehaviorSubject<boolean>(false);
@@ -49,40 +42,92 @@ export class MqttService {
     {}
   );
 
-  public vehicleStats$: Observable<VehicleStats> = this.vehicleStatsSubject.asObservable();
+  public vehicleStats$: Observable<VehicleStats | null> = this.vehicleStatsSubject.asObservable();
   public vehicleLocations$: Observable<VehicleLocation[]> =
     this.vehicleLocationsSubject.asObservable();
   public connectionStatus$: Observable<boolean> = this.connectionStatusSubject.asObservable();
 
-  // MQTT Configuration from config.json
-  private mqttConfig = {
-    brokerUrl: 'wss://rabbitmq.test.intellitronika.com/ws',
-    username: 'intellitronika',
-    password: 'intellitronika',
-    keepalive: 120,
-    port:443,
-    reconnectPeriod: 1000,
-    connectTimeout: 30000,
-  };
+  // MQTT Configuration - sarà caricata dinamicamente da config.json
+  private mqttConfig: any = null;
 
   // Topics - Usa un unico topic con wildcard # per catturare tutti i messaggi
   private readonly TOPICS = {
-    ALL_VEHICLES: 'vehicles/#', // Cattura: vehicles/123/status, vehicles/123/position, etc.
+    ALL_VEHICLES: 'fleet/vehicles/#',
   };
 
   constructor() {
     console.log('MQTT Service initialized');
 
-    // CARICA POSIZIONI DA LOCALSTORAGE (persistenza dopo refresh)
-    this.loadPositionsFromLocalStorage();
+    // CARICA CONFIGURAZIONE DINAMICA
+    this.loadConfiguration().then(() => {
+      // CARICA POSIZIONI DA LOCALSTORAGE (persistenza dopo refresh)
+      this.loadPositionsFromLocalStorage();
+    });
   }
 
   /**
-   * Connect to MQTT broker
+   * Carica la configurazione MQTT dal file config.json
    */
-  connect(): void {
+  private async loadConfiguration(): Promise<void> {
+    try {
+      // Timeout per il fetch della configurazione
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Configuration load timeout')), 5000)
+      );
+
+      const fetchPromise = fetch('/assets/config.json').then((response) => response.json());
+
+      const config = (await Promise.race([fetchPromise, timeoutPromise])) as any;
+
+      if (config.mqtt) {
+        this.mqttConfig = {
+          brokerUrl: config.mqtt.brokerUrl,
+          username: config.mqtt.username,
+          password: config.mqtt.password,
+          keepalive: config.mqtt.keepalive || 120,
+          port: config.mqtt.port || 443,
+          reconnectPeriod: 1000, // valore di default ragionevole
+          connectTimeout: 30000, // valore di default ragionevole
+        };
+        console.log('MQTT configuration loaded from config.json:', this.mqttConfig);
+      } else {
+        console.error('MQTT configuration not found in config.json');
+      }
+    } catch (error) {
+      console.error('Error loading MQTT configuration:', error);
+      // Configurazione di fallback se il file non è disponibile
+      this.mqttConfig = {
+        brokerUrl: 'wss://rabbitmq.test.intellitronika.com/ws',
+        username: 'intellitronika',
+        password: 'intellitronika',
+        keepalive: 120,
+        port: 443,
+        reconnectPeriod: 1000,
+        connectTimeout: 30000,
+      };
+      console.log('Using fallback MQTT configuration');
+    }
+  }
+
+  private async ensureConfigurationLoaded(): Promise<void> {
+    if (!this.mqttConfig) {
+      await this.loadConfiguration();
+    }
+  }
+
+  async connect(): Promise<void> {
     if (this.connected) {
       console.log('Already connected to MQTT broker');
+      return;
+    }
+
+    if (!this.mqttConfig) {
+      console.log('Waiting for MQTT configuration to load...');
+      await this.ensureConfigurationLoaded();
+    }
+
+    if (!this.mqttConfig) {
+      console.error('MQTT configuration not loaded. Cannot connect.');
       return;
     }
 
@@ -101,14 +146,11 @@ export class MqttService {
 
       this.setupEventHandlers();
     } catch (error) {
-      console.error('❌ Error connecting to MQTT broker:', error);
+      console.error('Error connecting to MQTT broker:', error);
       this.connectionStatusSubject.next(false);
     }
   }
 
-  /**
-   * Setup MQTT event handlers
-   */
   private setupEventHandlers(): void {
     if (!this.client) return;
 
@@ -124,7 +166,7 @@ export class MqttService {
     });
 
     this.client.on('error', (error) => {
-      console.error('❌ MQTT Error:', error);
+      console.error('MQTT Error:', error);
       this.connectionStatusSubject.next(false);
     });
 
@@ -144,10 +186,6 @@ export class MqttService {
     });
   }
 
-  /**
-   * Subscribe to MQTT topics
-   * Usa un unico topic vehicles/# per catturare tutti i messaggi
-   */
   private subscribeToTopics(): void {
     if (!this.client || !this.connected) return;
 
@@ -167,7 +205,6 @@ export class MqttService {
   }
 
   /**
-   * Handle incoming MQTT messages
    * Gestisce tutti i messaggi da vehicles/#
    */
   private handleMessage(topic: string, payload: Buffer): void {
@@ -175,15 +212,11 @@ export class MqttService {
       const message = JSON.parse(payload.toString());
       console.log(`Received message on ${topic}:`, message);
 
-      // Determina il tipo di messaggio dal topic
       if (topic.includes('/status')) {
-        // Messaggio di stato veicolo
         this.updateVehicleStatus(message);
       } else if (topic.includes('/position')) {
-        // Messaggio di posizione veicolo
         this.updateVehicleLocation(message);
       } else if (topic.includes('/stats')) {
-        // Statistiche generali
         this.vehicleStatsSubject.next(message);
       } else {
         console.log(`Unknown topic pattern: ${topic}`);
@@ -193,9 +226,6 @@ export class MqttService {
     }
   }
 
-  /**
-   * Update vehicle status from individual status messages
-   */
   private updateVehicleStatus(statusMessage: any): void {
     const currentLocations = this.vehicleLocationsSubject.value;
     const updatedLocations = currentLocations.map((vehicle) =>
@@ -204,9 +234,6 @@ export class MqttService {
     this.vehicleLocationsSubject.next(updatedLocations);
   }
 
-  /**
-   * Update vehicle location from individual position messages
-   */
   private updateVehicleLocation(locationMessage: any): void {
     const currentLocations = this.vehicleLocationsSubject.value;
     const existingIndex = currentLocations.findIndex(
@@ -214,23 +241,17 @@ export class MqttService {
     );
 
     if (existingIndex >= 0) {
-      // Update existing vehicle location
       const updatedLocations = [...currentLocations];
       updatedLocations[existingIndex] = { ...updatedLocations[existingIndex], ...locationMessage };
       this.vehicleLocationsSubject.next(updatedLocations);
     } else {
-      // Add new vehicle location
       this.vehicleLocationsSubject.next([...currentLocations, locationMessage]);
     }
   }
 
-  /**
-   * Request initial data from broker
-   */
   private requestInitialData(): void {
     if (!this.client || !this.connected) return;
 
-    // Publish request for initial stats
     this.client.publish('fleet/request/stats', JSON.stringify({ request: 'initial_stats' }), {
       qos: 1,
     });
@@ -243,15 +264,11 @@ export class MqttService {
     console.log('Requested initial data from MQTT broker');
   }
 
-  /**
-   * Publish a message to a topic
-   */
   publish(topic: string, message: any): void {
     if (!this.client || !this.connected) {
       console.warn('Cannot publish: Not connected to MQTT broker');
       return;
     }
-
     const payload = JSON.stringify(message);
     this.client.publish(topic, payload, { qos: 1 }, (error) => {
       if (error) {
@@ -263,7 +280,7 @@ export class MqttService {
   }
 
   /**
-   * Disconnect from MQTT broker
+   * Disconnect
    */
   disconnect(): void {
     if (this.client && this.connected) {
@@ -274,40 +291,26 @@ export class MqttService {
     }
   }
 
-  /**
-   * Get current vehicle stats (synchronous)
-   */
-  getCurrentStats(): VehicleStats {
+  getCurrentStats(): VehicleStats | null {
     return this.vehicleStatsSubject.value;
   }
 
-  /**
-   * Get current vehicle locations (synchronous)
-   */
   getCurrentLocations(): VehicleLocation[] {
     return this.vehicleLocationsSubject.value;
   }
 
-  /**
-   * Check if connected to MQTT broker
-   */
   isConnected(): boolean {
     return this.connected;
   }
 
-  /**
-   * Get positions list signal (TrackingApp compatibility)
-   */
+  isConfigurationLoaded(): boolean {
+    return this.mqttConfig !== null;
+  }
+
   positionVeiclesList = computed(() => this.positionVeiclesListSignal());
 
-  /**
-   * Get status by ID signal (TrackingApp compatibility)
-   */
   statusById = computed(() => this.statusByIdSignal());
 
-  /**
-   * Subscribe and track to MQTT topic (TrackingApp compatibility)
-   */
   subscribeAndTrack(topic: string, callback: (message: any) => void): void {
     if (!this.client || !this.connected) {
       console.warn('Cannot subscribe: Not connected to MQTT broker');
@@ -322,7 +325,6 @@ export class MqttService {
       }
     });
 
-    // Store callback for this topic
     this.client.on('message', (receivedTopic: string, payload: Buffer) => {
       if (this.matchesTopic(topic, receivedTopic)) {
         callback({ topic: receivedTopic, payload });
@@ -330,9 +332,6 @@ export class MqttService {
     });
   }
 
-  /**
-   * Match MQTT topic with wildcard support
-   */
   private matchesTopic(pattern: string, topic: string): boolean {
     const patternParts = pattern.split('/');
     const topicParts = topic.split('/');
@@ -351,7 +350,6 @@ export class MqttService {
   }
 
   /**
-   * Ingest status message from MQTT (TrackingApp compatibility)
    * Salva anche in localStorage per persistenza
    */
   ingestStatusMessage(message: any): void {
@@ -383,18 +381,11 @@ export class MqttService {
     }
   }
 
-  /**
-   * Extract vehicle ID from MQTT topic
-   */
   private extractVehicleIdFromTopic(topic: string): number | null {
     const match = topic.match(/vehicles\/(\d+)\//);
     return match ? parseInt(match[1]) : null;
   }
 
-  /**
-   * Ingest position message from MQTT (TrackingApp compatibility)
-   * Salva anche in localStorage per persistenza
-   */
   ingestPositionMessage(message: any): void {
     try {
       const payload = JSON.parse(message.payload.toString());

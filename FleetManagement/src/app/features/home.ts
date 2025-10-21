@@ -505,7 +505,9 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Connect to MQTT and subscribe to vehicle stats
-    this.mqttService.connect();
+    this.mqttService.connect().catch((error) => {
+      console.error('Failed to connect to MQTT:', error);
+    });
 
     // Subscribe to connection status
     this.mqttService.connectionStatus$.subscribe((status) => {

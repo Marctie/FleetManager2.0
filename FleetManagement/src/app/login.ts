@@ -328,13 +328,11 @@ export class LoginComponent {
         next: (response) => {
           console.log('Login successful:', response);
 
-          // Redirect to home
           this.router.navigate(['/home']);
         },
         error: (error) => {
           console.error('Login error:', error);
 
-          // More specific error message handling
           if (error.status === 401) {
             this.errorMessage =
               error.error?.message || 'Invalid credentials. Please check username and password.';

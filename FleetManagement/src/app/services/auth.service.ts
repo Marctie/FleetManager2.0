@@ -5,8 +5,7 @@ import { Router } from '@angular/router';
 import { IAuthResponse } from '../models/IAutentication';
 import { ILoginRequest } from '../models/ILogin';
 import { IUserInfo } from '../models/IUserInfo';
-import { UserRole, UserInfo } from '../models/user-roles';
-import { mapApiRoleToAppRole, getRoleByUsername } from '../models/user-config';
+import { UserRole } from '../models/user-roles';
 
 @Injectable({
   providedIn: 'root',
@@ -23,18 +22,15 @@ export class AuthService {
     logout: `${this.API_BASE_URL}/api/Auth/logout`,
   };
 
-  // Storage keys
   private readonly STORAGE_KEYS = {
     token: 'authToken',
     refreshToken: 'refreshToken',
     userId: 'userId',
     username: 'username',
     email: 'email',
-    userRole: 'userRole',
     expiresAt: 'expiresAt',
   };
 
-  // BehaviorSubject per tracciare lo stato dell'autenticazione
   private currentUserSubject = new BehaviorSubject<IUserInfo | null>(this.getUserFromStorage());
   public currentUser$ = this.currentUserSubject.asObservable();
 
@@ -47,8 +43,6 @@ export class AuthService {
   }
 
   /**
-   * Effettua il login dell'utente
-   * @param credentials Credenziali di login (username e password)
    * @returns Observable con la risposta di autenticazione
    */
   login(credentials: ILoginRequest): Observable<IAuthResponse> {
@@ -80,10 +74,6 @@ export class AuthService {
     );
   }
 
-  /**
-   * Effettua il logout dell'utente
-   * Chiama l'API di logout e pulisce i dati locali
-   */
   logout(): Observable<any> {
     // Se è un ospite, fai solo logout locale
     if (this.isGuestMode()) {
@@ -111,7 +101,6 @@ export class AuthService {
         console.log('Logout effettuato con successo');
       }),
       catchError((error) => {
-        // Anche in caso di errore, pulisci i dati locali
         this.clearAuthData();
         this.currentUserSubject.next(null);
         this.isAuthenticatedSubject.next(false);
@@ -123,8 +112,7 @@ export class AuthService {
   }
 
   /**
-   * Aggiorna il token usando il refresh token
-   * @returns Observable con la nuova risposta di autenticazione
+   * @returns Observable con la nuova risposta di autenticazione + aggiornamento token
    */
   refreshToken(): Observable<IAuthResponse> {
     const refreshToken = this.getRefreshToken();
@@ -152,17 +140,12 @@ export class AuthService {
     );
   }
 
-  /**
-   * Verifica se l'utente è autenticato
-   * @returns true se l'utente ha un token valido
-   */
   isAuthenticated(): boolean {
     return this.hasValidToken() || this.isGuestMode();
   }
 
   /**
-   * Effettua il login come ospite (modalità limitata)
-   * Non richiede credenziali ma ha accesso limitato
+   * ACCESSO GUEST X MARCO AL CLICK DELL IMMAGINE ALLA LOGIN
    */
   loginAsGuest(): void {
     const guestUser: IUserInfo = {
@@ -172,7 +155,6 @@ export class AuthService {
       role: 'guest',
     };
 
-    localStorage.setItem(this.STORAGE_KEYS.userRole, 'guest');
     localStorage.setItem(this.STORAGE_KEYS.userId, 'guest');
     localStorage.setItem(this.STORAGE_KEYS.username, 'Guest User');
     localStorage.setItem(this.STORAGE_KEYS.email, 'guest@fleetmanagement.com');
@@ -184,23 +166,17 @@ export class AuthService {
   }
 
   /**
-   * Verifica se l'utente è in modalità ospite
    * @returns true se l'utente è un ospite
    */
   isGuestMode(): boolean {
-    return localStorage.getItem(this.STORAGE_KEYS.userRole) === 'guest';
+    return localStorage.getItem(this.STORAGE_KEYS.userId) === 'guest';
   }
 
-  /**
-   * Ottiene il token di autenticazione
-   * @returns Il token JWT o null se non esiste
-   */
   getToken(): string | null {
     return localStorage.getItem(this.STORAGE_KEYS.token);
   }
 
   /**
-   * Ottiene il refresh token
    * @returns Il refresh token o null se non esiste
    */
   getRefreshToken(): string | null {
@@ -208,7 +184,6 @@ export class AuthService {
   }
 
   /**
-   * Ottiene le informazioni dell'utente corrente con ruolo tipizzato
    * @returns Le informazioni dell'utente o null se non autenticato
    */
   getCurrentUser(): IUserInfo | null {
@@ -216,37 +191,26 @@ export class AuthService {
   }
 
   /**
-   * Ottiene le informazioni dell'utente nel nuovo formato UserInfo
-   * @returns UserInfo con ruolo tipizzato o null
+   * @returns UserInfo con ruolo
    */
-  getCurrentUserInfo(): UserInfo | null {
+  getCurrentUserInfo(): {
+    id: number;
+    username: string;
+    email?: string;
+    role: UserRole;
+    assignedVehicleId?: number;
+  } | null {
     const user = this.getCurrentUser();
     if (!user) return null;
 
-    // 1. Prova a mappare il ruolo dall'API (es: "MANAGER" -> "FLEET_MANAGER")
-    let mappedRole = mapApiRoleToAppRole(user.role);
-
-    // 2. Se il mapping API non funziona, usa lo username
-    if (mappedRole === UserRole.VIEWER && user.role !== 'VIEWER' && user.role !== 'viewer') {
-      mappedRole = getRoleByUsername(user.username);
-      console.log(`[AUTH] Mapped username '${user.username}' to role '${mappedRole}'`);
-    }
+    const role = user.userId === 'guest' ? UserRole.GUEST : UserRole.ADMINISTRATOR;
 
     return {
       id: parseInt(user.userId) || 0,
       username: user.username,
       email: user.email,
-      role: mappedRole,
-      // assignedVehicleId verrà popolato dalla API per i DRIVER
+      role: role,
     };
-  }
-
-  /**
-   * Ottiene il ruolo dell'utente corrente
-   * @returns Il ruolo dell'utente o null
-   */
-  getUserRole(): string | null {
-    return localStorage.getItem(this.STORAGE_KEYS.userRole);
   }
 
   /**
@@ -258,8 +222,15 @@ export class AuthService {
   }
 
   /**
+   * @returns Il ruolo dell'utente
+   */
+  getUserRole(): string | null {
+    const currentUser = this.getCurrentUserInfo();
+    return currentUser?.role || null;
+  }
+
+  /**
    * Verifica se il token è scaduto
-   * @returns true se il token è scaduto
    */
   isTokenExpired(): boolean {
     const expiresAt = localStorage.getItem(this.STORAGE_KEYS.expiresAt);
@@ -269,16 +240,11 @@ export class AuthService {
     return expirationDate <= new Date();
   }
 
-  /**
-   * Ottiene gli headers con il token di autenticazione
-   * @returns HttpHeaders con il token Bearer
-   */
   getAuthHeaders(): HttpHeaders {
     const token = this.getToken();
     return new HttpHeaders().set('Authorization', `Bearer ${token}`);
   }
 
-  // ==================== PRIVATE METHODS ====================
 
   /**
    * Salva i dati di autenticazione nel localStorage
@@ -289,7 +255,6 @@ export class AuthService {
     localStorage.setItem(this.STORAGE_KEYS.userId, response.userId);
     localStorage.setItem(this.STORAGE_KEYS.username, response.username);
     localStorage.setItem(this.STORAGE_KEYS.email, response.email);
-    localStorage.setItem(this.STORAGE_KEYS.userRole, response.role);
     localStorage.setItem(this.STORAGE_KEYS.expiresAt, response.expiresAt);
   }
 
@@ -302,32 +267,24 @@ export class AuthService {
     });
   }
 
-  /**
-   * Verifica se esiste un token valido
-   */
+ 
   private hasValidToken(): boolean {
     const token = this.getToken();
     return token !== null && !this.isTokenExpired();
   }
 
-  /**
-   * Ottiene le informazioni utente dal localStorage
-   */
   private getUserFromStorage(): IUserInfo | null {
     const userId = localStorage.getItem(this.STORAGE_KEYS.userId);
     const username = localStorage.getItem(this.STORAGE_KEYS.username);
     const email = localStorage.getItem(this.STORAGE_KEYS.email);
-    const role = localStorage.getItem(this.STORAGE_KEYS.userRole);
 
-    if (userId && username && email && role) {
+    if (userId && username && email) {
+      const role = userId === 'guest' ? 'guest' : 'user';
       return { userId, username, email, role };
     }
     return null;
   }
 
-  /**
-   * Mappa IAuthResponse a IUserInfo
-   */
   private mapToIUserInfo(response: IAuthResponse): IUserInfo {
     return {
       userId: response.userId,
@@ -355,7 +312,6 @@ export class AuthService {
         }
       }
     } else if (this.getToken()) {
-      // Token scaduto, pulisci i dati
       this.clearAuthData();
       this.currentUserSubject.next(null);
       this.isAuthenticatedSubject.next(false);
