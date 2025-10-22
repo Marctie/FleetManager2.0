@@ -17,13 +17,4 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
   ],
 
-  const MQTT_SERVICE_OPTIONS: IMqttServiceOptions = {  protocol: 'wss',           
-    // 'ws' in dev se non TLS  hostname: 'broker.example.com',  
-    // port: 443,                  
-    // // 443 per wss  path: '/mqtt',  
-    // connectOnCreate: false,     
-    // // connetti manualmente dal service  // 
-    // optional: username, password, clientId, clean, keepalive, wsOptions, etc.};
-    // export const appConfig: ApplicationConfig = {  providers: [    provideRouter(routes),    importProvidersFrom(MqttModule.forRoot(MQTT_SERVICE_OPTIONS)),  ],};
- 
-};
+}
