@@ -217,26 +217,6 @@ export class DocumentsComponent {
       vehicle: 'V001 - Ford Transit',
       date: '10/10/2025',
     },
-    {
-      name: 'Registration Document',
-      vehicle: 'V002 - Mercedes Sprinter',
-      date: '08/10/2025',
-    },
-    {
-      name: 'Maintenance Report',
-      vehicle: 'V003 - Fiat Ducato',
-      date: '05/10/2025',
-    },
-    {
-      name: 'Inspection Certificate',
-      vehicle: 'V004 - VW Crafter',
-      date: '01/10/2025',
-    },
-    {
-      name: 'Tax Document',
-      vehicle: 'V005 - Renault Master',
-      date: '28/09/2025',
-    },
   ];
 
   constructor(private router: Router) {}

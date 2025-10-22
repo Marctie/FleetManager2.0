@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="page-container">
       <header class="page-header">
@@ -176,9 +175,8 @@ import { Router } from '@angular/router';
   ],
 })
 export class UserManagementComponent {
+  private router = inject(Router);
   users = [];
-
-  constructor(private router: Router) {}
 
   goBack() {
     this.router.navigate(['/home']);

@@ -14,9 +14,9 @@ import { Router } from '@angular/router';
       </header>
 
       <main class="page-content">
-        <div class="info-banner">
+        <!-- <div class="info-banner">
           <p>Manage associations between vehicles and drivers</p>
-        </div>
+        </div> -->
 
         <div class="associations-table">
           <table>
@@ -237,27 +237,6 @@ export class AssociationsComponent {
       driverName: 'John Doe',
       startDate: '01/10/2025',
       status: 'active',
-    },
-    {
-      vehicleId: 'V003',
-      vehicleName: 'Fiat Ducato',
-      driverName: 'Jane Smith',
-      startDate: '05/10/2025',
-      status: 'active',
-    },
-    {
-      vehicleId: 'V004',
-      vehicleName: 'VW Crafter',
-      driverName: 'Bob Wilson',
-      startDate: '10/10/2025',
-      status: 'active',
-    },
-    {
-      vehicleId: 'V005',
-      vehicleName: 'Renault Master',
-      driverName: 'Alice Brown',
-      startDate: '15/10/2025',
-      status: 'pending',
     },
   ];
 

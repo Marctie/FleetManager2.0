@@ -1,11 +1,10 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-vehicles',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="page-container">
       <header class="page-header">
@@ -162,7 +161,7 @@ import { Router } from '@angular/router';
   ],
 })
 export class VehiclesComponent {
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   goBack() {
     this.router.navigate(['/home']);

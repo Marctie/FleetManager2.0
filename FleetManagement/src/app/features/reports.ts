@@ -19,28 +19,24 @@ import { Router } from '@angular/router';
             <div class="stat-content">
               <h3>Total Distance</h3>
               <p class="stat-value">125,450 km</p>
-              <span class="stat-trend positive">+12% vs last month</span>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-content">
               <h3>Fuel Consumption</h3>
               <p class="stat-value">8,240 L</p>
-              <span class="stat-trend negative">-5% vs last month</span>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-content">
               <h3>Total Costs</h3>
               <p class="stat-value">€15,320</p>
-              <span class="stat-trend positive">+8% vs last month</span>
             </div>
           </div>
           <div class="stat-card">
             <div class="stat-content">
               <h3>Maintenance</h3>
               <p class="stat-value">€3,450</p>
-              <span class="stat-trend negative">-15% vs last month</span>
             </div>
           </div>
         </div>
