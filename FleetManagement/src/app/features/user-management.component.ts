@@ -19,20 +19,7 @@ import { Router } from '@angular/router';
           <button class="btn-add">Add User</button>
         </div>
 
-        <div class="users-grid">
-          <div class="user-card" *ngFor="let user of users">
-            <div class="user-avatar">{{ user.initials }}</div>
-            <div class="user-info">
-              <h3>{{ user.name }}</h3>
-              <p class="user-role">{{ user.role }}</p>
-              <p class="user-email">{{ user.email }}</p>
-            </div>
-            <div class="user-actions">
-              <button class="btn-icon" title="Edit">Edit</button>
-              <button class="btn-icon" title="Delete">Delete</button>
-            </div>
-          </div>
-        </div>
+        <div class="users-grid"></div>
       </main>
     </div>
   `,
@@ -189,13 +176,7 @@ import { Router } from '@angular/router';
   ],
 })
 export class UserManagementComponent {
-  users = [
-    { name: 'John Doe', role: 'Administrator', email: 'john@example.com', initials: 'JD' },
-    { name: 'Jane Smith', role: 'Fleet Manager', email: 'jane@example.com', initials: 'JS' },
-    { name: 'Bob Wilson', role: 'Driver', email: 'bob@example.com', initials: 'BW' },
-    { name: 'Alice Brown', role: 'Driver', email: 'alice@example.com', initials: 'AB' },
-    { name: 'Charlie Davis', role: 'Mechanic', email: 'charlie@example.com', initials: 'CD' },
-  ];
+  users = [];
 
   constructor(private router: Router) {}
 

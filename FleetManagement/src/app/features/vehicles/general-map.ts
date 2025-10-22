@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import * as L from 'leaflet';
 import { VehiclePosition } from '../../models/vehicle-position';
-import { Vehicle } from '../../models/vehicle';
+import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
 
 @Component({
@@ -382,8 +382,8 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private vehicleService = inject(VehicleService);
 
   // Signals
-  vehicleList = signal<Vehicle[]>([]);
-  selectedVehicle = input<Vehicle>();
+  vehicleList = signal<IVehicle[]>([]);
+  selectedVehicle = input<IVehicle>();
   showToast = signal(false);
   toastMessage = signal('');
   toastType = signal<'success' | 'error'>('success');
@@ -576,7 +576,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(`Added ${this.markers.length} markers on map`);
   }
 
-  private addVehicleMarker(vehicle: Vehicle): void {
+  private addVehicleMarker(vehicle: IVehicle): void {
     const position = vehicle.lastPosition!;
     const markerColor = this.getStatusColor(vehicle.status);
 

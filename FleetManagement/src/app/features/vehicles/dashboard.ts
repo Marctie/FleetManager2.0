@@ -21,16 +21,7 @@ import { PageCardComponent } from '../../shared/page-card.component';
           <app-stat-card title="Alerts" [value]="2"></app-stat-card>
         </div>
 
-        <app-page-card>
-          <h2>Overview</h2>
-          <p>Welcome to the Fleet Management Dashboard. Here you can view real-time statistics and monitor your fleet status.</p>
-          <ul>
-            <li>Real-time vehicle tracking</li>
-            <li>Performance metrics</li>
-            <li>Maintenance scheduling</li>
-            <li>Driver management</li>
-          </ul>
-        </app-page-card>
+        
       </main>
     </div>
   `,
