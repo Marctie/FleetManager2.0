@@ -64,19 +64,6 @@ import { Router } from '@angular/router';
             class="text-center py-16 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300"
           >
             <div class="max-w-md mx-auto">
-              <svg
-                class="mx-auto h-16 w-16 text-gray-400 mb-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M8 16l2.5-3.5L13 16l5-7 3 4H8z"
-                />
-              </svg>
               <h3 class="text-lg font-medium text-gray-900 mb-2">Vehicle Management Interface</h3>
               <p class="text-gray-500">
                 The vehicle management interface will be implemented here with full CRUD operations,

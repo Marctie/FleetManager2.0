@@ -1,166 +1,122 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Reports & Analytics</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
+    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-300 p-8">
+      <header class="flex justify-between items-center mb-8">
+        <h1 class="text-3xl text-gray-800 font-bold">Reports and Statistics</h1>
+        <button
+          (click)="goBack()"
+          class="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg font-semibold 
+                 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/30"
+        >
+          Back to Home
+        </button>
       </header>
 
-      <main class="page-content">
-        <div class="stats-row">
-          <div class="stat-card">
-            <span class="stat-label">New Reports</span>
+      <main class="max-w-7xl mx-auto">
+        <!-- Stats Overview -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h3 class="text-sm text-gray-500 mb-2">Total Distance</h3>
+            <p class="text-3xl font-bold text-indigo-600 mb-2">125,450 km</p>
+            <span
+              class="inline-block px-3 py-1 text-xs font-semibold rounded-md bg-green-100 text-green-800"
+            >
+              +12% vs last month
+            </span>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Total Reports</span>
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h3 class="text-sm text-gray-500 mb-2">Fuel Consumption</h3>
+            <p class="text-3xl font-bold text-indigo-600 mb-2">8,240 L</p>
+            <span
+              class="inline-block px-3 py-1 text-xs font-semibold rounded-md bg-red-100 text-red-800"
+            >
+              -5% vs last month
+            </span>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">This Month</span>
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h3 class="text-sm text-gray-500 mb-2">Total Costs</h3>
+            <p class="text-3xl font-bold text-indigo-600 mb-2">€15,320</p>
+            <span
+              class="inline-block px-3 py-1 text-xs font-semibold rounded-md bg-green-100 text-green-800"
+            >
+              +8% vs last month
+            </span>
+          </div>
+          <div class="bg-white p-6 rounded-2xl shadow-lg">
+            <h3 class="text-sm text-gray-500 mb-2">Maintenance</h3>
+            <p class="text-3xl font-bold text-indigo-600 mb-2">€3,450</p>
+            <span
+              class="inline-block px-3 py-1 text-xs font-semibold rounded-md bg-red-100 text-red-800"
+            >
+              -15% vs last month
+            </span>
           </div>
         </div>
 
-        <div class="content-card">
-          <h2>Fleet Analytics Dashboard</h2>
-          <p>View and generate fleet analytics reports</p>
-          <div class="placeholder">
-            <p>Reports and analytics interface will be implemented here</p>
-            <p style="margin-top: 1rem; font-size: 0.875rem;">Charts, graphs, and statistics</p>
+        <!-- Reports Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div
+            class="bg-white p-8 rounded-2xl shadow-lg transition-transform duration-300 hover:-translate-y-2"
+          >
+            <h3 class="text-xl text-gray-800 mb-3">Monthly Report</h3>
+            <p class="text-gray-500 mb-6 text-sm">Comprehensive monthly fleet analysis</p>
+            <button
+              class="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg 
+                           font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Download PDF
+            </button>
+          </div>
+          <div
+            class="bg-white p-8 rounded-2xl shadow-lg transition-transform duration-300 hover:-translate-y-2"
+          >
+            <h3 class="text-xl text-gray-800 mb-3">Trip History</h3>
+            <p class="text-gray-500 mb-6 text-sm">Detailed trip logs and routes</p>
+            <button
+              class="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg 
+                           font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Download PDF
+            </button>
+          </div>
+          <div
+            class="bg-white p-8 rounded-2xl shadow-lg transition-transform duration-300 hover:-translate-y-2"
+          >
+            <h3 class="text-xl text-gray-800 mb-3">Maintenance Log</h3>
+            <p class="text-gray-500 mb-6 text-sm">All maintenance activities</p>
+            <button
+              class="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg 
+                           font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Download PDF
+            </button>
+          </div>
+          <div
+            class="bg-white p-8 rounded-2xl shadow-lg transition-transform duration-300 hover:-translate-y-2"
+          >
+            <h3 class="text-xl text-gray-800 mb-3">Cost Analysis</h3>
+            <p class="text-gray-500 mb-6 text-sm">Expense breakdown and trends</p>
+            <button
+              class="w-full px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg 
+                           font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              Download PDF
+            </button>
           </div>
         </div>
       </main>
     </div>
   `,
-  styles: [
-    `
-      .page-container {
-        min-height: 100vh;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-        padding: 2rem;
-      }
-
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-      }
-
-      .page-header h1 {
-        font-size: 2rem;
-        color: #2d3748;
-        font-weight: 700;
-      }
-
-      .btn-back {
-        padding: 0.75rem 1.5rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border: none;
-        border-radius: 0.5rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-
-      .btn-back:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-      }
-
-      .page-content {
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      .stats-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      .stat-card {
-        background: white;
-        padding: 1.5rem;
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: #667eea;
-        margin-bottom: 0.5rem;
-      }
-
-      .stat-label {
-        font-size: 0.875rem;
-        color: #718096;
-        text-align: center;
-      }
-
-      .content-card {
-        background: white;
-        padding: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      }
-
-      .content-card h2 {
-        font-size: 1.5rem;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-      }
-
-      .content-card p {
-        color: #718096;
-        margin-bottom: 2rem;
-      }
-
-      .placeholder {
-        text-align: center;
-        padding: 3rem;
-        background: #f7fafc;
-        border-radius: 0.5rem;
-        border: 2px dashed #e2e8f0;
-      }
-
-      .placeholder p {
-        color: #a0aec0;
-        font-size: 1rem;
-      }
-
-      @media (max-width: 768px) {
-        .page-container {
-          padding: 1rem;
-        }
-
-        .page-header {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: flex-start;
-        }
-
-        .page-header h1 {
-          font-size: 1.5rem;
-        }
-      }
-    `,
-  ],
+  styles: [],
 })
 export class ReportsComponent {
-  constructor(private router: Router) {}
+  private router = inject(Router);
 
   goBack() {
     this.router.navigate(['/home']);

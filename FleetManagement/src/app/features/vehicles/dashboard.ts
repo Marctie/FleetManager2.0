@@ -8,11 +8,11 @@ import { StatCardComponent } from '../../shared/stat-card.component';
   standalone: true,
   imports: [PageHeaderComponent, StatCardComponent],
   template: `
-    <div class="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200 p-8">
+    <div class="dashboard-container">
       <app-page-header title="Dashboard" (onBack)="goBack()"></app-page-header>
 
-      <main class="max-w-7xl mx-auto">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <main class="dashboard-main">
+        <div class="stats-grid">
           <app-stat-card title="Total Vehicles" [value]="24" label="In Fleet"></app-stat-card>
           <app-stat-card title="Active" [value]="18" label="On Road"></app-stat-card>
           <app-stat-card title="In Maintenance" [value]="3" label="In Service"></app-stat-card>
@@ -21,7 +21,37 @@ import { StatCardComponent } from '../../shared/stat-card.component';
       </main>
     </div>
   `,
-  styles: [],
+  styles: [
+    `
+      .dashboard-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 2rem;
+      }
+
+      .dashboard-main {
+        max-width: 80rem;
+        margin: 0 auto;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+
+      @media (max-width: 640px) {
+        .dashboard-container {
+          padding: 1rem;
+        }
+
+        .stats-grid {
+          gap: 1rem;
+        }
+      }
+    `,
+  ],
 })
 export class DashboardComponent {
   private router = inject(Router);

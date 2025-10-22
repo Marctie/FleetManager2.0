@@ -8,234 +8,337 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   standalone: true,
   imports: [],
   template: `
-    <div class="home-container">
-      <header class="header">
-        <div class="header-content">
-          <div class="logo-section">
-            <div class="logo">
+    <div class="home-wrapper">
+      <!-- Animated Background -->
+      <div class="animated-bg"></div>
+
+      <!-- Header with Glassmorphism -->
+      <header
+        class="header-glass sticky top-0 z-50 backdrop-blur-md bg-white/80 shadow-lg border-b border-white/20"
+      >
+        <div class="max-w-7xl mx-auto px-8 py-4 flex justify-between items-center">
+          <div class="flex items-center gap-4 animate-fade-in">
+            <div class="logo-pulse w-14 h-14 relative">
               <a href="http://localhost:4200/home" target="_blank">
                 <img
                   src="https://img.icons8.com/?size=100&id=gyxi94qFz5rS&format=png&color=000000"
-                  width="50"
-                  height="50"
+                  class="w-full h-full object-contain"
+                  alt="Fleet Logo"
                 />
               </a>
             </div>
-            <h1>FleetManagement</h1>
+            <h1
+              class="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent"
+            >
+              FleetManagement
+            </h1>
           </div>
-          <div class="user-section">
+          <div class="flex items-center gap-4">
             @if (currentUser) {
-            <div class="user-info">
-              <div class="user-info">
-                <span class="username">{{ currentUser.username }}</span>
-              </div>
+            <div class="user-badge">
+              <span class="text-gray-700 font-medium">{{ currentUser.username }}</span>
             </div>
             }
-            <button class="btn-logout" (click)="onLogout()">Logout</button>
+            <button (click)="onLogout()" class="btn-logout group">
+              <span>Logout</span>
+            </button>
           </div>
         </div>
       </header>
-      <main class="main-content">
-        <div class="welcome-section">
-          <h2>Welcome to Fleet Management System!</h2>
 
-          <!-- Guest Mode Banner -->
-          @if (isGuest) {
-          <div class="guest-banner">
-            <div class="guest-content">
-              <strong>Guest Mode</strong>
-              <p>You are browsing with limited access. Some features may be restricted.</p>
+      <!-- Main Content -->
+      <main class="flex-1 p-8 relative z-10">
+        <div class="max-w-7xl mx-auto">
+          <div class="text-center mb-12 animate-slide-up">
+            <h2 class="text-5xl font-extrabold text-gray-800 mb-4 tracking-tight">
+              Welcome to <span class="text-gradient">Fleet Management</span>
+            </h2>
+            <p class="text-xl text-gray-600">Manage your fleet with ease and efficiency</p>
+
+            <!-- Guest Mode Banner -->
+            @if (isGuest) {
+            <div class="guest-banner-animated">
+              <div class="flex items-start gap-3">
+                <div class="flex-1 text-left">
+                  <strong class="text-yellow-800 font-bold block mb-1">Guest Mode Active</strong>
+                  <p class="text-yellow-700 text-sm">
+                    You are browsing with limited access. Some features may be restricted.
+                  </p>
+                </div>
+              </div>
             </div>
+            }
           </div>
-          }
-        </div>
-        <div class="cards-grid">
-          <div class="card" (click)="navigateTo('/dashboard')">
-            <div class="card-header">
-              <h3>Dashboard</h3>
+
+          <!-- Cards Grid with Stagger Animation -->
+          <div class="cards-grid">
+            <div
+              (click)="navigateTo('/dashboard')"
+              class="feature-card"
+              style="animation-delay: 0.1s"
+            >
+              <div class="card-icon bg-gradient-to-br from-blue-500 to-indigo-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Dashboard</h3>
+              <p class="text-gray-600 text-sm">Overview and statistics</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>Overview and statistics</p>
-          </div>
-          <div class="card" (click)="navigateTo('/vehicle-list')">
-            <div class="card-header">
-              <h3>Vehicle List</h3>
+
+            <div
+              (click)="navigateTo('/vehicle-list')"
+              class="feature-card"
+              style="animation-delay: 0.2s"
+            >
+              <div class="card-icon bg-gradient-to-br from-green-500 to-emerald-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Vehicle List</h3>
+              <p class="text-gray-600 text-sm">Browse all vehicles</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>Browse all vehicles</p>
-          </div>
-          <div class="card" (click)="navigateTo('/vehicle-detail')">
-            <div class="card-header">
-              <h3>Vehicle Details</h3>
+
+            <div
+              (click)="navigateTo('/vehicle-detail')"
+              class="feature-card"
+              style="animation-delay: 0.3s"
+            >
+              <div class="card-icon bg-gradient-to-br from-purple-500 to-pink-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Vehicle Details</h3>
+              <p class="text-gray-600 text-sm">Detailed information</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>Vehicle details (Modal)</p>
-          </div>
-          <div class="card" (click)="navigateTo('/general-map')">
-            <div class="card-header">
-              <h3>General Map</h3>
+
+            <div
+              (click)="navigateTo('/general-map')"
+              class="feature-card"
+              style="animation-delay: 0.4s"
+            >
+              <div class="card-icon bg-gradient-to-br from-red-500 to-orange-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">General Map</h3>
+              <p class="text-gray-600 text-sm">View all on map</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>View all vehicles on map</p>
-          </div>
-          <div class="card" (click)="navigateTo('/vehicle-form')">
-            <div class="card-header">
-              <h3>Vehicle Form</h3>
+
+            <div
+              (click)="navigateTo('/vehicle-form')"
+              class="feature-card"
+              style="animation-delay: 0.5s"
+            >
+              <div class="card-icon bg-gradient-to-br from-cyan-500 to-blue-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Vehicle Form</h3>
+              <p class="text-gray-600 text-sm">Create/Edit vehicles</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>Create/Edit vehicles</p>
-          </div>
-          <div class="card" (click)="navigateTo('/user-management')">
-            <div class="card-header">
-              <h3>User Management</h3>
+
+            <div
+              (click)="navigateTo('/user-management')"
+              class="feature-card"
+              style="animation-delay: 0.6s"
+            >
+              <div class="card-icon bg-gradient-to-br from-yellow-500 to-amber-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">User Management</h3>
+              <p class="text-gray-600 text-sm">Manage users</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>Manage users</p>
-          </div>
-          <div class="card" (click)="navigateTo('/associations')">
-            <div class="card-header">
-              <h3>Associations Management</h3>
+
+            <div
+              (click)="navigateTo('/associations')"
+              class="feature-card"
+              style="animation-delay: 0.7s"
+            >
+              <div class="card-icon bg-gradient-to-br from-teal-500 to-green-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Associations</h3>
+              <p class="text-gray-600 text-sm">Manage associations</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>Manage associations</p>
-          </div>
-          <div class="card" (click)="navigateTo('/reports')">
-            <div class="card-header">
-              <h3>Reports and Statistics</h3>
+
+            <div
+              (click)="navigateTo('/reports')"
+              class="feature-card"
+              style="animation-delay: 0.8s"
+            >
+              <div class="card-icon bg-gradient-to-br from-indigo-500 to-purple-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Reports</h3>
+              <p class="text-gray-600 text-sm">Analytics and stats</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>Analytics and reports</p>
-          </div>
-          <div class="card" (click)="navigateTo('/documents')">
-            <div class="card-header">
-              <h3>Document Management</h3>
+
+            <div
+              (click)="navigateTo('/documents')"
+              class="feature-card"
+              style="animation-delay: 0.9s"
+            >
+              <div class="card-icon bg-gradient-to-br from-pink-500 to-rose-600"></div>
+              <h3 class="text-xl font-bold text-gray-800 mb-2">Documents</h3>
+              <p class="text-gray-600 text-sm">Document management</p>
+              <div class="card-arrow">→</div>
             </div>
-            <p>Document management</p>
           </div>
         </div>
       </main>
-      <footer class="footer"></footer>
+
+      <!-- Footer -->
+      <footer class="footer-glass backdrop-blur-md bg-white/80 border-t border-white/20 mt-auto">
+        <div class="max-w-7xl mx-auto px-8 py-6 text-center">
+          <p class="text-gray-600 text-sm">© 2025 Fleet Management System. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   `,
   styles: [
     `
-      .home-container {
+      /* Background Animation */
+      .home-wrapper {
         min-height: 100vh;
         display: flex;
         flex-direction: column;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        position: relative;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        overflow-x: hidden;
       }
 
-      .header {
-        background: white;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        padding: 1rem 2rem;
-        position: sticky;
+      .animated-bg {
+        position: fixed;
         top: 0;
-        z-index: 100;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        z-index: 0;
       }
 
-      .header-content {
-        max-width: 1400px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+      .animated-bg::before,
+      .animated-bg::after {
+        content: '';
+        position: absolute;
+        width: 600px;
+        height: 600px;
+        border-radius: 50%;
+        filter: blur(100px);
+        opacity: 0.3;
+        animation: float 20s ease-in-out infinite;
       }
 
-      .logo-section {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+      .animated-bg::before {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        top: -200px;
+        left: -200px;
+        animation-delay: 0s;
       }
 
-      .logo {
-        font-size: 2.5rem;
+      .animated-bg::after {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        bottom: -200px;
+        right: -200px;
+        animation-delay: 5s;
       }
 
-      .header h1 {
-        font-size: 1.5rem;
-        color: #2d3748;
-        font-weight: 700;
-        margin: 0;
+      @keyframes float {
+        0%,
+        100% {
+          transform: translate(0, 0) scale(1);
+        }
+        33% {
+          transform: translate(30px, -50px) scale(1.1);
+        }
+        66% {
+          transform: translate(-20px, 20px) scale(0.9);
+        }
       }
 
-      .user-section {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
+      /* Glassmorphism */
+      .header-glass,
+      .footer-glass {
+        backdrop-filter: blur(10px) saturate(180%);
+        background-color: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(255, 255, 255, 0.3);
       }
 
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
+      /* Logo Animation */
+      .logo-pulse {
+        animation: pulse-border 2s ease-in-out infinite;
+        border-radius: 12px;
+        transition: transform 0.3s ease;
+      }
+
+      .logo-pulse:hover {
+        transform: scale(1.1) rotate(5deg);
+      }
+
+      @keyframes pulse-border {
+        0%,
+        100% {
+          box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7);
+        }
+        50% {
+          box-shadow: 0 0 0 20px rgba(102, 126, 234, 0);
+        }
+      }
+
+      /* Text Gradient */
+      .text-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: gradient-shift 3s ease infinite;
+      }
+
+      @keyframes gradient-shift {
+        0%,
+        100% {
+          filter: hue-rotate(0deg);
+        }
+        50% {
+          filter: hue-rotate(45deg);
+        }
+      }
+
+      /* User Badge */
+      .user-badge {
         padding: 0.5rem 1rem;
-        background: #f7fafc;
-        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 20px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(102, 126, 234, 0.2);
+        animation: fade-in 0.5s ease;
       }
 
-      .user-details {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .username {
-        font-weight: 600;
-        color: #2d3748;
-        font-size: 0.875rem;
-      }
-
+      /* Logout Button */
       .btn-logout {
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.625rem 1.25rem;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 0.625rem 1.5rem;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
         border: none;
-        border-radius: 0.5rem;
+        border-radius: 10px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
-        font-size: 0.875rem;
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
       }
 
       .btn-logout:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
       }
 
-      .main-content {
-        flex: 1;
-        max-width: 1400px;
-        width: 100%;
-        margin: 0 auto;
-        padding: 2rem;
+      .btn-logout:active {
+        transform: translateY(0);
       }
 
-      .welcome-section {
-        text-align: center;
-        margin-bottom: 3rem;
-        animation: fadeIn 0.6s ease-out;
-      }
-
-      .guest-banner {
-        background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
-        color: white;
+      /* Guest Banner */
+      .guest-banner-animated {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 4px solid #f59e0b;
         padding: 1rem 1.5rem;
-        border-radius: 0.75rem;
         margin: 1.5rem auto;
-        max-width: 600px;
-        box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
-        animation: slideDown 0.5s ease-out;
+        max-width: 42rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(245, 158, 11, 0.2);
+        animation: slide-down 0.5s ease;
       }
 
-      .guest-content strong {
-        display: block;
-        font-size: 1.125rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .guest-content p {
-        margin: 0;
-        font-size: 0.875rem;
-        opacity: 0.95;
-      }
-
-      @keyframes slideDown {
+      @keyframes slide-down {
         from {
           opacity: 0;
           transform: translateY(-20px);
@@ -246,47 +349,30 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         }
       }
 
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .welcome-section h2 {
-        font-size: 2.5rem;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-        font-weight: 700;
-      }
-
-      .subtitle {
-        font-size: 1.125rem;
-        color: #718096;
-      }
-
+      /* Cards Grid */
       .cards-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
+        gap: 2rem;
         margin-bottom: 2rem;
       }
 
-      .card {
-        background: white;
-        border-radius: 1rem;
+      /* Feature Card */
+      .feature-card {
+        position: relative;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
         padding: 2rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         cursor: pointer;
-        animation: slideUp 0.5s ease-out;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+        animation: slide-up 0.6s ease both;
       }
 
-      @keyframes slideUp {
+      @keyframes slide-up {
         from {
           opacity: 0;
           transform: translateY(30px);
@@ -297,125 +383,107 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
         }
       }
 
-      .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+      .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(
+          135deg,
+          rgba(102, 126, 234, 0.1) 0%,
+          rgba(118, 75, 162, 0.1) 100%
+        );
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 0;
       }
 
-      .card-header {
-        padding-bottom: 1rem;
-        margin-bottom: 1rem;
-        border-bottom: 2px solid #e2e8f0;
+      .feature-card:hover::before {
+        opacity: 1;
       }
 
-      .card h3 {
-        font-size: 1.25rem;
-        color: #2d3748;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
+      .feature-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+        border-color: rgba(102, 126, 234, 0.5);
       }
 
-      .card p {
-        color: #718096;
-        margin-bottom: 1rem;
-        font-size: 0.875rem;
+      .feature-card > * {
+        position: relative;
+        z-index: 1;
       }
 
-      .card-stats {
+      /* Card Icon */
+      .card-icon {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 16px;
         display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        padding-top: 1rem;
-        margin-top: 1rem;
-        border-top: 2px solid #e2e8f0;
-      }
-
-      .stat-value {
-        font-size: 2.5rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        line-height: 1;
-      }
-
-      .stat-label {
-        font-size: 0.875rem;
-        color: #718096;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-weight: 500;
-      }
-
-      .info-section {
-        margin-top: 2rem;
-      }
-
-      .info-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1rem;
         color: white;
-        border-radius: 1rem;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
       }
 
-      .info-card h3 {
+      .feature-card:hover .card-icon {
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      }
+
+      /* Card Arrow */
+      .card-arrow {
+        position: absolute;
+        bottom: 1.5rem;
+        right: 1.5rem;
         font-size: 1.5rem;
-        margin-bottom: 1rem;
+        color: #667eea;
+        opacity: 0;
+        transform: translateX(-10px);
+        transition: all 0.3s ease;
       }
 
-      .info-card p {
-        margin-bottom: 1rem;
-        opacity: 0.95;
+      .feature-card:hover .card-arrow {
+        opacity: 1;
+        transform: translateX(0);
       }
 
-      .info-card ul {
-        list-style: none;
-        padding: 0;
+      /* Animations */
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
 
-      .info-card li {
-        padding: 0.5rem 0;
-        font-size: 0.875rem;
-        opacity: 0.9;
+      .animate-fade-in {
+        animation: fade-in 0.6s ease;
       }
 
-      .footer {
-        background: white;
-        padding: 1.5rem 2rem;
-        text-align: center;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        margin-top: auto;
+      .animate-slide-up {
+        animation: slide-up 0.8s ease;
       }
 
-      .footer p {
-        color: #718096;
-        margin: 0;
-        font-size: 0.875rem;
-      }
-
+      /* Responsive */
       @media (max-width: 768px) {
-        .header-content {
-          flex-direction: column;
+        .cards-grid {
+          grid-template-columns: 1fr;
           gap: 1rem;
         }
 
-        .user-section {
-          width: 100%;
-          justify-content: space-between;
+        .feature-card {
+          padding: 1.5rem;
         }
 
-        .welcome-section h2 {
-          font-size: 1.75rem;
-        }
-
-        .cards-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .main-content {
-          padding: 1rem;
+        .animated-bg::before,
+        .animated-bg::after {
+          width: 400px;
+          height: 400px;
         }
       }
     `,
