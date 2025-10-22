@@ -1,5 +1,6 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { MqttService } from './services/mqtt.service';
 
 @Component({
   selector: 'app-root',
@@ -7,6 +8,15 @@ import { RouterOutlet } from '@angular/router';
   template: `<router-outlet />`,
   styles: ``,
 })
-export class App {
+export class App implements OnInit {
   protected readonly title = signal('FleetManagement');
+  mqttService = inject(MqttService);
+
+  ngOnInit(): void {
+    this.mqttService.connect();
+
+    setTimeout(() => {
+      this.mqttService.topicSubscribe('vehicles/#');
+    }, 1000);
+  }
 }

@@ -46,6 +46,7 @@ export class MqttService {
   }
 
   async connect(): Promise<void> {
+    console.log('connect is ready');
     if (this.connected) {
       console.log('Already connected');
       return;
@@ -79,16 +80,27 @@ export class MqttService {
   }
 
   private setupEventHandlers(): void {
+    console.log(this.client, 'printclient');
     if (!this.client) return;
 
     this.client.on('connect', () => {
       console.log('Connected to MQTT broker');
       this.connected = true;
       this.connectionStatusSubject.next(true);
+
+      // Sottoscrivi automaticamente ai topic dopo la connessione
+      this.subscribeToDefaultTopics();
     });
 
     this.client.on('message', (topic: string, payload: Buffer) => {
       console.log('MQTT Message [' + topic + ']:', payload.toString());
+      // Qui puoi parsare il payload e aggiornare lo stato dell'applicazione
+      try {
+        const data = JSON.parse(payload.toString());
+        console.log('Parsed MQTT data:', data);
+      } catch (error) {
+        console.warn('Could not parse MQTT message as JSON:', error);
+      }
     });
 
     this.client.on('error', (error) => {
@@ -103,7 +115,18 @@ export class MqttService {
     });
   }
 
-  subscribe(topic: string): void {
+  private subscribeToDefaultTopics(): void {
+    // Sottoscrivi ai topic di default per la flotta
+    const defaultTopics = [
+      'vehicles/#', // Posizioni di tutti i veicoli
+    ];
+
+    defaultTopics.forEach((topic) => {
+      this.topicSubscribe(topic);
+    });
+  }
+
+  topicSubscribe(topic: string): void {
     if (!this.client || !this.connected) {
       console.warn('Cannot subscribe: Not connected');
       return;
@@ -118,7 +141,7 @@ export class MqttService {
     });
   }
 
-  publish(topic: string, message: string): void {
+  topicPublish(topic: string, message: string): void {
     if (!this.client || !this.connected) {
       console.warn('Cannot publish: Not connected');
       return;

@@ -1,10 +1,4 @@
-/* ========================================
-   TAILWIND CSS DIRECTIVES
-   ======================================== */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
+@import "tailwindcss";
 /* ========================================
    RESET E STILI GLOBALI
    ======================================== */
