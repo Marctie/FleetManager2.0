@@ -13,4 +13,20 @@ export interface IVehicle {
   lastMaintenanceDate: Date;
   insuranceExpiryDate: Date;
   documentCount: number;
+  vehicleId: number;
+  lastPosition: {
+    latitude: number;
+    longitude: number;
+    speed: number;
+    heading: number;
+    timestamp: Date | string | number;
+  };
+  time?: Date | string | number;
+}
+
+export interface IVehicleRes {
+  items: IVehicle[];
+  total: number;
+  page: number;
+  pageSize: number;
 }
