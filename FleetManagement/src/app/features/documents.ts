@@ -27,7 +27,8 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
           <div class="documents-section">
             <h2>Recent Documents</h2>
             <div class="documents-list">
-              <div class="document-item" *ngFor="let doc of documents">
+              @for (doc of documents; track $index) {
+              <div class="document-item">
                 <div class="doc-info">
                   <h4>{{ doc.name }}</h4>
                   <p>{{ doc.vehicle }} • {{ doc.date }}</p>
@@ -38,6 +39,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
                   <button class="btn-icon" title="Delete">Delete</button>
                 </div>
               </div>
+              }
             </div>
           </div>
         </main>

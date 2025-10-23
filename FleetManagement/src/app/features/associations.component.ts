@@ -32,7 +32,8 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
                 </tr>
               </thead>
               <tbody>
-                <tr *ngFor="let assoc of associations">
+                @for (assoc of associations; track $index) {
+                <tr>
                   <td>
                     <div class="vehicle-cell">
                       <strong>{{ assoc.vehicleId }}</strong>
@@ -51,6 +52,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
                     <button class="btn-action danger">Remove</button>
                   </td>
                 </tr>
+                }
               </tbody>
             </table>
           </div>

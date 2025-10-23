@@ -10,7 +10,9 @@ import { CommonModule } from '@angular/common';
       <div class="stat-content">
         <h3>{{ title }}</h3>
         <p class="stat-value">{{ value }}</p>
-        <span *ngIf="label" class="stat-label">{{ label }}</span>
+        @if (label) {
+        <span class="stat-label">{{ label }}</span>
+        }
       </div>
     </div>
   `,
