@@ -27,6 +27,7 @@ export class AuthService {
     userId: 'userId',
     username: 'username',
     email: 'email',
+    role: 'role',
     expiresAt: 'expiresAt',
   };
 
@@ -240,6 +241,7 @@ export class AuthService {
     localStorage.setItem(this.STORAGE_KEYS.userId, response.userId);
     localStorage.setItem(this.STORAGE_KEYS.username, response.username);
     localStorage.setItem(this.STORAGE_KEYS.email, response.email);
+    localStorage.setItem(this.STORAGE_KEYS.role, response.role);
     localStorage.setItem(this.STORAGE_KEYS.expiresAt, response.expiresAt);
   }
 
@@ -261,9 +263,10 @@ export class AuthService {
     const userId = localStorage.getItem(this.STORAGE_KEYS.userId);
     const username = localStorage.getItem(this.STORAGE_KEYS.username);
     const email = localStorage.getItem(this.STORAGE_KEYS.email);
+    const role = localStorage.getItem(this.STORAGE_KEYS.role);
 
     if (userId && username && email) {
-      return { userId, username, email };
+      return { userId, username, email, role: role || undefined };
     }
     return null;
   }
@@ -273,6 +276,7 @@ export class AuthService {
       userId: response.userId,
       username: response.username,
       email: response.email,
+      role: response.role,
     };
   }
 

@@ -14,73 +14,76 @@ import * as L from 'leaflet';
 import { VehiclePosition } from '../../models/vehicle-position';
 import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
+import { MainLayoutComponent } from '../../shared/main-layout.component';
 
 @Component({
   selector: 'app-general-map',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MainLayoutComponent],
   template: `
-    <div class="page-container">
-      <!-- Header -->
-      <header class="page-header">
-        <h1>General Map</h1>
-        <div class="header-controls">
-          <div class="map-view-selector">
-            <label>View:</label>
-            <select [value]="currentMapView()" (change)="changeMapView($event)">
-              <option value="street">Street</option>
-              <option value="satellite">Satellite</option>
-              <option value="cycle">Cycling</option>
-            </select>
+    <app-main-layout>
+      <div class="page-container">
+        <!-- Header -->
+        <header class="page-header">
+          <h1>General Map</h1>
+          <div class="header-controls">
+            <div class="map-view-selector">
+              <label>View:</label>
+              <select [value]="currentMapView()" (change)="changeMapView($event)">
+                <option value="street">Street</option>
+                <option value="satellite">Satellite</option>
+                <option value="cycle">Cycling</option>
+              </select>
+            </div>
+            <button class="btn-refresh" (click)="refreshAllVehicles()">Update Positions</button>
+            <button class="btn-back" (click)="goBack()">Back to Home</button>
           </div>
-          <button class="btn-refresh" (click)="refreshAllVehicles()">Update Positions</button>
-          <button class="btn-back" (click)="goBack()">Back to Home</button>
-        </div>
-      </header>
+        </header>
 
-      <!-- Statistics -->
-      <div class="stats-section">
-        <div class="stats-grid">
-          <div class="stat-card">
-            <span class="stat-label">Total Vehicles</span>
-            <span class="stat-value">{{ vehicleList().length }}</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">With Position</span>
-            <span class="stat-value">{{ getVehiclesWithPosition() }}</span>
-          </div>
-          <div class="stat-card online-status">
-            <span class="stat-label">Online</span>
-            <span class="stat-value">{{ getVehiclesOnline() }}</span>
-          </div>
-          <div class="stat-card offline-status">
-            <span class="stat-label">Offline</span>
-            <span class="stat-value">{{ getVehiclesOffline() }}</span>
-          </div>
-          <div class="stat-card maintenance-status">
-            <span class="stat-label">Maintenance</span>
-            <span class="stat-value">{{ getVehiclesMaintenance() }}</span>
+        <!-- Statistics -->
+        <div class="stats-section">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Total Vehicles</span>
+              <span class="stat-value">{{ vehicleList().length }}</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">With Position</span>
+              <span class="stat-value">{{ getVehiclesWithPosition() }}</span>
+            </div>
+            <div class="stat-card online-status">
+              <span class="stat-label">Online</span>
+              <span class="stat-value">{{ getVehiclesOnline() }}</span>
+            </div>
+            <div class="stat-card offline-status">
+              <span class="stat-label">Offline</span>
+              <span class="stat-value">{{ getVehiclesOffline() }}</span>
+            </div>
+            <div class="stat-card maintenance-status">
+              <span class="stat-label">Maintenance</span>
+              <span class="stat-value">{{ getVehiclesMaintenance() }}</span>
+            </div>
           </div>
         </div>
+
+        <!-- Map -->
+        <main class="page-content">
+          <div class="map-card">
+            <div id="map" class="map-container"></div>
+          </div>
+        </main>
+
+        <!-- Toast Notification -->
+        @if (showToast()) {
+        <div class="toast-notification" [class]="'toast-' + toastType()">
+          <div class="toast-content">
+            <span class="toast-message">{{ toastMessage() }}</span>
+            <button class="toast-close" (click)="hideToastNotification()">×</button>
+          </div>
+        </div>
+        }
       </div>
-
-      <!-- Map -->
-      <main class="page-content">
-        <div class="map-card">
-          <div id="map" class="map-container"></div>
-        </div>
-      </main>
-
-      <!-- Toast Notification -->
-      @if (showToast()) {
-      <div class="toast-notification" [class]="'toast-' + toastType()">
-        <div class="toast-content">
-          <span class="toast-message">{{ toastMessage() }}</span>
-          <button class="toast-close" (click)="hideToastNotification()">×</button>
-        </div>
-      </div>
-      }
-    </div>
+    </app-main-layout>
   `,
   styles: [
     `

@@ -1,58 +1,61 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { MainLayoutComponent } from '../../shared/main-layout.component';
 
 @Component({
   selector: 'app-vehicle-list',
   standalone: true,
-  imports: [],
+  imports: [MainLayoutComponent],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Vehicle List</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
-      </header>
+    <app-main-layout>
+      <div class="page-container">
+        <header class="page-header">
+          <h1>Vehicle List</h1>
+          <button class="btn-back" (click)="goBack()">Back to Home</button>
+        </header>
 
-      <main class="page-content">
-        <div class="filter-section">
-          <input type="text" placeholder="Search vehicles..." class="search-input" />
-          <button class="btn-add">Add Vehicle</button>
-        </div>
+        <main class="page-content">
+          <div class="filter-section">
+            <input type="text" placeholder="Search vehicles..." class="search-input" />
+            <button class="btn-add">Add Vehicle</button>
+          </div>
 
-        <div class="vehicle-table">
-          <table>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Model</th>
-                <th>Plate</th>
-                <th>Status</th>
-                <th>Driver</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (vehicle of vehicles; track vehicle.id) {
-              <tr>
-                <td>{{ vehicle.id }}</td>
-                <td>{{ vehicle.model }}</td>
-                <td>{{ vehicle.plate }}</td>
-                <td>
-                  <span class="status-badge" [class]="vehicle.status.toLowerCase()">
-                    {{ vehicle.status }}
-                  </span>
-                </td>
-                <td>{{ vehicle.driver }}</td>
-                <td>
-                  <button class="btn-action">View</button>
-                  <button class="btn-action">Edit</button>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </main>
-    </div>
+          <div class="vehicle-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Model</th>
+                  <th>Plate</th>
+                  <th>Status</th>
+                  <th>Driver</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (vehicle of vehicles; track vehicle.id) {
+                <tr>
+                  <td>{{ vehicle.id }}</td>
+                  <td>{{ vehicle.model }}</td>
+                  <td>{{ vehicle.plate }}</td>
+                  <td>
+                    <span class="status-badge" [class]="vehicle.status.toLowerCase()">
+                      {{ vehicle.status }}
+                    </span>
+                  </td>
+                  <td>{{ vehicle.driver }}</td>
+                  <td>
+                    <button class="btn-action">View</button>
+                    <button class="btn-action">Edit</button>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </main>
+      </div>
+    </app-main-layout>
   `,
   styles: [
     `

@@ -1,61 +1,64 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MainLayoutComponent } from '../shared/main-layout.component';
 
 @Component({
   selector: 'app-associations',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MainLayoutComponent],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Associations Management</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
-      </header>
+    <app-main-layout>
+      <div class="page-container">
+        <header class="page-header">
+          <h1>Associations Management</h1>
+          <button class="btn-back" (click)="goBack()">Back to Home</button>
+        </header>
 
-      <main class="page-content">
-        <!-- <div class="info-banner">
+        <main class="page-content">
+          <!-- <div class="info-banner">
           <p>Manage associations between vehicles and drivers</p>
         </div> -->
 
-        <div class="associations-table">
-          <table>
-            <thead>
-              <tr>
-                <th>Vehicle</th>
-                <th>Driver</th>
-                <th>Start Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let assoc of associations">
-                <td>
-                  <div class="vehicle-cell">
-                    <strong>{{ assoc.vehicleId }}</strong>
-                    <span>{{ assoc.vehicleName }}</span>
-                  </div>
-                </td>
-                <td>{{ assoc.driverName }}</td>
-                <td>{{ assoc.startDate }}</td>
-                <td>
-                  <span class="status-badge" [class]="assoc.status">
-                    {{ assoc.status }}
-                  </span>
-                </td>
-                <td>
-                  <button class="btn-action">Edit</button>
-                  <button class="btn-action danger">Remove</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <div class="associations-table">
+            <table>
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Driver</th>
+                  <th>Start Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let assoc of associations">
+                  <td>
+                    <div class="vehicle-cell">
+                      <strong>{{ assoc.vehicleId }}</strong>
+                      <span>{{ assoc.vehicleName }}</span>
+                    </div>
+                  </td>
+                  <td>{{ assoc.driverName }}</td>
+                  <td>{{ assoc.startDate }}</td>
+                  <td>
+                    <span class="status-badge" [class]="assoc.status">
+                      {{ assoc.status }}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="btn-action">Edit</button>
+                    <button class="btn-action danger">Remove</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-        <button class="btn-create">Create New Association</button>
-      </main>
-    </div>
+          <button class="btn-create">Create New Association</button>
+        </main>
+      </div>
+    </app-main-layout>
   `,
   styles: [
     `

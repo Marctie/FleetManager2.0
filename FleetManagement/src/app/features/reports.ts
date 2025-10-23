@@ -1,70 +1,73 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MainLayoutComponent } from '../shared/main-layout.component';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MainLayoutComponent],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Reports and Statistics</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
-      </header>
+    <app-main-layout>
+      <div class="page-container">
+        <header class="page-header">
+          <h1>Reports and Statistics</h1>
+          <button class="btn-back" (click)="goBack()">Back to Home</button>
+        </header>
 
-      <main class="page-content">
-        <div class="stats-overview">
-          <div class="stat-card">
-            <div class="stat-content">
-              <h3>Total Distance</h3>
-              <p class="stat-value">125,450 km</p>
+        <main class="page-content">
+          <div class="stats-overview">
+            <div class="stat-card">
+              <div class="stat-content">
+                <h3>Total Distance</h3>
+                <p class="stat-value">125,450 km</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <h3>Fuel Consumption</h3>
+                <p class="stat-value">8,240 L</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <h3>Total Costs</h3>
+                <p class="stat-value">€15,320</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-content">
+                <h3>Maintenance</h3>
+                <p class="stat-value">€3,450</p>
+              </div>
             </div>
           </div>
-          <div class="stat-card">
-            <div class="stat-content">
-              <h3>Fuel Consumption</h3>
-              <p class="stat-value">8,240 L</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-content">
-              <h3>Total Costs</h3>
-              <p class="stat-value">€15,320</p>
-            </div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-content">
-              <h3>Maintenance</h3>
-              <p class="stat-value">€3,450</p>
-            </div>
-          </div>
-        </div>
 
-        <div class="reports-grid">
-          <div class="report-card">
-            <h3>Monthly Report</h3>
-            <p>Comprehensive monthly fleet analysis</p>
-            <button class="btn-download">Download PDF</button>
+          <div class="reports-grid">
+            <div class="report-card">
+              <h3>Monthly Report</h3>
+              <p>Comprehensive monthly fleet analysis</p>
+              <button class="btn-download">Download PDF</button>
+            </div>
+            <div class="report-card">
+              <h3>Trip History</h3>
+              <p>Detailed trip logs and routes</p>
+              <button class="btn-download">Download PDF</button>
+            </div>
+            <div class="report-card">
+              <h3>Maintenance Log</h3>
+              <p>All maintenance activities</p>
+              <button class="btn-download">Download PDF</button>
+            </div>
+            <div class="report-card">
+              <h3>Cost Analysis</h3>
+              <p>Expense breakdown and trends</p>
+              <button class="btn-download">Download PDF</button>
+            </div>
           </div>
-          <div class="report-card">
-            <h3>Trip History</h3>
-            <p>Detailed trip logs and routes</p>
-            <button class="btn-download">Download PDF</button>
-          </div>
-          <div class="report-card">
-            <h3>Maintenance Log</h3>
-            <p>All maintenance activities</p>
-            <button class="btn-download">Download PDF</button>
-          </div>
-          <div class="report-card">
-            <h3>Cost Analysis</h3>
-            <p>Expense breakdown and trends</p>
-            <button class="btn-download">Download PDF</button>
-          </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </app-main-layout>
   `,
   styles: [
     `

@@ -1,26 +1,29 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { MainLayoutComponent } from '../shared/main-layout.component';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [],
+  imports: [MainLayoutComponent],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>User Management</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
-      </header>
+    <app-main-layout>
+      <div class="page-container">
+        <header class="page-header">
+          <h1>User Management</h1>
+          <button class="btn-back" (click)="goBack()">Back to Home</button>
+        </header>
 
-      <main class="page-content">
-        <div class="actions-bar">
-          <input type="text" placeholder="Search users..." class="search-input" />
-          <button class="btn-add">Add User</button>
-        </div>
+        <main class="page-content">
+          <div class="actions-bar">
+            <input type="text" placeholder="Search users..." class="search-input" />
+            <button class="btn-add">Add User</button>
+          </div>
 
-        <div class="users-grid"></div>
-      </main>
-    </div>
+          <div class="users-grid"></div>
+        </main>
+      </div>
+    </app-main-layout>
   `,
   styles: [
     `

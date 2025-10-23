@@ -2,98 +2,106 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MainLayoutComponent } from '../../shared/main-layout.component';
 
 @Component({
   selector: 'app-vehicle-form',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MainLayoutComponent],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Vehicle Form</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
-      </header>
+    <app-main-layout>
+      <div class="page-container">
+        <header class="page-header">
+          <h1>Vehicle Form</h1>
+          <button class="btn-back" (click)="goBack()">Back to Home</button>
+        </header>
 
-      <main class="page-content">
-        <div class="form-card">
-          <h2>Create / Edit Vehicle</h2>
-          <form>
-            <div class="form-row">
-              <div class="form-group">
-                <label>Vehicle ID</label>
-                <input type="text" placeholder="V001" [(ngModel)]="vehicle.id" name="id" />
+        <main class="page-content">
+          <div class="form-card">
+            <h2>Create / Edit Vehicle</h2>
+            <form>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Vehicle ID</label>
+                  <input type="text" placeholder="V001" [(ngModel)]="vehicle.id" name="id" />
+                </div>
+                <div class="form-group">
+                  <label>Model</label>
+                  <input
+                    type="text"
+                    placeholder="Ford Transit"
+                    [(ngModel)]="vehicle.model"
+                    name="model"
+                  />
+                </div>
               </div>
-              <div class="form-group">
-                <label>Model</label>
-                <input
-                  type="text"
-                  placeholder="Ford Transit"
-                  [(ngModel)]="vehicle.model"
-                  name="model"
-                />
-              </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>License Plate</label>
-                <input type="text" placeholder="AB123CD" [(ngModel)]="vehicle.plate" name="plate" />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>License Plate</label>
+                  <input
+                    type="text"
+                    placeholder="AB123CD"
+                    [(ngModel)]="vehicle.plate"
+                    name="plate"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Year</label>
+                  <input type="number" placeholder="2022" [(ngModel)]="vehicle.year" name="year" />
+                </div>
               </div>
-              <div class="form-group">
-                <label>Year</label>
-                <input type="number" placeholder="2022" [(ngModel)]="vehicle.year" name="year" />
-              </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>Status</label>
-                <select [(ngModel)]="vehicle.status" name="status">
-                  <option value="active">Active</option>
-                  <option value="parked">Parked</option>
-                  <option value="maintenance">Maintenance</option>
-                </select>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Status</label>
+                  <select [(ngModel)]="vehicle.status" name="status">
+                    <option value="active">Active</option>
+                    <option value="parked">Parked</option>
+                    <option value="maintenance">Maintenance</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Fuel Type</label>
+                  <select [(ngModel)]="vehicle.fuelType" name="fuelType">
+                    <option value="diesel">Diesel</option>
+                    <option value="petrol">Petrol</option>
+                    <option value="electric">Electric</option>
+                    <option value="hybrid">Hybrid</option>
+                  </select>
+                </div>
               </div>
-              <div class="form-group">
-                <label>Fuel Type</label>
-                <select [(ngModel)]="vehicle.fuelType" name="fuelType">
-                  <option value="diesel">Diesel</option>
-                  <option value="petrol">Petrol</option>
-                  <option value="electric">Electric</option>
-                  <option value="hybrid">Hybrid</option>
-                </select>
-              </div>
-            </div>
 
-            <div class="form-row">
-              <div class="form-group">
-                <label>Mileage (km)</label>
-                <input
-                  type="number"
-                  placeholder="45000"
-                  [(ngModel)]="vehicle.mileage"
-                  name="mileage"
-                />
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Mileage (km)</label>
+                  <input
+                    type="number"
+                    placeholder="45000"
+                    [(ngModel)]="vehicle.mileage"
+                    name="mileage"
+                  />
+                </div>
+                <div class="form-group">
+                  <label>Driver</label>
+                  <input
+                    type="text"
+                    placeholder="John Doe"
+                    [(ngModel)]="vehicle.driver"
+                    name="driver"
+                  />
+                </div>
               </div>
-              <div class="form-group">
-                <label>Driver</label>
-                <input
-                  type="text"
-                  placeholder="John Doe"
-                  [(ngModel)]="vehicle.driver"
-                  name="driver"
-                />
-              </div>
-            </div>
 
-            <div class="form-actions">
-              <button type="submit" class="btn-submit">Save Vehicle</button>
-              <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
-            </div>
-          </form>
-        </div>
-      </main>
-    </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-submit">Save Vehicle</button>
+                <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
+              </div>
+            </form>
+          </div>
+        </main>
+      </div>
+    </app-main-layout>
   `,
   styles: [
     `

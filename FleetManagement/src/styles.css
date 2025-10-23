@@ -291,6 +291,17 @@ a:hover {
   color: var(--white);
 }
 
+     .btn-back {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
 /* ========================================
    UTILITIES
    ======================================== */
@@ -355,4 +366,5 @@ a:hover {
   .card {
     padding: var(--spacing-md);
   }
+
 }

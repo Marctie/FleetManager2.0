@@ -1,5 +1,4 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { Subscription } from 'rxjs';
@@ -7,44 +6,53 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],
   template: `
     <div class="home-container">
+      <!-- Header Full Width -->
       <header class="header">
         <div class="header-content">
           <div class="logo-section">
             <div class="logo">
-              <a href="http://localhost:4200/home" target="_blank">
-                <img
-                  src="https://img.icons8.com/?size=100&id=gyxi94qFz5rS&format=png&color=000000"
-                  width="50"
-                  height="50"
-                />
-              </a>
+              <img
+                src="https://img.icons8.com/?size=100&id=gyxi94qFz5rS&format=png&color=000000"
+                width="40"
+                height="40"
+                alt="Fleet Logo"
+              />
             </div>
             <h1>FleetManagement</h1>
           </div>
           <div class="user-section">
-            <div class="user-info" *ngIf="currentUser">
-              <div class="user-info">
+            @if (currentUser) {
+            <div class="user-info">
+              <div class="user-details">
                 <span class="username">{{ currentUser.username }}</span>
+                @if (currentUser.role) {
+                <span class="user-role">{{ currentUser.role }}</span>
+                }
               </div>
             </div>
+            }
             <button class="btn-logout" (click)="onLogout()">Logout</button>
           </div>
         </div>
       </header>
+
+      <!-- Main Content Area -->
       <main class="main-content">
         <div class="welcome-section">
           <h2>Welcome to Fleet Management System!</h2>
 
           <!-- Guest Mode Banner -->
-          <div class="guest-banner" *ngIf="isGuest">
+          @if (isGuest) {
+          <div class="guest-banner">
             <div class="guest-content">
               <strong>Guest Mode</strong>
               <p>You are browsing with limited access. Some features may be restricted.</p>
             </div>
           </div>
+          }
         </div>
         <div class="cards-grid">
           <div class="card" (click)="navigateTo('/dashboard')">
@@ -103,7 +111,6 @@ import { Subscription } from 'rxjs';
           </div>
         </div>
       </main>
-      <footer class="footer"></footer>
     </div>
   `,
   styles: [
@@ -122,14 +129,14 @@ import { Subscription } from 'rxjs';
         position: sticky;
         top: 0;
         z-index: 100;
+        width: 100%;
       }
 
       .header-content {
-        max-width: 1400px;
-        margin: 0 auto;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        max-width: 100%;
       }
 
       .logo-section {
@@ -138,8 +145,8 @@ import { Subscription } from 'rxjs';
         gap: 1rem;
       }
 
-      .logo {
-        font-size: 2.5rem;
+      .logo img {
+        display: block;
       }
 
       .header h1 {
@@ -167,12 +174,20 @@ import { Subscription } from 'rxjs';
       .user-details {
         display: flex;
         flex-direction: column;
+        gap: 0.125rem;
       }
 
       .username {
         font-weight: 600;
         color: #2d3748;
         font-size: 0.875rem;
+        line-height: 1.2;
+      }
+
+      .user-role {
+        font-size: 0.75rem;
+        color: #718096;
+        line-height: 1.2;
       }
 
       .btn-logout {
@@ -197,10 +212,10 @@ import { Subscription } from 'rxjs';
 
       .main-content {
         flex: 1;
+        padding: 2rem;
         max-width: 1400px;
         width: 100%;
         margin: 0 auto;
-        padding: 2rem;
       }
 
       .welcome-section {
@@ -378,24 +393,14 @@ import { Subscription } from 'rxjs';
         opacity: 0.9;
       }
 
-      .footer {
-        background: white;
-        padding: 1.5rem 2rem;
-        text-align: center;
-        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-        margin-top: auto;
-      }
-
-      .footer p {
-        color: #718096;
-        margin: 0;
-        font-size: 0.875rem;
-      }
-
       @media (max-width: 768px) {
         .header-content {
           flex-direction: column;
           gap: 1rem;
+        }
+
+        .main-content {
+          padding: 1rem;
         }
 
         .user-section {
@@ -409,10 +414,6 @@ import { Subscription } from 'rxjs';
 
         .cards-grid {
           grid-template-columns: 1fr;
-        }
-
-        .main-content {
-          padding: 1rem;
         }
       }
     `,
@@ -428,6 +429,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // Component initialization
+    console.log(this.currentUser, 'utente', this.currentUser?.role);
   }
 
   ngOnDestroy() {

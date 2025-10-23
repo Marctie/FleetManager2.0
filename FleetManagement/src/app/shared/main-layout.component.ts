@@ -1,15 +1,14 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../../services/auth.service';
-import { SidebarComponent } from '../../shared/sidebar.component';
-import { StatCardComponent } from '../../shared/stat-card.component';
+import { AuthService } from '../services/auth.service';
+import { SidebarComponent } from './sidebar.component';
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-main-layout',
   standalone: true,
-  imports: [SidebarComponent, StatCardComponent],
+  imports: [SidebarComponent],
   template: `
-    <div class="page-container">
+    <div class="layout-container">
       <!-- Header Full Width -->
       <header class="header">
         <div class="header-content">
@@ -51,30 +50,20 @@ import { StatCardComponent } from '../../shared/stat-card.component';
         (click)="toggleSidebar()"
         [title]="showSidebar() ? 'Hide Sidebar' : 'Show Sidebar'"
       >
-        <span>{{ showSidebar() ? '◀' : '▶' }}</span>
+        <span>{{ showSidebar() ? '<' : '>' }}</span>
       </button>
 
       <!-- Main Content Area -->
-      <div class="content-wrapper" [class.full-width]="!showSidebar()">
-        <main class="page-content">
-          <div class="page-header">
-            <h2>Dashboard</h2>
-            <button class="btn-back" (click)="goBack()">← Back to Home</button>
-          </div>
-          <div class="stats-grid">
-            <!--  esercizio punto 6 con i dati  -->
-            <app-stat-card title="Total Vehicles" [value]="244"></app-stat-card>
-            <app-stat-card title="Active" [value]="18"></app-stat-card>
-            <app-stat-card title="In Maintenance" [value]="3"></app-stat-card>
-            <app-stat-card title="Alerts" [value]="2"></app-stat-card>
-          </div>
+      <div class="content-wrapper">
+        <main class="layout-content">
+          <ng-content></ng-content>
         </main>
       </div>
     </div>
   `,
   styles: [
     `
-      .page-container {
+      .layout-container {
         min-height: 100vh;
         display: flex;
         flex-direction: column;
@@ -199,6 +188,9 @@ import { StatCardComponent } from '../../shared/stat-card.component';
       .content-wrapper {
         flex: 1;
         margin-left: 260px;
+        width: 100%;
+        position: relative;
+        left: -14%;
         display: flex;
         flex-direction: column;
         transition: margin-left 0.3s ease;
@@ -206,69 +198,12 @@ import { StatCardComponent } from '../../shared/stat-card.component';
 
       .content-wrapper.full-width {
         margin-left: 0;
+
       }
 
-      .page-content {
+      .layout-content {
         flex: 1;
         padding: 2rem;
-      }
-
-      .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-      }
-
-      .btn-back:hover {
-        background: #667eea;
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-      }
-
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-      }
-
-      h2 {
-        font-size: 1.5rem;
-        color: #2d3748;
-        margin-bottom: 1rem;
-      }
-
-      p {
-        color: #718096;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-      }
-
-      ul {
-        list-style: none;
-        padding: 0;
-      }
-
-      li {
-        padding: 0.5rem 0;
-        color: #4a5568;
-        font-size: 1rem;
-        padding-left: 1.5rem;
-        position: relative;
-      }
-
-      li:before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 6px;
-        height: 6px;
-        background: #667eea;
-        border-radius: 50%;
       }
 
       @media (max-width: 768px) {
@@ -282,7 +217,7 @@ import { StatCardComponent } from '../../shared/stat-card.component';
           margin-left: 0;
         }
 
-        .page-content {
+        .layout-content {
           padding: 1rem;
         }
 
@@ -294,7 +229,7 @@ import { StatCardComponent } from '../../shared/stat-card.component';
     `,
   ],
 })
-export class DashboardComponent {
+export class MainLayoutComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
@@ -303,10 +238,6 @@ export class DashboardComponent {
 
   toggleSidebar() {
     this.showSidebar.update((value) => !value);
-  }
-
-  goBack() {
-    this.router.navigate(['/home']);
   }
 
   onLogout() {

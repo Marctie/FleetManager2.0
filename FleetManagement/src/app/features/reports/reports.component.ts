@@ -1,41 +1,44 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MainLayoutComponent } from "../../shared/main-layout.component";
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MainLayoutComponent],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Reports & Analytics</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
-      </header>
+    <app-main-layout>
+      <div class="page-container">
+        <header class="page-header">
+          <h1>Reports & Analytics</h1>
+          <button class="btn-back" (click)="goBack()">Back to Home</button>
+        </header>
 
-      <main class="page-content">
-        <div class="stats-row">
-          <div class="stat-card">
-            <span class="stat-label">New Reports</span>
+        <main class="page-content">
+          <div class="stats-row">
+            <div class="stat-card">
+              <span class="stat-label">New Reports</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Total Reports</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">This Month</span>
+            </div>
           </div>
-          <div class="stat-card">
-            <span class="stat-label">Total Reports</span>
-          </div>
-          <div class="stat-card">
-            <span class="stat-label">This Month</span>
-          </div>
-        </div>
 
-        <div class="content-card">
-          <h2>Fleet Analytics Dashboard</h2>
-          <p>View and generate fleet analytics reports</p>
-          <div class="placeholder">
-            <p>Reports and analytics interface will be implemented here</p>
-            <p style="margin-top: 1rem; font-size: 0.875rem;">Charts, graphs, and statistics</p>
+          <div class="content-card">
+            <h2>Fleet Analytics Dashboard</h2>
+            <p>View and generate fleet analytics reports</p>
+            <div class="placeholder">
+              <p>Reports and analytics interface will be implemented here</p>
+              <p style="margin-top: 1rem; font-size: 0.875rem;">Charts, graphs, and statistics</p>
+            </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </app-main-layout>
   `,
   styles: [
     `

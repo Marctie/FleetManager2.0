@@ -1,45 +1,48 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { MainLayoutComponent } from '../shared/main-layout.component';
 
 @Component({
   selector: 'app-documents',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MainLayoutComponent],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Document Management</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
-      </header>
+    <app-main-layout>
+      <div class="page-container">
+        <header class="page-header">
+          <h1>Document Management</h1>
+          <button class="btn-back" (click)="goBack()">Back to Home</button>
+        </header>
 
-      <main class="page-content">
-        <div class="upload-section">
-          <div class="upload-box">
-            <h3>Upload Document</h3>
-            <p>Drag and drop files here or click to browse</p>
-            <button class="btn-upload">Choose File</button>
+        <main class="page-content">
+          <div class="upload-section">
+            <div class="upload-box">
+              <h3>Upload Document</h3>
+              <p>Drag and drop files here or click to browse</p>
+              <button class="btn-upload">Choose File</button>
+            </div>
           </div>
-        </div>
 
-        <div class="documents-section">
-          <h2>Recent Documents</h2>
-          <div class="documents-list">
-            <div class="document-item" *ngFor="let doc of documents">
-              <div class="doc-info">
-                <h4>{{ doc.name }}</h4>
-                <p>{{ doc.vehicle }} • {{ doc.date }}</p>
-              </div>
-              <div class="doc-actions">
-                <button class="btn-icon" title="Download">Download</button>
-                <button class="btn-icon" title="View">View</button>
-                <button class="btn-icon" title="Delete">Delete</button>
+          <div class="documents-section">
+            <h2>Recent Documents</h2>
+            <div class="documents-list">
+              <div class="document-item" *ngFor="let doc of documents">
+                <div class="doc-info">
+                  <h4>{{ doc.name }}</h4>
+                  <p>{{ doc.vehicle }} • {{ doc.date }}</p>
+                </div>
+                <div class="doc-actions">
+                  <button class="btn-icon" title="Download">Download</button>
+                  <button class="btn-icon" title="View">View</button>
+                  <button class="btn-icon" title="Delete">Delete</button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </main>
-    </div>
+        </main>
+      </div>
+    </app-main-layout>
   `,
   styles: [
     `
