@@ -17,7 +17,14 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
         <main class="page-content">
           <div class="filter-section">
             <input type="text" placeholder="Search vehicles..." class="search-input" />
-            <button class="btn-add">Add Vehicle</button>
+            <div class="select-wrap">
+              <select class="filter-select" aria-label="Select filter type">
+                <option value="">All fields</option>
+                <option value="licensePlate">Status</option>
+                <option value="model">Model</option>
+              </select>
+            </div>
+            <button class="btn-add">Search Vehicle</button>
           </div>
 
           <div class="vehicle-table">
@@ -103,6 +110,40 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
         display: flex;
         gap: 1rem;
         margin-bottom: 1.5rem;
+      }
+
+      .filter-select {
+        width: 100%;
+        padding: 14px 18px;
+        padding-right: 44px;
+        border-radius: 10px;
+        border: 2px solid #dee2e6;
+        background: #fff;
+        font-size: clamp(0.875rem, 2.5vw, 1rem);
+        cursor: pointer;
+        font-family: 'Inter', 'Segoe UI', 'SF Pro Display', -apple-system, BlinkMacSystemFont,
+          sans-serif;
+        font-weight: 400;
+        color: #333;
+        outline: none;
+        transition: all 0.3s ease;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23007bff' viewBox='0 0 16 16'%3E%3Cpath d='M8 11.5l-4-4h8l-4 4z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 16px;
+        box-sizing: border-box;
+      }
+
+      .filter-select:focus {
+        border-color: #007bff;
+        box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+      }
+
+      .filter-select:hover {
+        border-color: #007bff;
       }
 
       .search-input {

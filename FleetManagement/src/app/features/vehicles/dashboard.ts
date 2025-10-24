@@ -299,7 +299,7 @@ export class DashboardComponent {
   private router = inject(Router);
 
   currentUser = this.authService.getCurrentUser();
-  showSidebar = signal(false);
+  showSidebar = signal(true);
 
   toggleSidebar() {
     this.showSidebar.update((value) => !value);
