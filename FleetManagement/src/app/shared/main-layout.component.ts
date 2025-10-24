@@ -2,11 +2,12 @@ import { Component, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { SidebarComponent } from './sidebar.component';
+import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [SidebarComponent],
+  imports: [SidebarComponent, NgClass],
   template: `
     <div class="layout-container">
       <!-- Header Full Width -->
@@ -54,7 +55,7 @@ import { SidebarComponent } from './sidebar.component';
       </button>
 
       <!-- Main Content Area -->
-      <div class="content-wrapper">
+      <div class="content-wrapper" [class.full-width]="showSidebar()">
         <main class="layout-content">
           <ng-content></ng-content>
         </main>
@@ -187,18 +188,17 @@ import { SidebarComponent } from './sidebar.component';
 
       .content-wrapper {
         flex: 1;
-        margin-left: 260px;
+        margin-left: 0px;
         width: 100%;
-        position: relative;
-        left: -14%;
         display: flex;
         flex-direction: column;
-        transition: margin-left 0.3s ease;
+        transition: margin-left 0.3s ease, width 0.3s ease;
       }
 
       .content-wrapper.full-width {
-        margin-left: 0;
+        margin-left: 260px;
 
+        width: 80%;
       }
 
       .layout-content {
