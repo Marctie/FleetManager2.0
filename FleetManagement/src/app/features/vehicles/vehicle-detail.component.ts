@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -237,8 +237,10 @@ import { Router } from '@angular/router';
 })
 export class VehicleDetailComponent {
   private router = inject(Router);
+  closeModal = output<boolean>();
 
   goBack() {
+    this.closeModal.emit(true);
     this.router.navigate(['/home']);
   }
 }

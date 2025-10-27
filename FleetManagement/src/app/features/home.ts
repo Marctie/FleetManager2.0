@@ -9,7 +9,6 @@ import { Subscription } from 'rxjs';
   imports: [],
   template: `
     <div class="home-container">
-      <!-- Header Full Width -->
       <header class="header">
         <div class="header-content">
           <div class="logo-section">
@@ -39,20 +38,9 @@ import { Subscription } from 'rxjs';
         </div>
       </header>
 
-      <!-- Main Content Area -->
       <main class="main-content">
         <div class="welcome-section">
           <h2>Welcome to Fleet Management System!</h2>
-
-          <!-- Guest Mode Banner -->
-          @if (isGuest) {
-          <div class="guest-banner">
-            <div class="guest-content">
-              <strong>Guest Mode</strong>
-              <p>You are browsing with limited access. Some features may be restricted.</p>
-            </div>
-          </div>
-          }
         </div>
         <div class="cards-grid">
           <div class="card" (click)="navigateTo('/dashboard')">
@@ -67,12 +55,14 @@ import { Subscription } from 'rxjs';
             </div>
             <p>Browse all vehicles</p>
           </div>
-          <div class="card" (click)="navigateTo('/vehicle-detail')">
+
+          <!-- <div class="card" (click)="navigateTo('/vehicle-detail')">
             <div class="card-header">
               <h3>Vehicle Details</h3>
             </div>
             <p>Vehicle details (Modal)</p>
-          </div>
+          </div> -->
+
           <div class="card" (click)="navigateTo('/general-map')">
             <div class="card-header">
               <h3>General Map</h3>
@@ -81,7 +71,7 @@ import { Subscription } from 'rxjs';
           </div>
           <div class="card" (click)="navigateTo('/vehicle-form')">
             <div class="card-header">
-              <h3>Vehicle Form</h3>
+              <h3>Vehicle Form (spostare in lista veicoli )</h3>
             </div>
             <p>Create/Edit vehicles</p>
           </div>

@@ -1,17 +1,20 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MainLayoutComponent } from '../../shared/main-layout.component';
+import { VehicleDetailComponent } from './vehicle-detail.component';
 
 @Component({
   selector: 'app-vehicle-list',
   standalone: true,
-  imports: [MainLayoutComponent],
+  imports: [MainLayoutComponent, VehicleDetailComponent],
   template: `
     <app-main-layout>
       <div class="page-container">
         <header class="page-header">
           <h1>Vehicle List</h1>
           <button class="btn-back" (click)="goBack()">Back to Home</button>
+          <button class="btn-back" (click)="goVehicleMap()">Vehicle Map</button>
+          <button class="btn-back" (click)="goVehicleForm()">Vehicle Form</button>
         </header>
 
         <main class="page-content">
@@ -52,7 +55,7 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
                   </td>
                   <td>{{ vehicle.driver }}</td>
                   <td>
-                    <button class="btn-action">View</button>
+                    <button class="btn-action" (click)="openModal()">View</button>
                     <button class="btn-action">Edit</button>
                   </td>
                 </tr>
@@ -60,6 +63,10 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
               </tbody>
             </table>
           </div>
+
+          @if (showModal()) {
+          <app-vehicle-detail (closeModal)="handleCloseModal($event)"> </app-vehicle-detail>
+          }
         </main>
       </div>
     </app-main-layout>
@@ -258,6 +265,9 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
   ],
 })
 export class VehicleListComponent {
+  showModal = signal(false);
+  private router = inject(Router);
+
   vehicles = [
     { id: 'V001', model: 'Ford Transit', plate: 'AB123CD', status: 'Active', driver: 'John Doe' },
     {
@@ -284,8 +294,22 @@ export class VehicleListComponent {
     },
   ];
 
-  private router = inject(Router);
+  openModal() {
+    this.showModal.set(true);
+  }
 
+  handleCloseModal(event: boolean) {
+    if (event) {
+      this.showModal.set(false);
+    }
+  }
+
+  goVehicleMap() {
+    this.router.navigate(['/general-map']);
+  }
+  goVehicleForm() {
+    this.router.navigate(['/vehicle-form']);
+  }
   goBack() {
     this.router.navigate(['/home']);
   }
