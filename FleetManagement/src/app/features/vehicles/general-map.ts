@@ -15,11 +15,12 @@ import { VehiclePosition } from '../../models/vehicle-position';
 import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
 import { MainLayoutComponent } from '../../shared/main-layout.component';
+import { StatCardComponent } from '../../shared/stat-card.component';
 
 @Component({
   selector: 'app-general-map',
   standalone: true,
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, MainLayoutComponent, StatCardComponent],
   template: `
     <app-main-layout>
       <div class="page-container">
@@ -41,7 +42,7 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
 
         <div class="stats-section">
           <div class="stats-grid">
-            <div class="stat-card">
+            <!-- <div class="stat-card">
               <span class="stat-label">Total Vehicles</span>
               <span class="stat-value">{{ vehicleList().length }}</span>
             </div>
@@ -60,7 +61,26 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
             <div class="stat-card maintenance-status">
               <span class="stat-label">Maintenance</span>
               <span class="stat-value">{{ getVehiclesMaintenance() }}</span>
-            </div>
+            </div> -->
+
+            <!-- TODO: colorare il valore in base al marker sulla mappa  -->
+            <app-stat-card
+              class="maintenance-status"
+              title="Total Vehicles"
+              [value]="1"
+            ></app-stat-card>
+            <app-stat-card
+              class="maintenance-status"
+              title="With Position"
+              [value]="2"
+            ></app-stat-card>
+            <app-stat-card class="maintenance-status" title="Online" [value]="3"></app-stat-card>
+            <app-stat-card class="maintenance-status" title="Offline" [value]="4"></app-stat-card>
+            <app-stat-card
+              class="maintenance-status"
+              title="Maintenance"
+              [value]="5"
+            ></app-stat-card>
           </div>
         </div>
 
