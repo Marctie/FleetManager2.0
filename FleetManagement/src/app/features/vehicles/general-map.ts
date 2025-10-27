@@ -23,7 +23,6 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
   template: `
     <app-main-layout>
       <div class="page-container">
-        <!-- Header -->
         <header class="page-header">
           <h1>General Map</h1>
           <div class="header-controls">
@@ -40,7 +39,6 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
           </div>
         </header>
 
-        <!-- Statistics -->
         <div class="stats-section">
           <div class="stats-grid">
             <div class="stat-card">

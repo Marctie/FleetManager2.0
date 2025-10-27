@@ -12,9 +12,17 @@ import { VehicleDetailComponent } from './vehicle-detail.component';
       <div class="page-container">
         <header class="page-header">
           <h1>Vehicle List</h1>
-          <button class="btn-add" (click)="goVehicleMap()">Vehicle Map</button>
-          <button class="btn-add" (click)="goVehicleForm()">Vehicle Form</button>
-          <button class="btn-back" (click)="goBack()">Back to Home</button>
+          <div>
+            <button class="btn-add" style="margin: 0px 5px" (click)="goVehicleMap()">
+              Vehicle Map
+            </button>
+            <button class="btn-add" style="margin: 0px 5px" (click)="goVehicleForm()">
+              Vehicle Form
+            </button>
+            <button class="btn-back" style="margin: 0px 5px" (click)="goBack()">
+              Back to Home
+            </button>
+          </div>
         </header>
 
         <main class="page-content">

@@ -63,18 +63,19 @@ import { Subscription } from 'rxjs';
             <p>Vehicle details (Modal)</p>
           </div> -->
 
-          <div class="card" (click)="navigateTo('/general-map')">
+          <!-- <div class="card" (click)="navigateTo('/general-map')">
             <div class="card-header">
               <h3>General Map</h3>
             </div>
             <p>View all vehicles on map</p>
-          </div>
-          <div class="card" (click)="navigateTo('/vehicle-form')">
+          </div> -->
+
+          <!-- <div class="card" (click)="navigateTo('/vehicle-form')">
             <div class="card-header">
               <h3>Vehicle Form (spostare in lista veicoli )</h3>
             </div>
             <p>Create/Edit vehicles</p>
-          </div>
+          </div> -->
           <div class="card" (click)="navigateTo('/user-management')">
             <div class="card-header">
               <h3>User Management</h3>
