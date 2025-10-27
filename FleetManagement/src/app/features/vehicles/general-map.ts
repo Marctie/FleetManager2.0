@@ -36,7 +36,7 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
               </select>
             </div>
             <button class="btn-refresh" (click)="refreshAllVehicles()">Update Positions</button>
-            <button class="btn-back" (click)="goBack()">Back to Home</button>
+            <button class="btn-back" (click)="goBack()">Back</button>
           </div>
         </header>
 
@@ -763,6 +763,6 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/vehicle-list']);
   }
 }

@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
     <div class="page-container">
       <header class="page-header">
         <h1>Vehicle Details</h1>
-        <button class="btn-back" (click)="goBack()">Back to Home</button>
+        <button class="btn-back" (click)="goBack()">Close</button>
       </header>
 
       <main class="page-content">
@@ -241,6 +241,5 @@ export class VehicleDetailComponent {
 
   goBack() {
     this.closeModal.emit(true);
-    this.router.navigate(['/home']);
   }
 }

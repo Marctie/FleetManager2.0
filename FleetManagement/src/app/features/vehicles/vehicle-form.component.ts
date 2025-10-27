@@ -13,7 +13,7 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
       <div class="page-container">
         <header class="page-header">
           <h1>Vehicle Form</h1>
-          <button class="btn-back" (click)="goBack()">Back to Home</button>
+          <button class="btn-back" (click)="goBack()">Back</button>
         </header>
 
         <main class="page-content">
@@ -257,6 +257,6 @@ export class VehicleFormComponent {
   constructor(private router: Router) {}
 
   goBack() {
-    this.router.navigate(['/home']);
+    this.router.navigate(['/vehicle-list']);
   }
 }
