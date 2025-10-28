@@ -1,8 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MainLayoutComponent } from '../../shared/main-layout.component';
+import { InvokeFunctionExpr } from '@angular/compiler';
+import { IVehicleForm } from '../../models/IVehicleForm';
 
 @Component({
   selector: 'app-vehicle-form',
@@ -18,44 +20,34 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
 
         <main class="page-content">
           <div class="form-card">
-            <h2>Create / Edit Vehicle</h2>
+            <h2>Create Vehicle</h2>
             <form>
               <div class="form-row">
                 <div class="form-group">
                   <label>Vehicle ID</label>
-                  <input type="text" placeholder="V001" [(ngModel)]="vehicle.id" name="id" />
+                  <input type="text" placeholder="V001" name="id" />
                 </div>
                 <div class="form-group">
                   <label>Model</label>
-                  <input
-                    type="text"
-                    placeholder="Ford Transit"
-                    [(ngModel)]="vehicle.model"
-                    name="model"
-                  />
+                  <input type="text" placeholder="Ford Transit" name="model" />
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label>License Plate</label>
-                  <input
-                    type="text"
-                    placeholder="AB123CD"
-                    [(ngModel)]="vehicle.plate"
-                    name="plate"
-                  />
+                  <input type="text" placeholder="AB123CD" name="plate" />
                 </div>
                 <div class="form-group">
                   <label>Year</label>
-                  <input type="number" placeholder="2022" [(ngModel)]="vehicle.year" name="year" />
+                  <input type="number" placeholder="2022" name="year" />
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label>Status</label>
-                  <select [(ngModel)]="vehicle.status" name="status">
+                  <select name="status">
                     <option value="active">Active</option>
                     <option value="parked">Parked</option>
                     <option value="maintenance">Maintenance</option>
@@ -63,7 +55,7 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
                 </div>
                 <div class="form-group">
                   <label>Fuel Type</label>
-                  <select [(ngModel)]="vehicle.fuelType" name="fuelType">
+                  <select name="fuelType">
                     <option value="diesel">Diesel</option>
                     <option value="petrol">Petrol</option>
                     <option value="electric">Electric</option>
@@ -75,21 +67,11 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
               <div class="form-row">
                 <div class="form-group">
                   <label>Mileage (km)</label>
-                  <input
-                    type="number"
-                    placeholder="45000"
-                    [(ngModel)]="vehicle.mileage"
-                    name="mileage"
-                  />
+                  <input type="number" placeholder="45000" name="mileage" />
                 </div>
                 <div class="form-group">
                   <label>Driver</label>
-                  <input
-                    type="text"
-                    placeholder="John Doe"
-                    [(ngModel)]="vehicle.driver"
-                    name="driver"
-                  />
+                  <input type="text" placeholder="John Doe" name="driver" />
                 </div>
               </div>
 
@@ -243,18 +225,7 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
   ],
 })
 export class VehicleFormComponent {
-  vehicle = {
-    id: '',
-    model: '',
-    plate: '',
-    year: 2024,
-    status: 'active',
-    fuelType: 'diesel',
-    mileage: 0,
-    driver: '',
-  };
-
-  constructor(private router: Router) {}
+  router = inject(Router);
 
   goBack() {
     this.router.navigate(['/vehicle-list']);
