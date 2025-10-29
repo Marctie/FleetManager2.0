@@ -16,7 +16,6 @@ import { IVehicleForm } from '../../models/IVehicleForm';
           <h1>Vehicle Form</h1>
           <button class="btn-back" (click)="goBack()">Back</button>
         </header>
-
         <main class="page-content">
           <div class="form-card">
             <h2>Create Vehicle</h2>

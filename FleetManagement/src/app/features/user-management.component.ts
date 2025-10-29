@@ -1,11 +1,14 @@
-import { Component, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { MainLayoutComponent } from '../shared/main-layout.component';
+import { UserService } from '../services/user.service';
+import { IUser } from '../models/IUser';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [MainLayoutComponent],
+  imports: [CommonModule, MainLayoutComponent],
   template: `
     <app-main-layout>
       <div class="page-container">
@@ -16,11 +19,43 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
 
         <main class="page-content">
           <div class="actions-bar">
-            <input type="text" placeholder="Search users..." class="search-input" />
-            <button class="btn-add">Add User</button>
+            <input
+              type="text"
+              placeholder="Search users..."
+              class="search-input"
+              (input)="onSearch($event)"
+            />
+            <!-- <button class="btn-add">Search</button> -->
+            <!-- <button class="btn-add">Add User</button> -->
           </div>
 
-          <div class="users-grid"></div>
+          @if (error()) {
+          <div class="error-message">
+            {{ error() }}
+          </div>
+          } @if (isLoading()) {
+          <div class="loading-state">Loading users...</div>
+          } @else { @if (filteredUsers().length === 0) {
+          <div class="empty-state">No users found.</div>
+          } @else {
+          <div class="users-grid">
+            @for (user of filteredUsers(); track user.id) {
+            <div class="user-card">
+              <div class="user-avatar">
+                {{ user.username.charAt(0).toUpperCase() }}
+              </div>
+              <div class="user-info">
+                <h3>{{ user.fullName || user.username }}</h3>
+                <div class="user-info" [class]="user.role.toLowerCase()">Role: {{ user.role }}</div>
+                <div class="user-email">{{ user.email }}</div>
+              </div>
+              <div class="user-actions">
+                <button class="btn-icon edit" title="Edit user">Edit</button>
+              </div>
+            </div>
+            }
+          </div>
+          } }
         </main>
       </div>
     </app-main-layout>
@@ -169,6 +204,71 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
         transform: scale(1.2);
       }
 
+      .loading-state,
+      .error-message,
+      .empty-state {
+        background: white;
+        padding: 2rem;
+        border-radius: 1rem;
+        text-align: center;
+        margin-top: 2rem;
+      }
+
+      .loading-state {
+        color: #4a5568;
+        font-size: 1.125rem;
+      }
+
+      .error-message {
+        color: #e53e3e;
+        background-color: #fed7d7;
+      }
+
+      .empty-state {
+        color: #718096;
+        font-style: italic;
+      }
+
+      .user-role {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+      }
+
+      .user-role.admin {
+        background-color: #fed7d7;
+        color: #e53e3e;
+      }
+
+      .user-role.manager {
+        background-color: #c6f6d5;
+        color: #38a169;
+      }
+
+      .user-role.driver {
+        background-color: #bee3f8;
+        color: #3182ce;
+      }
+
+      .user-role.viewer {
+        background-color: #e9d8fd;
+        color: #805ad5;
+      }
+
+      .btn-icon.edit:hover {
+        color: #4299e1;
+      }
+
+      .btn-icon.active {
+        color: #48bb78;
+      }
+
+      .btn-icon.inactive {
+        color: #e53e3e;
+      }
+
       @media (max-width: 768px) {
         .users-grid {
           grid-template-columns: 1fr;
@@ -177,9 +277,53 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
     `,
   ],
 })
-export class UserManagementComponent {
+export class UserManagementComponent implements OnInit {
   private router = inject(Router);
-  users = [];
+  private userService = inject(UserService);
+
+  // Signals
+  users = signal<IUser[]>([]);
+  filteredUsers = signal<IUser[]>([]);
+  isLoading = signal(false);
+  error = signal<string | null>(null);
+  searchTerm = signal('');
+
+  ngOnInit(): void {
+    this.loadUsers();
+  }
+
+  private loadUsers(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.userService.getUsers().subscribe({
+      next: (users) => {
+        this.users.set(users);
+        this.filteredUsers.set(users);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading users:', error);
+        this.error.set('Error loading users. Please try again later.');
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  onSearch(event: Event): void {
+    const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
+    this.searchTerm.set(searchTerm);
+
+    const filtered = this.users().filter(
+      (user) =>
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.fullName?.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm) ||
+        user.role.toLowerCase().includes(searchTerm)
+    );
+
+    this.filteredUsers.set(filtered);
+  }
 
   goBack() {
     this.router.navigate(['/home']);

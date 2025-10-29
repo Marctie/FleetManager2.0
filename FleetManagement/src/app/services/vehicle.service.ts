@@ -15,7 +15,7 @@ export class VehicleService {
   };
 
   /**
-   * Get paginated list of vehicles
+   Lista veicoli
    */
   getListVehicles(page: number = 1, pageSize: number = 1000): Observable<IVehicle[]> {
     return this.http.get<IVehicle[]>(
@@ -24,7 +24,7 @@ export class VehicleService {
   }
 
   /**
-   * Get single vehicle by ID
+   *Lista veicoli con id
    */
   getVehicleById(id: number): Observable<any> {
     return this.http.get(`${this.VEHICLE_ENDPOINTS.list}/${id}`);
