@@ -28,9 +28,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(clonedRequest).pipe(
     catchError((error) => {
-      // Se riceviamo un errore 401 (Unauthorized), proviamo a fare il refresh del token
       if (error.status === 401 && !req.url.includes('/api/Auth/refresh')) {
-        console.warn('⚠️ Token scaduto, tentativo di refresh...');
+        console.warn('Token scaduto, tentativo di refresh...');
 
         return authService.refreshToken().pipe(
           switchMap(() => {
@@ -45,7 +44,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           }),
           catchError((refreshError) => {
             // Se anche il refresh fallisce, logout
-            console.error('❌ Refresh token fallito, logout necessario');
+            console.error('Refresh token fallito, logout necessario');
             authService.logout().subscribe();
             return throwError(() => refreshError);
           })

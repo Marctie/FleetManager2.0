@@ -63,23 +63,30 @@ import { StatCardComponent } from '../../shared/stat-card.component';
               <span class="stat-value">{{ getVehiclesMaintenance() }}</span>
             </div> -->
 
-            <!-- TODO: colorare il valore in base al marker sulla mappa  -->
             <app-stat-card
-              class="maintenance-status"
+              class="total-status"
               title="Total Vehicles"
-              [value]="1"
+              [value]="vehicleList().length"
             ></app-stat-card>
             <app-stat-card
-              class="maintenance-status"
+              class="position-status"
               title="With Position"
-              [value]="2"
+              [value]="getVehiclesWithPosition()"
             ></app-stat-card>
-            <app-stat-card class="maintenance-status" title="Online" [value]="3"></app-stat-card>
-            <app-stat-card class="maintenance-status" title="Offline" [value]="4"></app-stat-card>
+            <app-stat-card
+              class="online-status"
+              title="Online"
+              [value]="getVehiclesOnline()"
+            ></app-stat-card>
+            <app-stat-card
+              class="offline-status"
+              title="Offline"
+              [value]="getVehiclesOffline()"
+            ></app-stat-card>
             <app-stat-card
               class="maintenance-status"
               title="Maintenance"
-              [value]="5"
+              [value]="getVehiclesMaintenance()"
             ></app-stat-card>
           </div>
         </div>
@@ -230,6 +237,14 @@ import { StatCardComponent } from '../../shared/stat-card.component';
       .stat-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .stat-card.total-status {
+        border-left-color: #667eea;
+      }
+
+      .stat-card.position-status {
+        border-left-color: #805ad5;
       }
 
       .stat-card.online-status {
@@ -404,7 +419,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Signals
   vehicleList = signal<IVehicle[]>([]);
-  selectedVehicle = input<IVehicle>();
+  selectedVehicle = signal<IVehicle | null>(null);
   showToast = signal(false);
   toastMessage = signal('');
   toastType = signal<'success' | 'error'>('success');
@@ -429,6 +444,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   constructor() {
+    // Osserva i cambiamenti del veicolo selezionato
     effect(() => {
       const selected = this.selectedVehicle();
       if (this.map && selected) {
@@ -457,13 +473,13 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private loadVehicles(silent: boolean = false): void {
     this.vehicleService.getListVehicles().subscribe({
-      next: (response) => {
-        this.vehicleList.set(response.items || []);
+      next: (vehicles) => {
+        this.vehicleList.set(vehicles);
         if (this.map) {
           this.addVehicleMarkers(true);
         }
         if (!silent) {
-          console.log(`Loaded ${response.items?.length || 0} vehicles`);
+          console.log(`Loaded ${vehicles.length} vehicles`);
         }
       },
       error: (error) => {

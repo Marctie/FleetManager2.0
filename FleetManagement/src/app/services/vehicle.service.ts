@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { IVehicleRes } from '../models/IVehicle';
+import { IVehicle } from '../models/IVehicle';
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +17,8 @@ export class VehicleService {
   /**
    * Get paginated list of vehicles
    */
-  getListVehicles(page: number = 1, pageSize: number = 1000): Observable<IVehicleRes> {
-    return this.http.get<IVehicleRes>(
+  getListVehicles(page: number = 1, pageSize: number = 1000): Observable<IVehicle[]> {
+    return this.http.get<IVehicle[]>(
       `${this.VEHICLE_ENDPOINTS.list}?page=${page}&pageSize=${pageSize}`
     );
   }

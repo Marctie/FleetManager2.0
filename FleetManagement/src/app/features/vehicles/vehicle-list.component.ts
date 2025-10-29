@@ -1,7 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { MainLayoutComponent } from '../../shared/main-layout.component';
 import { VehicleDetailComponent } from './vehicle-detail.component';
+import { VehicleService } from '../../services/vehicle.service';
+import { IVehicle } from '../../models/IVehicle';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -38,6 +40,13 @@ import { VehicleDetailComponent } from './vehicle-detail.component';
             <button class="btn-add">Search Vehicle</button>
           </div>
 
+          @if (error()) {
+          <div class="error-message">
+            {{ error() }}
+          </div>
+          } @else if (isLoading()) {
+          <div class="loading-state">Loading vehicles...</div>
+          } @else {
           <div class="vehicle-table">
             <table>
               <thead>
@@ -51,17 +60,17 @@ import { VehicleDetailComponent } from './vehicle-detail.component';
                 </tr>
               </thead>
               <tbody>
-                @for (vehicle of vehicles; track vehicle.id) {
+                @for (vehicle of vehicles(); track vehicle.id) {
                 <tr>
                   <td>{{ vehicle.id }}</td>
                   <td>{{ vehicle.model }}</td>
-                  <td>{{ vehicle.plate }}</td>
+                  <td>{{ vehicle.licensePlate }}</td>
                   <td>
                     <span class="status-badge" [class]="vehicle.status.toLowerCase()">
                       {{ vehicle.status }}
                     </span>
                   </td>
-                  <td>{{ vehicle.driver }}</td>
+                  <td>{{ vehicle.assignedDriverName || 'N/A' }}</td>
                   <td>
                     <button class="btn-action" (click)="openModal()">View</button>
                     <button class="btn-action">Edit</button>
@@ -71,8 +80,7 @@ import { VehicleDetailComponent } from './vehicle-detail.component';
               </tbody>
             </table>
           </div>
-
-          @if (showModal()) {
+          } @if (showModal()) {
           <app-vehicle-detail (closeModal)="handleCloseModal($event)"> </app-vehicle-detail>
           }
         </main>
@@ -255,6 +263,24 @@ import { VehicleDetailComponent } from './vehicle-detail.component';
         background: #5a67d8;
       }
 
+      .loading-state {
+        text-align: center;
+        padding: 2rem;
+        background: white;
+        border-radius: 1rem;
+        font-size: 1.125rem;
+        color: #4a5568;
+      }
+
+      .error-message {
+        padding: 1rem;
+        margin-bottom: 1rem;
+        background: #fed7d7;
+        color: #742a2a;
+        border-radius: 0.5rem;
+        font-weight: 500;
+      }
+
       @media (max-width: 768px) {
         .filter-section {
           flex-direction: column;
@@ -272,35 +298,36 @@ import { VehicleDetailComponent } from './vehicle-detail.component';
     `,
   ],
 })
-export class VehicleListComponent {
+export class VehicleListComponent implements OnInit {
   showModal = signal(false);
-  private router = inject(Router);
+  isLoading = signal(false);
+  error = signal<string | null>(null);
+  vehicles = signal<IVehicle[]>([]);
 
-  vehicles = [
-    { id: 'V001', model: 'Ford Transit', plate: 'AB123CD', status: 'Active', driver: 'John Doe' },
-    {
-      id: 'V002',
-      model: 'Mercedes Sprinter',
-      plate: 'EF456GH',
-      status: 'Maintenance',
-      driver: 'N/A',
-    },
-    { id: 'V003', model: 'Fiat Ducato', plate: 'IJ789KL', status: 'Parked', driver: 'Jane Smith' },
-    {
-      id: 'V004',
-      model: 'Volkswagen Crafter',
-      plate: 'MN012OP',
-      status: 'Active',
-      driver: 'Bob Wilson',
-    },
-    {
-      id: 'V005',
-      model: 'Renault Master',
-      plate: 'QR345ST',
-      status: 'Active',
-      driver: 'Alice Brown',
-    },
-  ];
+  private router = inject(Router);
+  private vehicleService = inject(VehicleService);
+
+  ngOnInit(): void {
+    this.loadVehicles();
+  }
+
+  private loadVehicles(): void {
+    this.isLoading.set(true);
+    this.error.set(null);
+
+    this.vehicleService.getListVehicles().subscribe({
+      next: (vehicles) => {
+        console.log('Vehicles loaded:', vehicles);
+        this.vehicles.set(vehicles);
+        this.isLoading.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading vehicles:', error);
+        this.error.set('Error loading vehicles. Please try again later.');
+        this.isLoading.set(false);
+      },
+    });
+  }
 
   openModal() {
     this.showModal.set(true);
