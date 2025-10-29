@@ -1,15 +1,14 @@
-import { Component, inject, input, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MainLayoutComponent } from '../../shared/main-layout.component';
-import { InvokeFunctionExpr } from '@angular/compiler';
 import { IVehicleForm } from '../../models/IVehicleForm';
 
 @Component({
   selector: 'app-vehicle-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
   template: `
     <app-main-layout>
       <div class="page-container">
@@ -21,62 +20,86 @@ import { IVehicleForm } from '../../models/IVehicleForm';
         <main class="page-content">
           <div class="form-card">
             <h2>Create Vehicle</h2>
-            <form>
+            <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()">
               <div class="form-row">
                 <div class="form-group">
                   <label>Vehicle ID</label>
-                  <input type="text" placeholder="V001" name="id" />
+                  <input type="text" placeholder="V001" formControlName="id" />
+                  @if (vehicleForm.get('id')?.touched && vehicleForm.get('id')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('id') }}</div>
+                  }
                 </div>
                 <div class="form-group">
                   <label>Model</label>
-                  <input type="text" placeholder="Ford Transit" name="model" />
+                  <input type="text" placeholder="Ford Transit" formControlName="model" />
+                  @if (vehicleForm.get('model')?.touched && vehicleForm.get('model')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('model') }}</div>
+                  }
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label>License Plate</label>
-                  <input type="text" placeholder="AB123CD" name="plate" />
+                  <input type="text" placeholder="AB123CD" formControlName="plate" />
+                  @if (vehicleForm.get('plate')?.touched && vehicleForm.get('plate')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('plate') }}</div>
+                  }
                 </div>
                 <div class="form-group">
                   <label>Year</label>
-                  <input type="number" placeholder="2022" name="year" />
+                  <input type="number" [placeholder]="currentYear" formControlName="year" />
+                  @if (vehicleForm.get('year')?.touched && vehicleForm.get('year')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('year') }}</div>
+                  }
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label>Status</label>
-                  <select name="status">
+                  <select formControlName="status">
                     <option value="active">Active</option>
                     <option value="parked">Parked</option>
                     <option value="maintenance">Maintenance</option>
                   </select>
+                  @if (vehicleForm.get('status')?.touched && vehicleForm.get('status')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('status') }}</div>
+                  }
                 </div>
                 <div class="form-group">
                   <label>Fuel Type</label>
-                  <select name="fuelType">
+                  <select formControlName="fuelType">
                     <option value="diesel">Diesel</option>
                     <option value="petrol">Petrol</option>
                     <option value="electric">Electric</option>
                     <option value="hybrid">Hybrid</option>
                   </select>
+                  @if (vehicleForm.get('fuelType')?.touched && vehicleForm.get('fuelType')?.invalid)
+                  {
+                  <div class="error-message">{{ getErrorMessage('fuelType') }}</div>
+                  }
                 </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
                   <label>Mileage (km)</label>
-                  <input type="number" placeholder="45000" name="mileage" />
+                  <input type="number" placeholder="0" formControlName="mileage" />
+                  @if (vehicleForm.get('mileage')?.touched && vehicleForm.get('mileage')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('mileage') }}</div>
+                  }
                 </div>
                 <div class="form-group">
                   <label>Driver</label>
-                  <input type="text" placeholder="John Doe" name="driver" />
+                  <input type="text" placeholder="John Doe" formControlName="driver" />
                 </div>
               </div>
 
               <div class="form-actions">
-                <button type="submit" class="btn-submit">Save Vehicle</button>
+                <button type="submit" class="btn-submit" [disabled]="vehicleForm.invalid">
+                  Save Vehicle
+                </button>
                 <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
               </div>
             </form>
@@ -212,6 +235,24 @@ import { IVehicleForm } from '../../models/IVehicleForm';
         background: #cbd5e0;
       }
 
+      .error-message {
+        color: #e53e3e;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+      }
+
+      .form-group input.ng-invalid.ng-touched,
+      .form-group select.ng-invalid.ng-touched {
+        border-color: #e53e3e;
+      }
+
+      .btn-submit:disabled {
+        background: #a0aec0;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
       @media (max-width: 768px) {
         .form-row {
           grid-template-columns: 1fr;
@@ -225,7 +266,48 @@ import { IVehicleForm } from '../../models/IVehicleForm';
   ],
 })
 export class VehicleFormComponent {
-  router = inject(Router);
+  private router = inject(Router);
+  private fb = inject(FormBuilder);
+
+  currentDate = new Date();
+  currentYear = this.currentDate.getFullYear();
+
+  vehicleForm = this.fb.group({
+    id: ['', [Validators.required]],
+    model: ['', [Validators.required]],
+    plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}\d{3}[A-Z]{2}$/)]],
+    year: ['', [Validators.required, Validators.min(1900), Validators.max(this.currentYear)]],
+    status: ['active', [Validators.required]],
+    fuelType: ['diesel', [Validators.required]],
+    mileage: [0, [Validators.required, Validators.min(0)]],
+    driver: [''],
+  });
+
+  getErrorMessage(controlName: string): string {
+    const control = this.vehicleForm.get(controlName);
+    if (control?.errors && control.touched) {
+      if (control.errors['required']) return 'Campo obbligatorio';
+      if (control.errors['min']) return `Valore minimo: ${control.errors['min'].min}`;
+      if (control.errors['max']) return `Valore massimo: ${control.errors['max'].max}`;
+      if (control.errors['pattern'] && controlName === 'plate')
+        return 'Formato targa non valido (es. AB123CD)';
+    }
+    return '';
+  }
+
+  onSubmit() {
+    if (this.vehicleForm.valid) {
+      console.log('Form valido:', this.vehicleForm.value);
+      // TODO: Implementare la chiamata al service
+    } else {
+      Object.keys(this.vehicleForm.controls).forEach((key) => {
+        const control = this.vehicleForm.get(key);
+        if (control?.invalid) {
+          control.markAsTouched();
+        }
+      });
+    }
+  }
 
   goBack() {
     this.router.navigate(['/vehicle-list']);

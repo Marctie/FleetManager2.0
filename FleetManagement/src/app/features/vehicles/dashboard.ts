@@ -1,8 +1,12 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SidebarComponent } from '../../shared/sidebar.component';
 import { StatCardComponent } from '../../shared/stat-card.component';
+import { IVehicle } from '../../models/IVehicle';
+import { Observable } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { VehicleService } from '../../services/vehicle.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -45,7 +49,7 @@ import { StatCardComponent } from '../../shared/stat-card.component';
       <app-sidebar></app-sidebar>
       }
 
-      <!-- Sidebar Toggle Button -->
+      <!-- Sidebar -->
       <button
         class="sidebar-toggle-btn"
         (click)="toggleSidebar()"
@@ -54,7 +58,7 @@ import { StatCardComponent } from '../../shared/stat-card.component';
         <span>{{ showSidebar() ? '◀' : '▶' }}</span>
       </button>
 
-      <!-- Main Content Area -->
+      <!-- Main  -->
       <div class="content-wrapper" [class.full-width]="!showSidebar()">
         <main class="page-content">
           <div class="page-header">
@@ -62,10 +66,15 @@ import { StatCardComponent } from '../../shared/stat-card.component';
             <button class="btn-back" (click)="goBack()">← Back to Home</button>
           </div>
           <div class="stats-grid">
-            <!--  esercizio punto 6 con i dati  -->
-            <app-stat-card title="Total Vehicles" [value]="244"></app-stat-card>
+            <!--  esercizio 6 con i dati  -->
+            <app-stat-card
+              class="total-status"
+              title="Total Vehicles"
+              [value]="vehicleList().length"
+            ></app-stat-card>
+
             <app-stat-card title="Active" [value]="18"></app-stat-card>
-            <app-stat-card title="In Maintenance" [value]="3"></app-stat-card>
+            <app-stat-card title="In Maintenance" [value]="30"></app-stat-card>
             <app-stat-card title="Alerts" [value]="2"></app-stat-card>
           </div>
         </main>
@@ -294,12 +303,30 @@ import { StatCardComponent } from '../../shared/stat-card.component';
     `,
   ],
 })
-export class DashboardComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
-
+export class DashboardComponent implements OnInit {
+  authService = inject(AuthService);
+  router = inject(Router);
+  vehicleList = signal<IVehicle[]>([]);
+  vehicleService = inject(VehicleService);
   currentUser = this.authService.getCurrentUser();
   showSidebar = signal(true);
+
+  ngOnInit() {
+    this.loadVehicles();
+  }
+
+  private loadVehicles(silent: boolean = false): void {
+    this.vehicleService.getListVehicles().subscribe({
+      next: (vehicles) => {
+        this.vehicleList.set(vehicles);
+        console.log(`Loaded ${vehicles.length} vehicles`);
+      },
+      error: (error) => {
+        console.error('Error loading vehicles:', error);
+      },
+    });
+  }
+
 
   toggleSidebar() {
     this.showSidebar.update((value) => !value);
