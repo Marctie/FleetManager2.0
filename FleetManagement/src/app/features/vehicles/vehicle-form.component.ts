@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { MainLayoutComponent } from '../../shared/main-layout.component';
 import { IVehicleForm } from '../../models/IVehicleForm';
+import { VehicleService } from '../../services/vehicle.service';
 
 @Component({
   selector: 'app-vehicle-form',
@@ -22,15 +23,15 @@ import { IVehicleForm } from '../../models/IVehicleForm';
             <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()">
               <div class="form-row">
                 <div class="form-group">
-                  <label>Vehicle ID</label>
-                  <input type="text" placeholder="V001" formControlName="id" />
-                  @if (vehicleForm.get('id')?.touched && vehicleForm.get('id')?.invalid) {
-                  <div class="error-message">{{ getErrorMessage('id') }}</div>
+                  <label>Brand</label>
+                  <input type="text" placeholder="Ford" formControlName="brand" />
+                  @if (vehicleForm.get('brand')?.touched && vehicleForm.get('brand')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('brand') }}</div>
                   }
                 </div>
                 <div class="form-group">
                   <label>Model</label>
-                  <input type="text" placeholder="Ford Transit" formControlName="model" />
+                  <input type="text" placeholder="Transit" formControlName="model" />
                   @if (vehicleForm.get('model')?.touched && vehicleForm.get('model')?.invalid) {
                   <div class="error-message">{{ getErrorMessage('model') }}</div>
                   }
@@ -46,60 +47,85 @@ import { IVehicleForm } from '../../models/IVehicleForm';
                   }
                 </div>
                 <div class="form-group">
+                  <label>VIN</label>
+                  <input type="text" placeholder="1HGCM82633A123456" formControlName="vin" />
+                  @if (vehicleForm.get('vin')?.touched && vehicleForm.get('vin')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('vin') }}</div>
+                  }
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
                   <label>Year</label>
                   <input type="number" [placeholder]="currentYear" formControlName="year" />
                   @if (vehicleForm.get('year')?.touched && vehicleForm.get('year')?.invalid) {
                   <div class="error-message">{{ getErrorMessage('year') }}</div>
                   }
                 </div>
+                <div class="form-group">
+                  <label>Current Kilometers</label>
+                  <input type="number" placeholder="0" formControlName="currentKm" />
+                  @if (vehicleForm.get('currentKm')?.touched &&
+                  vehicleForm.get('currentKm')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('currentKm') }}</div>
+                  }
+                </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>Status</label>
-                  <select formControlName="status">
-                    <option value="active">Active</option>
-                    <option value="parked">Parked</option>
-                    <option value="maintenance">Maintenance</option>
-                  </select>
-                  @if (vehicleForm.get('status')?.touched && vehicleForm.get('status')?.invalid) {
-                  <div class="error-message">{{ getErrorMessage('status') }}</div>
-                  }
-                </div>
-                <div class="form-group">
                   <label>Fuel Type</label>
                   <select formControlName="fuelType">
-                    <option value="diesel">Diesel</option>
-                    <option value="petrol">Petrol</option>
-                    <option value="electric">Electric</option>
-                    <option value="hybrid">Hybrid</option>
+                    <option [value]="fuelTypes.gasoline">Gasoline</option>
+                    <option [value]="fuelTypes.diesel">Diesel</option>
+                    <option [value]="fuelTypes.electric">Electric</option>
+                    <option [value]="fuelTypes.hybrid">Hybrid</option>
+                    <option [value]="fuelTypes.lpg">LPG</option>
+                    <option [value]="fuelTypes.cng">CNG</option>
                   </select>
                   @if (vehicleForm.get('fuelType')?.touched && vehicleForm.get('fuelType')?.invalid)
                   {
                   <div class="error-message">{{ getErrorMessage('fuelType') }}</div>
                   }
                 </div>
+                <div class="form-group">
+                  <label>Current Kilometers</label>
+                  <input type="number" placeholder="0" formControlName="currentKm" />
+                  @if (vehicleForm.get('currentKm')?.touched &&
+                  vehicleForm.get('currentKm')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('currentKm') }}</div>
+                  }
+                </div>
               </div>
 
               <div class="form-row">
                 <div class="form-group">
-                  <label>Mileage (km)</label>
-                  <input type="number" placeholder="0" formControlName="mileage" />
-                  @if (vehicleForm.get('mileage')?.touched && vehicleForm.get('mileage')?.invalid) {
-                  <div class="error-message">{{ getErrorMessage('mileage') }}</div>
-                  }
+                  <label>Last Maintenance Date</label>
+                  <input type="date" formControlName="lastMaintenanceDate" />
                 </div>
                 <div class="form-group">
-                  <label>Driver</label>
-                  <input type="text" placeholder="John Doe" formControlName="driver" />
+                  <label>Insurance Expiry Date</label>
+                  <input type="date" formControlName="insuranceExpiryDate" />
                 </div>
               </div>
 
               <div class="form-actions">
-                <button type="submit" class="btn-submit" [disabled]="vehicleForm.invalid">
-                  Save Vehicle
+                <button
+                  type="submit"
+                  class="btn-submit"
+                  [disabled]="vehicleForm.invalid || isSubmitting"
+                >
+                  {{ isSubmitting ? 'Saving...' : 'Save Vehicle' }}
                 </button>
-                <button type="button" class="btn-cancel" (click)="goBack()">Cancel</button>
+                <button
+                  type="button"
+                  class="btn-cancel"
+                  (click)="goBack()"
+                  [disabled]="isSubmitting"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -267,19 +293,35 @@ import { IVehicleForm } from '../../models/IVehicleForm';
 export class VehicleFormComponent {
   private router = inject(Router);
   private fb = inject(FormBuilder);
+  private vehicleService = inject(VehicleService);
+  isSubmitting = false; // Flag per gestire lo stato di invio del form
 
   currentDate = new Date();
   currentYear = this.currentDate.getFullYear();
 
+  // Enum per i tipi di carburante come definito in config.json
+  fuelTypes = {
+    gasoline: 0,
+    diesel: 1,
+    electric: 2,
+    hybrid: 3,
+    lpg: 4,
+    cng: 5,
+  };
+
   vehicleForm = this.fb.group({
-    id: ['', [Validators.required]],
     model: ['', [Validators.required]],
+    brand: ['', [Validators.required]],
     plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}\d{3}[A-Z]{2}$/)]],
-    year: ['', [Validators.required, Validators.min(1900), Validators.max(this.currentYear)]],
-    status: ['active', [Validators.required]],
-    fuelType: ['diesel', [Validators.required]],
-    mileage: [0, [Validators.required, Validators.min(0)]],
-    driver: [''],
+    year: [
+      this.currentYear,
+      [Validators.required, Validators.min(1900), Validators.max(this.currentYear)],
+    ],
+    fuelType: [0, [Validators.required]], // Impostiamo il valore numerico dell'enum
+    currentKm: [0, [Validators.required, Validators.min(0)]],
+    vin: ['', [Validators.required, Validators.minLength(17), Validators.maxLength(17)]],
+    lastMaintenanceDate: [new Date()],
+    insuranceExpiryDate: [new Date(new Date().setFullYear(new Date().getFullYear() + 1))],
   });
 
   getErrorMessage(controlName: string): string {
@@ -295,10 +337,44 @@ export class VehicleFormComponent {
   }
 
   onSubmit() {
-    if (this.vehicleForm.valid) {
-      console.log('Form valido:', this.vehicleForm.value);
-      // TODO: Implementare la chiamata al service
+    if (this.vehicleForm.valid && !this.isSubmitting) {
+      this.isSubmitting = true;
+
+      const formValue = this.vehicleForm.value;
+
+      // Prepariamo i dati del veicolo nel formato esatto richiesto dall'API
+      const vehicleData = {
+        model: formValue.model || '',
+        brand: formValue.brand || '',
+        licensePlate: formValue.plate || '',
+        year: formValue.year || this.currentYear,
+        vin: formValue.vin || '',
+        fuelType: Number(formValue.fuelType) || 0,
+        currentKm: formValue.currentKm || 0,
+        lastMaintenanceDate: formValue.lastMaintenanceDate || new Date(),
+        insuranceExpiryDate:
+          formValue.insuranceExpiryDate ||
+          new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      };
+
+      this.vehicleService.createVehicle(vehicleData).subscribe({
+        next: (createdVehicle) => {
+          console.log('Veicolo creato con successo:', createdVehicle);
+          this.isSubmitting = false;
+          // Mostriamo un messaggio di successo (puoi implementare un servizio di notifiche)
+          alert('Veicolo creato con successo!');
+          // Torniamo alla lista dei veicoli
+          this.router.navigate(['/vehicle-list']);
+        },
+        error: (error) => {
+          console.error('Errore durante la creazione del veicolo:', error);
+          this.isSubmitting = false;
+          // Mostriamo un messaggio di errore
+          alert('Errore durante la creazione del veicolo. Riprova più tardi.');
+        },
+      });
     } else {
+      // Se il form non è valido, mostriamo tutti gli errori
       Object.keys(this.vehicleForm.controls).forEach((key) => {
         const control = this.vehicleForm.get(key);
         if (control?.invalid) {

@@ -12,6 +12,7 @@ export class VehicleService {
   private readonly API_BASE_URL = 'http://10.0.90.9/Stage/FleetManagement';
   private readonly VEHICLE_ENDPOINTS = {
     list: `${this.API_BASE_URL}/api/Vehicles`,
+    create: `${this.API_BASE_URL}/api/Vehicles`,
   };
 
   /**
@@ -43,7 +44,16 @@ export class VehicleService {
   /**
    *Lista veicoli con id
    */
-  getVehicleById(id: number): Observable<any> {
-    return this.http.get(`${this.VEHICLE_ENDPOINTS.list}/${id}`);
+  getVehicleById(id: number): Observable<IVehicle> {
+    return this.http.get<IVehicle>(`${this.VEHICLE_ENDPOINTS.list}/${id}`);
+  }
+
+  /**
+   * Crea un nuovo veicolo
+   * @param vehicle I dati del veicolo da creare
+   * @returns Observable<IVehicle> Il veicolo creato
+   */
+  createVehicle(vehicle: Partial<IVehicle>): Observable<IVehicle> {
+    return this.http.post<IVehicle>(this.VEHICLE_ENDPOINTS.create, vehicle);
   }
 }

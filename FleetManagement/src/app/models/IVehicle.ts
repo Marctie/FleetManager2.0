@@ -5,9 +5,9 @@ export interface IVehicle {
   model: string;
   year: number;
   vin: string;
-  fuelType: string;
+  fuelType: number;
   status: string;
-  currentKm: 0;
+  currentKm: number;
   assignedDriverId: string;
   assignedDriverName: string;
   lastMaintenanceDate: Date;
