@@ -1,74 +1,108 @@
-import { Component, inject, output } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { IVehicle } from '../../models/IVehicle';
 
 @Component({
   selector: 'app-vehicle-detail',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, DatePipe],
   template: `
-    <div class="page-container">
-      <header class="page-header">
-        <h1>Vehicle Details</h1>
-        <button class="btn-back" (click)="goBack()">Close</button>
-      </header>
+    <div class="modal-overlay">
+      <div class="modal-container">
+        <div class="page-container">
+          <header class="page-header">
+            <h1>Vehicle Details</h1>
+            <button class="btn-back" (click)="goBack()">Close</button>
+          </header>
 
-      <main class="page-content">
-        <div class="detail-card">
-          <div class="vehicle-header">
-            <div class="vehicle-title">
-              <h2>Ford Transit</h2>
-              <p>ID: V001 | Plate: AB123CD</p>
-            </div>
-          </div>
+          <main class="page-content">
+            @if (!vehicle) {
+            <div class="loading-state">Loading vehicle details...</div>
+            } @else {
+            <div class="detail-card">
+              <div class="vehicle-header">
+                <div class="vehicle-title">
+                  <h2>{{ vehicle.brand }} {{ vehicle.model }}</h2>
+                  <p>ID: {{ vehicle.id }} | Plate: {{ vehicle.licensePlate }}</p>
+                </div>
+              </div>
+              <div class="detail-grid">
+                <div class="detail-item">
+                  <label>Model</label>
+                  <p>{{ vehicle.brand }} {{ vehicle.model }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Year</label>
+                  <p>{{ vehicle.year }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Status</label>
+                  <p>
+                    <span class="status-badge" [class]="vehicle.status.toLowerCase()">{{
+                      vehicle.status
+                    }}</span>
+                  </p>
+                </div>
+                <div class="detail-item">
+                  <label>Driver</label>
+                  <p>{{ vehicle.assignedDriverName || 'Not Assigned' }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Mileage</label>
+                  <p>{{ vehicle.currentKm }} km</p>
+                </div>
+                <div class="detail-item">
+                  <label>Fuel Type</label>
+                  <p>{{ vehicle.fuelType }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Last Service</label>
+                  <p>{{ vehicle.lastMaintenanceDate | date : 'dd/MM/yyyy' }}</p>
+                </div>
+                <div class="detail-item">
+                  <label>Insurance Expiry</label>
+                  <p>{{ vehicle.insuranceExpiryDate | date : 'dd/MM/yyyy' }}</p>
+                </div>
+              </div>
 
-          <div class="detail-grid">
-            <div class="detail-item">
-              <label>Model</label>
-              <p>Ford Transit</p>
+              <div class="actions">
+                <button class="btn-primary">Edit Vehicle</button>
+                <button class="btn-secondary">View History</button>
+                <button class="btn-danger">Delete</button>
+              </div>
             </div>
-            <div class="detail-item">
-              <label>Year</label>
-              <p>2022</p>
-            </div>
-            <div class="detail-item">
-              <label>Status</label>
-              <p><span class="status-badge active">Active</span></p>
-            </div>
-            <div class="detail-item">
-              <label>Driver</label>
-              <p>John Doe</p>
-            </div>
-            <div class="detail-item">
-              <label>Mileage</label>
-              <p>45,230 km</p>
-            </div>
-            <div class="detail-item">
-              <label>Fuel Type</label>
-              <p>Diesel</p>
-            </div>
-            <div class="detail-item">
-              <label>Last Service</label>
-              <p>15/09/2025</p>
-            </div>
-            <div class="detail-item">
-              <label>Next Service</label>
-              <p>15/12/2025</p>
-            </div>
-          </div>
-
-          <div class="actions">
-            <button class="btn-primary">Edit Vehicle</button>
-            <button class="btn-secondary">View History</button>
-            <button class="btn-danger">Delete</button>
-          </div>
+            }
+          </main>
         </div>
-      </main>
+      </div>
     </div>
   `,
   styles: [
     `
+      .modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+      }
+
+      .modal-container {
+        background: white;
+        border-radius: 1rem;
+        width: 90%;
+        max-width: 1000px;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
       .page-container {
-        min-height: 100vh;
+        min-height: 50vh;
         background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         padding: 2rem;
       }
@@ -236,8 +270,8 @@ import { Router } from '@angular/router';
   ],
 })
 export class VehicleDetailComponent {
-  private router = inject(Router);
-  closeModal = output<boolean>();
+  @Input() vehicle!: IVehicle;
+  @Output() closeModal = new EventEmitter<boolean>();
 
   goBack() {
     this.closeModal.emit(true);

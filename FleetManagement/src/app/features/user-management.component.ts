@@ -280,8 +280,6 @@ import { IUser } from '../models/IUser';
 export class UserManagementComponent implements OnInit {
   private router = inject(Router);
   private userService = inject(UserService);
-
-  // Signals
   users = signal<IUser[]>([]);
   filteredUsers = signal<IUser[]>([]);
   isLoading = signal(false);

@@ -100,6 +100,10 @@ export interface IAppConfig {
     username: string;
     password: string;
     hostname: string;
+    topics: {
+      vehicles: string;
+      fleet: string;
+    };
   };
   realtime: {
     telemetryUpdateInterval: number;

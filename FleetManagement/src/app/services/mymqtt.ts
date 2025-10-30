@@ -28,9 +28,9 @@ export class MyMqttService implements OnDestroy {
    * Crea la connessione al broker MQTT usando la configurazione da config.json
    */
   createConnection(): void {
-    const mqttConfig = this.configService.getMqttConfig();
+    const mqttConfig = this.configService.getConfig();
 
-    console.log('Connessione a MQTT:', mqttConfig.brokerUrl);
+    console.log('Connessione a MQTT:');
 
     // gestisce la connessione automaticamente,
     // dobbiamo solo ascoltare gli eventi

@@ -72,16 +72,20 @@ import { IVehicle } from '../../models/IVehicle';
                   </td>
                   <td>{{ vehicle.assignedDriverName || 'N/A' }}</td>
                   <td>
-                    <button class="btn-action" (click)="openModal()">View</button>
-                    <button class="btn-action">Edit</button>
+                    <button class="btn-action" (click)="openModal(vehicle)">View</button>
+                    <!-- <button class="btn-action">Edit</button> -->
                   </td>
                 </tr>
                 }
               </tbody>
             </table>
           </div>
-          } @if (showModal()) {
-          <app-vehicle-detail (closeModal)="handleCloseModal($event)"> </app-vehicle-detail>
+          } @if (showModal() && selectedVehicle()) {
+          <app-vehicle-detail
+            [vehicle]="selectedVehicle()!"
+            (closeModal)="handleCloseModal($event)"
+          >
+          </app-vehicle-detail>
           }
         </main>
       </div>
@@ -281,18 +285,86 @@ import { IVehicle } from '../../models/IVehicle';
         font-weight: 500;
       }
 
+      @media (max-width: 1024px) {
+        .page-container {
+          padding: 1rem;
+        }
+
+        .page-header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: stretch;
+          text-align: center;
+        }
+
+        .page-header > div {
+          display: flex;
+          gap: 0.5rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .btn-add,
+        .btn-back {
+          width: calc(50% - 0.5rem);
+          margin: 0 !important;
+        }
+      }
+
       @media (max-width: 768px) {
         .filter-section {
           flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .vehicle-table {
+          overflow-x: auto;
         }
 
         table {
           font-size: 0.875rem;
+          min-width: 600px;
         }
 
         th,
         td {
-          padding: 0.5rem;
+          padding: 0.75rem 0.5rem;
+        }
+
+        .status-badge {
+          padding: 0.15rem 0.5rem;
+          font-size: 0.75rem;
+        }
+
+        .btn-action {
+          padding: 0.35rem 0.75rem;
+          font-size: 0.75rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page-container {
+          padding: 0.75rem;
+        }
+
+        .page-header h1 {
+          font-size: 1.5rem;
+        }
+
+        .btn-add,
+        .btn-back {
+          width: 100%;
+          font-size: 0.875rem;
+          padding: 0.6rem 1rem;
+        }
+
+        .search-input {
+          padding: 0.6rem 0.75rem;
+        }
+
+        .filter-select {
+          padding: 0.6rem 0.75rem;
+          font-size: 0.875rem;
         }
       }
     `,
@@ -303,9 +375,9 @@ export class VehicleListComponent implements OnInit {
   isLoading = signal(false);
   error = signal<string | null>(null);
   vehicles = signal<IVehicle[]>([]);
-
-  private router = inject(Router);
-  private vehicleService = inject(VehicleService);
+  selectedVehicle = signal<IVehicle | null>(null);
+  router = inject(Router);
+  vehicleService = inject(VehicleService);
 
   ngOnInit(): void {
     this.loadVehicles();
@@ -329,13 +401,15 @@ export class VehicleListComponent implements OnInit {
     });
   }
 
-  openModal() {
+  openModal(vehicle: IVehicle) {
+    this.selectedVehicle.set(vehicle);
     this.showModal.set(true);
   }
 
   handleCloseModal(event: boolean) {
     if (event) {
       this.showModal.set(false);
+      this.selectedVehicle.set(null);
     }
   }
 
