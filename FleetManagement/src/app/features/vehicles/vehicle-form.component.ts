@@ -12,9 +12,7 @@ import { LOCALE_ID } from '@angular/core';
   selector: 'app-vehicle-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
-  providers: [
-    { provide: LOCALE_ID, useValue: 'en-US' }, // Set English locale
-  ],
+  providers: [{ provide: LOCALE_ID, useValue: 'en-US' }],
   template: `
     <app-main-layout>
       <div class="page-container">
@@ -295,12 +293,10 @@ export class VehicleFormComponent {
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private vehicleService = inject(VehicleService);
-  isSubmitting = false; // Flag per gestire lo stato di invio del form
-
+  isSubmitting = false; // stato di invio del form
   currentDate = new Date();
   currentYear = this.currentDate.getFullYear();
 
-  // tipi di carburante
   fuelTypes = {
     gasoline: 0,
     diesel: 1,
@@ -342,8 +338,7 @@ export class VehicleFormComponent {
       this.isSubmitting = true;
 
       const formValue = this.vehicleForm.value;
-
-      // Prepariamo i dati del veicolo nel formato esatto richiesto dall'API
+      //invio dei dati al server
       const vehicleData = {
         model: formValue.model || '',
         brand: formValue.brand || '',
@@ -362,20 +357,16 @@ export class VehicleFormComponent {
         next: (createdVehicle) => {
           console.log('Vehicle created successfully:', createdVehicle);
           this.isSubmitting = false;
-          // Show success message (you can implement a notification service)
           alert('Vehicle created successfully!');
-          // Return to vehicle list
           this.router.navigate(['/vehicle-list']);
         },
         error: (error) => {
           console.error('Error during vehicle creation:', error);
           this.isSubmitting = false;
-          // Show error message
           alert('Error during vehicle creation. The license plate is already in use.');
         },
       });
     } else {
-      // Se il form non è valido, mostriamo tutti gli errori
       Object.keys(this.vehicleForm.controls).forEach((key) => {
         const control = this.vehicleForm.get(key);
         if (control?.invalid) {
