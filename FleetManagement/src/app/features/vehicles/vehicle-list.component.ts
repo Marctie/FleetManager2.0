@@ -400,7 +400,6 @@ import { FormsModule } from '@angular/forms';
   ],
 })
 export class VehicleListComponent implements OnInit {
-  // Segnali per lo stato del componente
   showModal = signal(false);
   isLoading = signal(false);
   error = signal<string | null>(null);
@@ -414,8 +413,7 @@ export class VehicleListComponent implements OnInit {
 
   // Array completo dei veicoli (non filtrato)
   private allVehicles: IVehicle[] = [];
-
-  // Debounce timer per la ricerca automatica
+  // timer per la ricerca automatica
   private searchTimeout: any;
 
   router = inject(Router);
@@ -425,23 +423,19 @@ export class VehicleListComponent implements OnInit {
     this.loadVehicles();
   }
 
-  /**
-   * Carica tutti i veicoli e inizializza i modelli disponibili
-   */
+  // caricamento dei veicoli
   private loadVehicles(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
     this.vehicleService.getListVehicles().subscribe({
       next: (vehicles) => {
-        // Salva tutti i veicoli
+        // Salva
         this.allVehicles = vehicles;
         this.vehicles.set(vehicles);
-
-        // Estrae i modelli unici per il filtro
+        //Filtro
         const uniqueModels = [...new Set(vehicles.map((v) => v.model))].sort();
         this.availableModels.set(uniqueModels);
-
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -451,27 +445,20 @@ export class VehicleListComponent implements OnInit {
       },
     });
   }
-
-  /**
-   * Gestisce il cambio del tipo di filtro
-   */
+  //cambio stato del filtro
   onFilterTypeChange(): void {
-    this.searchQuery = ''; // Reset della query di ricerca
-    this.searchVehicles(); // Aggiorna i risultati
+    this.searchQuery = ''; // Reset
+    this.searchVehicles(); // Aggiorna
   }
-
-  /**
-   * Filtra i veicoli in base ai criteri di ricerca
-   */
+  //mostra i veicoli filtrati
   searchVehicles(): void {
     if (!this.allVehicles.length) return;
 
-    // Pulisce il timer precedente se esiste
+    //timer per la ricerc
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
 
-    // Imposta un nuovo timer per il debounce
     this.searchTimeout = setTimeout(() => {
       let filteredVehicles = [...this.allVehicles];
       const query = this.searchQuery.trim().toLowerCase();
@@ -479,21 +466,20 @@ export class VehicleListComponent implements OnInit {
       if (query) {
         switch (this.selectedFilterType) {
           case 'status':
-            // Filtra solo per status
+            // Filtra status
             filteredVehicles = filteredVehicles.filter((vehicle) =>
               vehicle.status.toLowerCase().includes(query)
             );
             break;
 
           case 'model':
-            // Filtra solo per modello
+            // Filtra modello
             filteredVehicles = filteredVehicles.filter((vehicle) =>
               vehicle.model.toLowerCase().includes(query)
             );
             break;
 
           default:
-            // Filtra su tutti i campi
             filteredVehicles = filteredVehicles.filter(
               (vehicle) =>
                 vehicle.model.toLowerCase().includes(query) ||
@@ -503,15 +489,13 @@ export class VehicleListComponent implements OnInit {
             );
         }
       }
+      // fine timer per la ricerca
 
-      // Aggiorna la lista dei veicoli visualizzati
       this.vehicles.set(filteredVehicles);
-    }, 300); // 300ms di debounce
+    }, 300);
   }
 
-  /**
-   * Resetta tutti i filtri e mostra tutti i veicoli
-   */
+  //reset filtri
   resetFilters(): void {
     this.searchQuery = '';
     this.selectedFilterType = '';
@@ -530,6 +514,7 @@ export class VehicleListComponent implements OnInit {
     }
   }
 
+  //funzioni di  navigazione
   goVehicleMap() {
     this.router.navigate(['/general-map']);
   }
