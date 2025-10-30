@@ -6,10 +6,15 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
 import { IVehicleForm } from '../../models/IVehicleForm';
 import { VehicleService } from '../../services/vehicle.service';
 
+import { LOCALE_ID } from '@angular/core';
+
 @Component({
   selector: 'app-vehicle-form',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, MainLayoutComponent],
+  providers: [
+    { provide: LOCALE_ID, useValue: 'en-US' }, // Set English locale
+  ],
   template: `
     <app-main-layout>
       <div class="page-container">
@@ -63,14 +68,6 @@ import { VehicleService } from '../../services/vehicle.service';
                   <div class="error-message">{{ getErrorMessage('year') }}</div>
                   }
                 </div>
-                <div class="form-group">
-                  <label>Current Kilometers</label>
-                  <input type="number" placeholder="0" formControlName="currentKm" />
-                  @if (vehicleForm.get('currentKm')?.touched &&
-                  vehicleForm.get('currentKm')?.invalid) {
-                  <div class="error-message">{{ getErrorMessage('currentKm') }}</div>
-                  }
-                </div>
               </div>
 
               <div class="form-row">
@@ -102,11 +99,15 @@ import { VehicleService } from '../../services/vehicle.service';
               <div class="form-row">
                 <div class="form-group">
                   <label>Last Maintenance Date</label>
-                  <input type="date" formControlName="lastMaintenanceDate" />
+                  <input type="date" formControlName="lastMaintenanceDate" [min]="'1900-01-01'" />
                 </div>
                 <div class="form-group">
                   <label>Insurance Expiry Date</label>
-                  <input type="date" formControlName="insuranceExpiryDate" />
+                  <input
+                    type="date"
+                    formControlName="insuranceExpiryDate"
+                    [min]="currentDate.toISOString().split('T')[0]"
+                  />
                 </div>
               </div>
 
@@ -299,7 +300,7 @@ export class VehicleFormComponent {
   currentDate = new Date();
   currentYear = this.currentDate.getFullYear();
 
-  // Enum per i tipi di carburante come definito in config.json
+  // tipi di carburante
   fuelTypes = {
     gasoline: 0,
     diesel: 1,
@@ -327,11 +328,11 @@ export class VehicleFormComponent {
   getErrorMessage(controlName: string): string {
     const control = this.vehicleForm.get(controlName);
     if (control?.errors && control.touched) {
-      if (control.errors['required']) return 'Campo obbligatorio';
-      if (control.errors['min']) return `Valore minimo: ${control.errors['min'].min}`;
-      if (control.errors['max']) return `Valore massimo: ${control.errors['max'].max}`;
+      if (control.errors['required']) return 'This field is required';
+      if (control.errors['min']) return `Minimum value: ${control.errors['min'].min}`;
+      if (control.errors['max']) return `Maximum value: ${control.errors['max'].max}`;
       if (control.errors['pattern'] && controlName === 'plate')
-        return 'Formato targa non valido (es. AB123CD)';
+        return 'Invalid license plate format (e.g. AB123CD)';
     }
     return '';
   }
@@ -359,18 +360,18 @@ export class VehicleFormComponent {
 
       this.vehicleService.createVehicle(vehicleData).subscribe({
         next: (createdVehicle) => {
-          console.log('Veicolo creato con successo:', createdVehicle);
+          console.log('Vehicle created successfully:', createdVehicle);
           this.isSubmitting = false;
-          // Mostriamo un messaggio di successo (puoi implementare un servizio di notifiche)
-          alert('Veicolo creato con successo!');
-          // Torniamo alla lista dei veicoli
+          // Show success message (you can implement a notification service)
+          alert('Vehicle created successfully!');
+          // Return to vehicle list
           this.router.navigate(['/vehicle-list']);
         },
         error: (error) => {
-          console.error('Errore durante la creazione del veicolo:', error);
+          console.error('Error during vehicle creation:', error);
           this.isSubmitting = false;
-          // Mostriamo un messaggio di errore
-          alert('Errore durante la creazione del veicolo. Riprova più tardi.');
+          // Show error message
+          alert('Error during vehicle creation. The license plate is already in use.');
         },
       });
     } else {
