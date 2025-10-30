@@ -4,11 +4,12 @@ import { MainLayoutComponent } from '../../shared/main-layout.component';
 import { VehicleDetailComponent } from './vehicle-detail.component';
 import { VehicleService } from '../../services/vehicle.service';
 import { IVehicle } from '../../models/IVehicle';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-vehicle-list',
   standalone: true,
-  imports: [MainLayoutComponent, VehicleDetailComponent],
+  imports: [MainLayoutComponent, VehicleDetailComponent, FormsModule],
   template: `
     <app-main-layout>
       <div class="page-container">
@@ -29,15 +30,28 @@ import { IVehicle } from '../../models/IVehicle';
 
         <main class="page-content">
           <div class="filter-section">
-            <input type="text" placeholder="Search vehicles..." class="search-input" />
+            <input
+              type="text"
+              placeholder="Search vehicles..."
+              class="search-input"
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="searchVehicles()"
+              name="search"
+            />
             <div class="select-wrap">
-              <select class="filter-select" aria-label="Select filter type">
-                <option value="">All fields</option>
-                <option value="licensePlate">Status</option>
+              <select
+                class="filter-select"
+                [(ngModel)]="selectedFilterType"
+                name="filterType"
+                (ngModelChange)="onFilterTypeChange()"
+              >
+                <option value="">All Fields</option>
+                <option value="status">Status</option>
                 <option value="model">Model</option>
               </select>
             </div>
-            <button class="btn-add">Search Vehicle</button>
+            <button class="btn-add" (click)="searchVehicles()">Search Vehicle</button>
+            <button class="btn-reset" (click)="resetFilters()">Reset Filters</button>
           </div>
 
           @if (error()) {
@@ -194,6 +208,21 @@ import { IVehicle } from '../../models/IVehicle';
 
       .btn-add:hover {
         background: #38a169;
+      }
+
+      .btn-reset {
+        padding: 0.75rem 1.5rem;
+        background: #e53e3e;
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-reset:hover {
+        background: #c53030;
       }
 
       .vehicle-table {
@@ -371,11 +400,24 @@ import { IVehicle } from '../../models/IVehicle';
   ],
 })
 export class VehicleListComponent implements OnInit {
+  // Segnali per lo stato del componente
   showModal = signal(false);
   isLoading = signal(false);
   error = signal<string | null>(null);
   vehicles = signal<IVehicle[]>([]);
   selectedVehicle = signal<IVehicle | null>(null);
+  availableModels = signal<string[]>([]);
+
+  // Proprietà per i filtri di ricerca
+  searchQuery = '';
+  selectedFilterType = '';
+
+  // Array completo dei veicoli (non filtrato)
+  private allVehicles: IVehicle[] = [];
+
+  // Debounce timer per la ricerca automatica
+  private searchTimeout: any;
+
   router = inject(Router);
   vehicleService = inject(VehicleService);
 
@@ -383,14 +425,23 @@ export class VehicleListComponent implements OnInit {
     this.loadVehicles();
   }
 
+  /**
+   * Carica tutti i veicoli e inizializza i modelli disponibili
+   */
   private loadVehicles(): void {
     this.isLoading.set(true);
     this.error.set(null);
 
     this.vehicleService.getListVehicles().subscribe({
       next: (vehicles) => {
-        console.log('Vehicles loaded:', vehicles);
+        // Salva tutti i veicoli
+        this.allVehicles = vehicles;
         this.vehicles.set(vehicles);
+
+        // Estrae i modelli unici per il filtro
+        const uniqueModels = [...new Set(vehicles.map((v) => v.model))].sort();
+        this.availableModels.set(uniqueModels);
+
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -399,6 +450,72 @@ export class VehicleListComponent implements OnInit {
         this.isLoading.set(false);
       },
     });
+  }
+
+  /**
+   * Gestisce il cambio del tipo di filtro
+   */
+  onFilterTypeChange(): void {
+    this.searchQuery = ''; // Reset della query di ricerca
+    this.searchVehicles(); // Aggiorna i risultati
+  }
+
+  /**
+   * Filtra i veicoli in base ai criteri di ricerca
+   */
+  searchVehicles(): void {
+    if (!this.allVehicles.length) return;
+
+    // Pulisce il timer precedente se esiste
+    if (this.searchTimeout) {
+      clearTimeout(this.searchTimeout);
+    }
+
+    // Imposta un nuovo timer per il debounce
+    this.searchTimeout = setTimeout(() => {
+      let filteredVehicles = [...this.allVehicles];
+      const query = this.searchQuery.trim().toLowerCase();
+
+      if (query) {
+        switch (this.selectedFilterType) {
+          case 'status':
+            // Filtra solo per status
+            filteredVehicles = filteredVehicles.filter((vehicle) =>
+              vehicle.status.toLowerCase().includes(query)
+            );
+            break;
+
+          case 'model':
+            // Filtra solo per modello
+            filteredVehicles = filteredVehicles.filter((vehicle) =>
+              vehicle.model.toLowerCase().includes(query)
+            );
+            break;
+
+          default:
+            // Filtra su tutti i campi
+            filteredVehicles = filteredVehicles.filter(
+              (vehicle) =>
+                vehicle.model.toLowerCase().includes(query) ||
+                vehicle.licensePlate.toLowerCase().includes(query) ||
+                vehicle.status.toLowerCase().includes(query) ||
+                vehicle.assignedDriverName?.toLowerCase().includes(query)
+            );
+        }
+      }
+
+      // Aggiorna la lista dei veicoli visualizzati
+      this.vehicles.set(filteredVehicles);
+    }, 300); // 300ms di debounce
+  }
+
+  /**
+   * Resetta tutti i filtri e mostra tutti i veicoli
+   */
+  resetFilters(): void {
+    this.searchQuery = '';
+    this.selectedFilterType = '';
+    this.vehicles.set(this.allVehicles);
   }
 
   openModal(vehicle: IVehicle) {

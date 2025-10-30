@@ -15,12 +15,29 @@ export class VehicleService {
   };
 
   /**
-   Lista veicoli
+   * Lista veicoli con opzioni di filtro
+   * @param options Opzioni di filtro (ricerca, stato, modello)
+   * @returns Observable<IVehicle[]>
    */
-  getListVehicles(page: number = 1, pageSize: number = 1000): Observable<IVehicle[]> {
-    return this.http.get<IVehicle[]>(
-      `${this.VEHICLE_ENDPOINTS.list}?page=${page}&pageSize=${pageSize}`
-    );
+  getListVehicles(options?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    status?: string;
+    model?: string;
+  }): Observable<IVehicle[]> {
+    const params = new URLSearchParams();
+
+    // Imposta i parametri di paginazione di default
+    params.append('page', (options?.page || 1).toString());
+    params.append('pageSize', (options?.pageSize || 1000).toString());
+
+    // Aggiungi i parametri di filtro se presenti
+    if (options?.search) params.append('search', options.search);
+    if (options?.status) params.append('status', options.status);
+    if (options?.model) params.append('model', options.model);
+
+    return this.http.get<IVehicle[]>(`${this.VEHICLE_ENDPOINTS.list}?${params.toString()}`);
   }
 
   /**
