@@ -277,13 +277,158 @@ import { LOCALE_ID } from '@angular/core';
         box-shadow: none !important;
       }
 
+      @media (max-width: 1024px) {
+        .page-container {
+          padding: 1.5rem;
+        }
+
+        .page-header {
+          flex-direction: column;
+          gap: 1rem;
+          align-items: stretch;
+        }
+
+        .btn-back {
+          width: 100%;
+        }
+
+        .page-content {
+          max-width: 100%;
+        }
+
+        .form-row {
+          gap: 1rem;
+        }
+      }
+
       @media (max-width: 768px) {
+        .page-container {
+          padding: 1rem;
+        }
+
+        .page-header h1 {
+          font-size: 1.5rem;
+          text-align: center;
+        }
+
+        .btn-back {
+          padding: 0.6rem 1.2rem;
+          font-size: 0.875rem;
+        }
+
+        .form-card {
+          padding: 1.5rem;
+        }
+
+        .form-card h2 {
+          font-size: 1.25rem;
+          text-align: center;
+        }
+
         .form-row {
           grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .form-group input,
+        .form-group select {
+          padding: 0.875rem;
+          font-size: 16px; /* Previene lo zoom automatico su iOS */
+        }
+
+        .form-group label {
+          font-size: 0.875rem;
         }
 
         .form-actions {
           flex-direction: column;
+          gap: 0.75rem;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+          width: 100%;
+          padding: 0.875rem 1.5rem;
+        }
+
+        .error-message {
+          font-size: 0.8rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page-container {
+          padding: 0.75rem;
+        }
+
+        .page-header {
+          margin-bottom: 1rem;
+        }
+
+        .page-header h1 {
+          font-size: 1.25rem;
+        }
+
+        .btn-back {
+          padding: 0.5rem 1rem;
+          font-size: 0.8rem;
+        }
+
+        .form-card {
+          padding: 1rem;
+          border-radius: 0.75rem;
+        }
+
+        .form-card h2 {
+          font-size: 1.1rem;
+          margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+          gap: 0.75rem;
+          margin-bottom: 1rem;
+        }
+
+        .form-group input,
+        .form-group select {
+          padding: 0.75rem;
+          font-size: 16px;
+        }
+
+        .form-group label {
+          font-size: 0.8rem;
+          margin-bottom: 0.375rem;
+        }
+
+        .form-actions {
+          gap: 0.5rem;
+          margin-top: 1.5rem;
+          padding-top: 1.5rem;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+          padding: 0.75rem 1.25rem;
+          font-size: 0.875rem;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .page-header h1 {
+          font-size: 1.1rem;
+        }
+
+        .form-card h2 {
+          font-size: 1rem;
+        }
+
+        .form-group label {
+          font-size: 0.75rem;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+          font-size: 0.8rem;
         }
       }
     `,

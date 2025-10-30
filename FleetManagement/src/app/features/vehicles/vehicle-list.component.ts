@@ -65,7 +65,7 @@ import { FormsModule } from '@angular/forms';
             <table>
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <!-- <th>ID</th> -->
                   <th>Model</th>
                   <th>Plate</th>
                   <th>Status</th>
@@ -76,7 +76,7 @@ import { FormsModule } from '@angular/forms';
               <tbody>
                 @for (vehicle of vehicles(); track vehicle.id) {
                 <tr>
-                  <td>{{ vehicle.id }}</td>
+                  <!-- <td>{{ vehicle.id }}</td> -->
                   <td>{{ vehicle.model }}</td>
                   <td>{{ vehicle.licensePlate }}</td>
                   <td>
@@ -381,7 +381,8 @@ import { FormsModule } from '@angular/forms';
         }
 
         .btn-add,
-        .btn-back {
+        .btn-back,
+        .btn-reset {
           width: 100%;
           font-size: 0.875rem;
           padding: 0.6rem 1rem;
@@ -389,11 +390,63 @@ import { FormsModule } from '@angular/forms';
 
         .search-input {
           padding: 0.6rem 0.75rem;
+          font-size: 16px; /* Previene lo zoom su iOS */
         }
 
         .filter-select {
           padding: 0.6rem 0.75rem;
           font-size: 0.875rem;
+        }
+
+        table {
+          font-size: 0.8rem;
+          min-width: 550px;
+        }
+
+        th,
+        td {
+          padding: 0.6rem 0.4rem;
+        }
+
+        .btn-action {
+          padding: 0.3rem 0.6rem;
+          font-size: 0.7rem;
+          margin-right: 0.25rem;
+        }
+
+        .status-badge {
+          padding: 0.1rem 0.4rem;
+          font-size: 0.7rem;
+        }
+      }
+
+      @media (max-width: 360px) {
+        .page-header h1 {
+          font-size: 1.25rem;
+        }
+
+        .btn-add,
+        .btn-back,
+        .btn-reset {
+          font-size: 0.8rem;
+          padding: 0.5rem 0.75rem;
+        }
+
+        table {
+          font-size: 0.75rem;
+          min-width: 500px;
+        }
+
+        th,
+        td {
+          padding: 0.5rem 0.3rem;
+        }
+
+        .loading-state,
+        .error-state,
+        .no-vehicles {
+          font-size: 0.875rem;
+          padding: 1.5rem;
         }
       }
     `,

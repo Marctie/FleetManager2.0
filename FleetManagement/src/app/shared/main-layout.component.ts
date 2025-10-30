@@ -1,18 +1,28 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { SidebarComponent } from './sidebar.component';
-import { NgClass } from '@angular/common';
 
 @Component({
   selector: 'app-main-layout',
   standalone: true,
-  imports: [SidebarComponent, NgClass],
+  imports: [SidebarComponent],
   template: `
     <div class="layout-container">
       <!-- Header Full Width -->
       <header class="header">
         <div class="header-content">
+          <!-- Hamburger Menu Button (solo mobile) -->
+          <button
+            class="hamburger-menu"
+            (click)="toggleMobileSidebar()"
+            [class.open]="isMobileSidebarOpen()"
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+
           <div class="logo-section">
             <div class="logo">
               <img
@@ -42,7 +52,12 @@ import { NgClass } from '@angular/common';
 
       <!-- Sidebar -->
       @if (showSidebar()) {
-      <app-sidebar></app-sidebar>
+      <app-sidebar [isMobileOpen]="isMobileSidebarOpen()"></app-sidebar>
+      }
+
+      <!-- Overlay per chiudere sidebar su mobile -->
+      @if (isMobileSidebarOpen()) {
+      <div class="sidebar-overlay" (click)="toggleMobileSidebar()"></div>
       }
 
       <!-- Sidebar Toggle Button -->
@@ -206,15 +221,118 @@ import { NgClass } from '@angular/common';
         padding: 2rem;
       }
 
-      @media (max-width: 768px) {
-        .header-content {
-          padding-left: 0;
-          flex-direction: column;
-          gap: 1rem;
+      /* Hamburger Menu */
+      .hamburger-menu {
+        display: none;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 30px;
+        height: 24px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 0;
+        z-index: 1003;
+      }
+
+      .hamburger-menu span {
+        display: block;
+        width: 100%;
+        height: 3px;
+        background: #667eea;
+        border-radius: 3px;
+        transition: all 0.3s ease;
+      }
+
+      .hamburger-menu.open span:nth-child(1) {
+        transform: translateY(10.5px) rotate(45deg);
+      }
+
+      .hamburger-menu.open span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .hamburger-menu.open span:nth-child(3) {
+        transform: translateY(-10.5px) rotate(-45deg);
+      }
+
+      /* Sidebar Overlay */
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+
+      @media (max-width: 1024px) {
+        .header {
+          padding: 1rem 1.5rem;
         }
 
-        .content-wrapper {
+        .header h1 {
+          font-size: 1.25rem;
+        }
+
+        .content-wrapper.full-width {
+          margin-left: 220px;
+          width: calc(100% - 220px);
+        }
+
+        .layout-content {
+          padding: 1.5rem;
+        }
+
+        .user-info {
+          padding: 0.4rem 0.75rem;
+        }
+
+        .username {
+          font-size: 0.8rem;
+        }
+
+        .user-role {
+          font-size: 0.7rem;
+        }
+
+        .btn-logout {
+          padding: 0.5rem 1rem;
+          font-size: 0.8rem;
+        }
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          padding: 0.875rem 1rem;
+        }
+
+        .header-content {
+          padding-left: 0;
+          gap: 0.75rem;
+          display: grid;
+          grid-template-columns: auto 1fr auto;
+          align-items: center;
+        }
+
+        .hamburger-menu {
+          display: flex;
+        }
+
+        .logo-section {
+          justify-content: center;
+        }
+
+        .header h1 {
+          font-size: 1.1rem;
+        }
+
+        .content-wrapper,
+        .content-wrapper.full-width {
           margin-left: 0;
+          width: 100%;
         }
 
         .layout-content {
@@ -222,8 +340,56 @@ import { NgClass } from '@angular/common';
         }
 
         .user-section {
-          width: 100%;
-          justify-content: space-between;
+          gap: 0.5rem;
+        }
+
+        .user-info {
+          display: none; /* Nascondi user info su mobile per risparmiare spazio */
+        }
+
+        .sidebar-toggle-btn {
+          display: none; /* Nascosto su mobile, usiamo hamburger */
+        }
+
+        .sidebar-overlay {
+          display: block;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header {
+          padding: 0.75rem;
+        }
+
+        .hamburger-menu {
+          width: 26px;
+          height: 20px;
+        }
+
+        .hamburger-menu span {
+          height: 2.5px;
+        }
+
+        .logo-section {
+          gap: 0.5rem;
+        }
+
+        .logo img {
+          width: 32px;
+          height: 32px;
+        }
+
+        .header h1 {
+          font-size: 0.95rem;
+        }
+
+        .layout-content {
+          padding: 0.75rem;
+        }
+
+        .btn-logout {
+          padding: 0.4rem 0.75rem;
+          font-size: 0.75rem;
         }
       }
     `,
@@ -235,9 +401,14 @@ export class MainLayoutComponent {
 
   currentUser = this.authService.getCurrentUser();
   showSidebar = signal(false);
+  isMobileSidebarOpen = signal(false);
 
   toggleSidebar() {
     this.showSidebar.update((value) => !value);
+  }
+
+  toggleMobileSidebar() {
+    this.isMobileSidebarOpen.update((value) => !value);
   }
 
   onLogout() {

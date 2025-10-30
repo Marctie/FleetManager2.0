@@ -55,7 +55,7 @@ import { VehicleService } from '../../services/vehicle.service';
         (click)="toggleSidebar()"
         [title]="showSidebar() ? 'Hide Sidebar' : 'Show Sidebar'"
       >
-        <span>{{ showSidebar() ? '◀' : '▶' }}</span>
+        <span>{{ showSidebar() ? '&laquo;' : '&raquo;' }}</span>
       </button>
 
       <!-- Main  -->
@@ -63,7 +63,7 @@ import { VehicleService } from '../../services/vehicle.service';
         <main class="page-content">
           <div class="page-header">
             <h2>Dashboard</h2>
-            <button class="btn-back" (click)="goBack()">← Back to Home</button>
+            <button class="btn-back" (click)="goBack()">&laquo; Back to Home</button>
           </div>
           <div class="stats-grid">
             <!--  esercizio 6 con i dati  -->
@@ -326,7 +326,6 @@ export class DashboardComponent implements OnInit {
       },
     });
   }
-
 
   toggleSidebar() {
     this.showSidebar.update((value) => !value);

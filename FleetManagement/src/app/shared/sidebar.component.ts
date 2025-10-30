@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, Input, effect } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 
 interface IMenuItem {
@@ -11,10 +11,10 @@ interface IMenuItem {
   standalone: true,
   imports: [RouterLink, RouterLinkActive],
   template: `
-    <aside class="sidebar" [class.collapsed]="isCollapsed()">
+    <aside class="sidebar" [class.collapsed]="isCollapsed()" [class.mobile-open]="isMobileOpen">
       <!-- Toggle Button -->
       <button class="toggle-btn" (click)="toggleSidebar()">
-        <span class="toggle-icon">{{ isCollapsed() ? '→' : '←' }}</span>
+        <span class="toggle-icon">{{ isCollapsed() ? '&raquo;' : '&laquo;' }}</span>
       </button>
 
       <!-- Logo Section -->
@@ -206,19 +206,83 @@ interface IMenuItem {
       }
 
       /* Responsive */
+      @media (max-width: 1024px) {
+        .sidebar {
+          width: 220px;
+        }
+
+        .sidebar.collapsed {
+          width: 70px;
+        }
+
+        .sidebar-header {
+          padding: 1.5rem 1rem;
+        }
+
+        .logo-text {
+          font-size: 1.1rem;
+        }
+
+        .nav-item {
+          padding: 0.75rem 1.25rem;
+        }
+      }
+
       @media (max-width: 768px) {
         .sidebar {
           transform: translateX(-100%);
+          width: 280px;
+          box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
         }
 
-        .sidebar.open {
+        .sidebar.mobile-open {
           transform: translateX(0);
+        }
+
+        .sidebar.collapsed {
+          width: 280px;
+          transform: translateX(-100%);
+        }
+
+        .sidebar.collapsed.mobile-open {
+          width: 280px;
+          transform: translateX(0);
+        }
+
+        .toggle-btn {
+          display: flex; /* Mostra toggle button anche su mobile per collapse */
+        }
+      }
+
+      @media (max-width: 480px) {
+        .sidebar {
+          width: 260px;
+        }
+
+        .sidebar.mobile-open,
+        .sidebar.collapsed.mobile-open {
+          width: 260px;
+        }
+
+        .sidebar-header {
+          padding: 1.25rem 1rem;
+        }
+
+        .logo-text {
+          font-size: 1rem;
+        }
+
+        .nav-item {
+          padding: 0.7rem 1rem;
+          font-size: 0.9rem;
         }
       }
     `,
   ],
 })
 export class SidebarComponent {
+  @Input() isMobileOpen: boolean = false;
+
   isCollapsed = signal(false);
 
   menuItems: IMenuItem[] = [
