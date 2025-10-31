@@ -16,10 +16,10 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
         </header>
 
         <main class="page-content">
-          <!-- <div class="info-banner">
-          <p>Manage associations between vehicles and drivers</p>
-        </div> -->
+          <div class="coming-soon"></div>
 
+          <!-- CODICE TEMPORANEAMENTE NASCOSTO - DA IMPLEMENTARE-->
+          <!--
           <div class="associations-table">
             <table>
               <thead>
@@ -58,6 +58,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
           </div>
 
           <button class="btn-create">Create New Association</button>
+          -->
         </main>
       </div>
     </app-main-layout>
@@ -221,6 +222,25 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
         transform: translateY(-2px);
       }
 
+      .coming-soon {
+        background: white;
+        border-radius: 1rem;
+        padding: 4rem 2rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .coming-soon h2 {
+        font-size: 2rem;
+        color: #2d3748;
+        margin-bottom: 1rem;
+      }
+
+      .coming-soon p {
+        color: #718096;
+        font-size: 1.125rem;
+      }
+
       @media (max-width: 768px) {
         table {
           font-size: 0.875rem;
@@ -235,6 +255,8 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
   ],
 })
 export class AssociationsComponent {
+  // DATI TEMPORANEAMENTE COMMENTATI - DA RIATTIVARE
+  /*
   associations = [
     {
       vehicleId: 'V001',
@@ -244,6 +266,7 @@ export class AssociationsComponent {
       status: 'active',
     },
   ];
+  */
 
   constructor(private router: Router) {}
 

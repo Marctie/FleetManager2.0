@@ -16,6 +16,10 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
         </header>
 
         <main class="page-content">
+          <div class="coming-soon"></div>
+
+          <!-- CODICE TEMPORANEAMENTE NASCOSTO - DA IMPLEMENTARE-->
+          <!--
           <div class="stats-overview">
             <div class="stat-card">
               <div class="stat-content">
@@ -65,6 +69,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
               <button class="btn-download">Download PDF</button>
             </div>
           </div>
+          -->
         </main>
       </div>
     </app-main-layout>
@@ -200,6 +205,25 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
       .btn-download:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+
+      .coming-soon {
+        background: white;
+        border-radius: 1rem;
+        padding: 4rem 2rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .coming-soon h2 {
+        font-size: 2rem;
+        color: #2d3748;
+        margin-bottom: 1rem;
+      }
+
+      .coming-soon p {
+        color: #718096;
+        font-size: 1.125rem;
       }
 
       @media (max-width: 768px) {

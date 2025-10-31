@@ -16,6 +16,10 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
         </header>
 
         <main class="page-content">
+          <div class="coming-soon"></div>
+
+          <!-- CODICE TEMPORANEAMENTE NASCOSTO - DA IMPLEMENTARE-->
+          <!--
           <div class="upload-section">
             <div class="upload-box">
               <h3>Upload Document</h3>
@@ -42,6 +46,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
               }
             </div>
           </div>
+          -->
         </main>
       </div>
     </app-main-layout>
@@ -198,6 +203,25 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
         transform: translateY(-2px);
       }
 
+      .coming-soon {
+        background: white;
+        border-radius: 1rem;
+        padding: 4rem 2rem;
+        text-align: center;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .coming-soon h2 {
+        font-size: 2rem;
+        color: #2d3748;
+        margin-bottom: 1rem;
+      }
+
+      .coming-soon p {
+        color: #718096;
+        font-size: 1.125rem;
+      }
+
       @media (max-width: 768px) {
         .upload-box {
           padding: 2rem 1rem;
@@ -216,6 +240,8 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
   ],
 })
 export class DocumentsComponent {
+  // DATI TEMPORANEAMENTE COMMENTATI - DA RIATTIVARE
+  /*
   documents = [
     {
       name: 'Insurance Certificate',
@@ -223,6 +249,7 @@ export class DocumentsComponent {
       date: '10/10/2025',
     },
   ];
+  */
 
   constructor(private router: Router) {}
 
