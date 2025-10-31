@@ -488,7 +488,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     // 2. Carica veicoli
     this.loadVehicles();
 
-    // 3. Subscribe agli aggiornamenti MQTT real-time
+    // 3. Subscribe agli aggiornamenti
     this.subscribeToMqttUpdates();
 
     // 4. Avvia auto-update
@@ -577,7 +577,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * Carica le posizioni iniziali di tutti i veicoli tramite API di Telemetria
+   * Carica le posizioni iniziali di tutti i veicoli tramite API
    */
   /**
    * SUBSCRIBE AGLI AGGIORNAMENTI MQTT REAL-TIME
@@ -600,7 +600,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
         this.mqttConnected.set(isConnected);
         if (isConnected) {
           console.log('[GENERAL-MAP] MQTT connected');
-          this.showToastNotification('MQTT connected - Real-time updates active', 'success');
+          this.showToastNotification(' Real-time updates active', 'success');
         } else {
           console.warn('[GENERAL-MAP] MQTT disconnected');
         }
@@ -623,7 +623,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('[GENERAL-MAP] MQTT position update received:', positionUpdate);
 
     const vehicles = this.vehicleList();
-    // Cerca il veicolo sia per id che per vehicleId
+    // Cerca il veicolo
     const vehicleIndex = vehicles.findIndex((v) => {
       return v.id === positionUpdate.vehicleId || v.vehicleId === positionUpdate.vehicleId;
     });
@@ -667,16 +667,12 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       console.log(`[GENERAL-MAP] Device not linked to vehicle, showing as MQTT marker`);
 
-      // MOSTRA COMUNQUE IL MARKER ANCHE SE NON È NEL DB
       if (this.map) {
         this.addMqttMarker(positionUpdate);
       }
     }
   }
 
-  /**
-   * AGGIUNGE UN MARKER PER UNA POSIZIONE MQTT NON ASSOCIATA A UN VEICOLO DB
-   */
   private addMqttMarker(position: VehiclePositionUpdate): void {
     console.log('[GENERAL-MAP] Adding MQTT marker for:', position);
 
@@ -721,9 +717,6 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(`[GENERAL-MAP] MQTT marker added at [${position.latitude}, ${position.longitude}]`);
   }
 
-  /**
-   * AGGIUNGE MARKER PER TUTTE LE POSIZIONI MQTT NON LINKATE A VEICOLI
-   */
   private addUnlinkedMqttMarkers(
     mqttPositions: VehiclePositionUpdate[],
     vehicles: IVehicle[]
@@ -745,7 +738,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private startAutoUpdate(): void {
     this.stopAutoUpdate();
-    const updateInterval = 60000; // 30 Secondi per l'aggiornamento automatico
+    const updateInterval = 60000; // 60 Secondi per l'aggiornamento automatico
     console.log(`[GENERAL-MAP] Auto-update every ${updateInterval}ms`);
 
     this.autoUpdateInterval = setInterval(() => {
@@ -987,8 +980,8 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private formatDate(date: Date | string | number): string {
     return new Date(date).toLocaleString('en-EN', {
-      day: '2-digit',
       month: '2-digit',
+      day: '2-digit',
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
@@ -1010,10 +1003,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log(`[GENERAL-MAP] MQTT cache contains ${mqttPositions.length} positions`);
 
     this.loadVehicles();
-    this.showToastNotification(
-      `Refreshing vehicles (${mqttPositions.length} MQTT positions available)`,
-      'success'
-    );
+    this.showToastNotification(`Refreshing vehicles (${mqttPositions.length})`, 'success');
   }
 
   private showToastNotification(
