@@ -69,7 +69,7 @@ import { VehicleService } from '../../services/vehicle.service';
               </div>
               <div class="actions">
                 <button class="btn-primary" (click)="startEditing()">Edit Vehicle</button>
-                <button class="btn-secondary">View History</button>
+                <!-- <button class="btn-secondary">View History</button> -->
                 <button class="btn-danger" (click)="deleteVehicle()">Delete</button>
               </div>
               } @else {

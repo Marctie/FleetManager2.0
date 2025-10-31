@@ -2,19 +2,23 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IVehicle } from '../models/IVehicle';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VehicleService {
   private http = inject(HttpClient);
+  private configService = inject(ConfigService);
 
-  private readonly API_BASE_URL = 'http://10.0.90.9/Stage/FleetManagement';
-  private readonly VEHICLE_ENDPOINTS = {
-    list: `${this.API_BASE_URL}/api/Vehicles`,
-    create: `${this.API_BASE_URL}/api/Vehicles`,
-    update: `${this.API_BASE_URL}/api/Vehicles`,
-  };
+  private get VEHICLE_ENDPOINTS() {
+    const baseUrl = this.configService.getApiBaseUrl();
+    return {
+      list: `${baseUrl}/api/Vehicles`,
+      create: `${baseUrl}/api/Vehicles`,
+      update: `${baseUrl}/api/Vehicles`,
+    };
+  }
 
   /**
    * Lista veicoli con opzioni di filtro
@@ -95,5 +99,61 @@ export class VehicleService {
    */
   deleteVehicle(id: number): Observable<void> {
     return this.http.delete<void>(`${this.VEHICLE_ENDPOINTS.list}/${id}`);
+  }
+
+  /**
+   * Ottiene i dati di telemetria (posizione GPS) per un veicolo specifico
+   * @param vehicleId L'ID del veicolo
+   * @returns Observable con i dati di telemetria
+   */
+  getVehicleTelemetry(vehicleId: number): Observable<{
+    vehicleId: number;
+    latitude: number;
+    longitude: number;
+    speed: number;
+    heading: number;
+    timestamp: Date;
+    status: string;
+  }> {
+    const baseUrl = this.configService.getApiBaseUrl();
+    return this.http.get<{
+      vehicleId: number;
+      latitude: number;
+      longitude: number;
+      speed: number;
+      heading: number;
+      timestamp: Date;
+      status: string;
+    }>(`${baseUrl}/api/Telemetry/vehicle/${vehicleId}`);
+  }
+
+  /**
+   * Ottiene i dati di telemetria per tutti i veicoli
+   * Utile per caricare le posizioni iniziali sulla mappa
+   * @returns Observable<Array> con i dati di telemetria di tutti i veicoli
+   */
+  getAllVehiclesTelemetry(): Observable<
+    Array<{
+      vehicleId: number;
+      latitude: number;
+      longitude: number;
+      speed: number;
+      heading: number;
+      timestamp: Date;
+      status: string;
+    }>
+  > {
+    const baseUrl = this.configService.getApiBaseUrl();
+    return this.http.get<
+      Array<{
+        vehicleId: number;
+        latitude: number;
+        longitude: number;
+        speed: number;
+        heading: number;
+        timestamp: Date;
+        status: string;
+      }>
+    >(`${baseUrl}/api/Telemetry/vehicles`);
   }
 }

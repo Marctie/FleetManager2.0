@@ -14,6 +14,7 @@ import * as L from 'leaflet';
 import { VehiclePosition } from '../../models/vehicle-position';
 import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
+import { MqttService, VehiclePositionUpdate } from '../../services/mqtt.service';
 import { MainLayoutComponent } from '../../shared/main-layout.component';
 import { StatCardComponent } from '../../shared/stat-card.component';
 
@@ -210,6 +211,30 @@ import { StatCardComponent } from '../../shared/stat-card.component';
       .btn-back:hover {
         transform: translateY(-2px);
         box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-mqtt {
+        padding: 0.75rem 1.5rem;
+        background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-mqtt:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(237, 137, 54, 0.3);
+      }
+
+      .btn-mqtt.connected {
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+      }
+
+      .btn-mqtt.connected:hover {
+        box-shadow: 0 5px 15px rgba(72, 187, 120, 0.3);
       }
 
       .stats-section {
@@ -416,6 +441,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   private markers: L.Marker[] = [];
   private router = inject(Router);
   private vehicleService = inject(VehicleService);
+  private mqttService = inject(MqttService);
 
   // Signals
   vehicleList = signal<IVehicle[]>([]);
@@ -424,6 +450,7 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   toastMessage = signal('');
   toastType = signal<'success' | 'error'>('success');
   currentMapView = signal<'street' | 'satellite' | 'cycle'>('street');
+  mqttConnected = signal(false);
 
   // Map layers
   private currentBaseLayer!: L.TileLayer;
@@ -444,7 +471,6 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   constructor() {
-    // Osserva i cambiamenti del veicolo selezionato
     effect(() => {
       const selected = this.selectedVehicle();
       if (this.map && selected) {
@@ -455,7 +481,17 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // 1. CONNETTI MQTT
+    console.log('[GENERAL-MAP] Auto-connecting to MQTT...');
+    this.mqttService.enableAndConnect();
+
+    // 2. Carica veicoli
     this.loadVehicles();
+
+    // 3. Subscribe agli aggiornamenti MQTT real-time
+    this.subscribeToMqttUpdates();
+
+    // 4. Avvia auto-update
     this.startAutoUpdate();
   }
 
@@ -470,20 +506,69 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.map.remove();
     }
   }
-
+  // load dei veicoli e merge con dati mqtt
   private loadVehicles(silent: boolean = false): void {
     this.vehicleService.getListVehicles().subscribe({
       next: (vehicles) => {
-        this.vehicleList.set(vehicles);
+        console.log(`[GENERAL-MAP] Loaded ${vehicles.length} vehicles from DB`);
+
+        //recupero delle posizioni
+        const mqttPositions = this.mqttService.getAllPositions();
+        console.log(`[GENERAL-MAP] Found ${mqttPositions.length} MQTT positions in cache`);
+
+        //unione dei dati
+        const mergedVehicles = vehicles.map((vehicle) => {
+          const mqttPosition = mqttPositions.find(
+            (pos) => pos.vehicleId === vehicle.id || pos.vehicleId === vehicle.vehicleId
+          );
+
+          if (mqttPosition) {
+            const mqttTimestamp = new Date(mqttPosition.timestamp).getTime();
+            const dbTimestamp = vehicle.lastPosition?.timestamp
+              ? new Date(vehicle.lastPosition.timestamp).getTime()
+              : 0;
+
+            if (mqttTimestamp > dbTimestamp) {
+              console.log(
+                `[GENERAL-MAP] Using MQTT position for vehicle ${vehicle.licensePlate} (${vehicle.id})`
+              );
+
+              return {
+                ...vehicle,
+                lastPosition: {
+                  latitude: mqttPosition.latitude,
+                  longitude: mqttPosition.longitude,
+                  speed: mqttPosition.speed,
+                  heading: mqttPosition.heading,
+                  timestamp: mqttPosition.timestamp,
+                },
+                status: mqttPosition.status || vehicle.status,
+              };
+            }
+          }
+
+          return vehicle;
+        });
+
+        this.vehicleList.set(mergedVehicles);
+        //aggiunta del marker su mappa
         if (this.map) {
           this.addVehicleMarkers(true);
+          this.addUnlinkedMqttMarkers(mqttPositions, vehicles);
         }
+
         if (!silent) {
-          console.log(`Loaded ${vehicles.length} vehicles`);
+          const mqttCount = mergedVehicles.filter((v) =>
+            mqttPositions.some((p) => p.vehicleId === v.id || p.vehicleId === v.vehicleId)
+          ).length;
+          const unlinkedCount = mqttPositions.length - mqttCount;
+          console.log(
+            `[GENERAL-MAP]Loaded ${vehicles.length} vehicles (${mqttCount} with MQTT data, ${unlinkedCount} MQTT-only markers)`
+          );
         }
       },
       error: (error) => {
-        console.error('Error loading vehicles:', error);
+        console.error('[GENERAL-MAP] Error loading vehicles:', error);
         if (!silent) {
           this.showToastNotification('Error loading vehicles', 'error');
         }
@@ -491,9 +576,176 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  /**
+   * Carica le posizioni iniziali di tutti i veicoli tramite API di Telemetria
+   */
+  /**
+   * SUBSCRIBE AGLI AGGIORNAMENTI MQTT REAL-TIME
+   */
+  private subscribeToMqttUpdates(): void {
+    console.log('[GENERAL-MAP] Subscribing to MQTT vehicle position updates (Vehicles/#)');
+    // Sottoscrizione agli aggiornamenti delle posizioni in tempo reale
+    this.mqttService.getVehiclePositionUpdates().subscribe({
+      next: (positionUpdate: VehiclePositionUpdate) => {
+        console.log('[GENERAL-MAP] MQTT Position update received:', positionUpdate);
+        this.updateVehiclePosition(positionUpdate);
+      },
+      error: (error) => {
+        console.error('[GENERAL-MAP] MQTT subscription error:', error);
+      },
+    });
+
+    this.mqttService.getConnectionStatus().subscribe({
+      next: (isConnected: boolean) => {
+        this.mqttConnected.set(isConnected);
+        if (isConnected) {
+          console.log('[GENERAL-MAP] MQTT connected');
+          this.showToastNotification('MQTT connected - Real-time updates active', 'success');
+        } else {
+          console.warn('[GENERAL-MAP] MQTT disconnected');
+        }
+      },
+    });
+  }
+
+  toggleMqttConnection() {
+    if (this.mqttConnected()) {
+      this.showToastNotification('MQTT connection management', 'success');
+    } else {
+      this.mqttService.enableAndConnect();
+    }
+  }
+
+  /**
+   * AGGIORNA POSIZIONE VEICOLO CON DATI MQTT
+   */
+  private updateVehiclePosition(positionUpdate: VehiclePositionUpdate): void {
+    console.log('[GENERAL-MAP] MQTT position update received:', positionUpdate);
+
+    const vehicles = this.vehicleList();
+    // Cerca il veicolo sia per id che per vehicleId
+    const vehicleIndex = vehicles.findIndex((v) => {
+      return v.id === positionUpdate.vehicleId || v.vehicleId === positionUpdate.vehicleId;
+    });
+
+    if (vehicleIndex !== -1) {
+      const currentVehicle = vehicles[vehicleIndex];
+      const mqttTimestamp = new Date(positionUpdate.timestamp).getTime();
+      const currentTimestamp = currentVehicle.lastPosition?.timestamp
+        ? new Date(currentVehicle.lastPosition.timestamp).getTime()
+        : 0;
+
+      if (mqttTimestamp >= currentTimestamp) {
+        console.log(`[GENERAL-MAP] Updating vehicle ${currentVehicle.licensePlate} with MQTT data`);
+
+        // Aggiorna il veicolo
+        const updatedVehicle = {
+          ...currentVehicle,
+          lastPosition: {
+            latitude: positionUpdate.latitude,
+            longitude: positionUpdate.longitude,
+            speed: positionUpdate.speed || 0,
+            heading: positionUpdate.heading || 0,
+            timestamp: positionUpdate.timestamp,
+          },
+          status: positionUpdate.status || currentVehicle.status,
+        };
+
+        // Aggiorna la lista
+        const updatedVehicles = [...vehicles];
+        updatedVehicles[vehicleIndex] = updatedVehicle;
+        this.vehicleList.set(updatedVehicles);
+
+        if (this.map) {
+          this.addVehicleMarkers(true);
+        }
+      } else {
+        console.log(
+          `[GENERAL-MAP] Skipping older MQTT data for vehicle ${currentVehicle.licensePlate}`
+        );
+      }
+    } else {
+      console.log(`[GENERAL-MAP] Device not linked to vehicle, showing as MQTT marker`);
+
+      // MOSTRA COMUNQUE IL MARKER ANCHE SE NON È NEL DB
+      if (this.map) {
+        this.addMqttMarker(positionUpdate);
+      }
+    }
+  }
+
+  /**
+   * AGGIUNGE UN MARKER PER UNA POSIZIONE MQTT NON ASSOCIATA A UN VEICOLO DB
+   */
+  private addMqttMarker(position: VehiclePositionUpdate): void {
+    console.log('[GENERAL-MAP] Adding MQTT marker for:', position);
+
+    const marker = L.marker([position.latitude, position.longitude], {
+      icon: L.icon({
+        iconUrl:
+          'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJDOC4xMyAyIDUgNS4xMyA1IDlDNSAxNC4yNSAxMiAyMiAxMiAyMkMxMiAyMiAxOSAxNC4yNSAxOSA5QzE5IDUuMTMgMTUuODcgMiAxMiAyWk0xMiAxMS41QzEwLjYyIDExLjUgOS41IDEwLjM4IDkuNSA5QzkuNSA3LjYyIDEwLjYyIDYuNSAxMiA2LjVDMTMuMzggNi41IDE0LjUgNy42MiAxNC41IDlDMTQuNSAxMC4zOCAxMy4zOCAxMS41IDEyIDExLjVaIiBmaWxsPSIjZmY5ODAwIi8+Cjwvc3ZnPg==',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32],
+      }),
+    }).addTo(this.map!);
+
+    const deviceId = position.deviceIdentifier || position.vehicleId;
+    const popupContent = `
+      <div style="font-family: system-ui, sans-serif; min-width: 200px;">
+        
+        <div style="display: grid; gap: 6px; font-size: 13px;">
+          <div><strong>Device ID:</strong><br/>${deviceId}</div>
+          <div><strong>Speed:</strong> ${position.speed} km/h</div>
+          <div><strong>Heading:</strong> ${position.heading}°</div>
+          <div><strong>Coordinates:</strong><br>
+            &nbsp;&nbsp;Lat: ${position.latitude.toFixed(6)}<br>
+            &nbsp;&nbsp;Lng: ${position.longitude.toFixed(6)}
+          </div>
+          <div style="font-size: 11px; color: #666; margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee;">
+            <strong>Last Update:</strong><br>
+            ${new Date(position.timestamp).toLocaleString()}
+          </div>
+        </div>
+      </div>
+    `;
+
+    marker.bindPopup(popupContent, {
+      closeButton: true,
+      autoClose: false,
+      closeOnClick: false,
+    });
+
+    this.markers.push(marker);
+
+    console.log(`[GENERAL-MAP] MQTT marker added at [${position.latitude}, ${position.longitude}]`);
+  }
+
+  /**
+   * AGGIUNGE MARKER PER TUTTE LE POSIZIONI MQTT NON LINKATE A VEICOLI
+   */
+  private addUnlinkedMqttMarkers(
+    mqttPositions: VehiclePositionUpdate[],
+    vehicles: IVehicle[]
+  ): void {
+    console.log('[GENERAL-MAP] Checking for unlinked MQTT positions...');
+
+    mqttPositions.forEach((position) => {
+      // Verifica se questa posizione è già associata a un veicolo nel DB
+      const isLinked = vehicles.some(
+        (v) => v.id === position.vehicleId || v.vehicleId === position.vehicleId
+      );
+
+      if (!isLinked) {
+        console.log(`[GENERAL-MAP] Unlinked MQTT position found:`, position);
+        this.addMqttMarker(position);
+      }
+    });
+  }
+
   private startAutoUpdate(): void {
     this.stopAutoUpdate();
-    const updateInterval = 30000; // 30 seconds
+    const updateInterval = 60000; // 30 Secondi per l'aggiornamento automatico
     console.log(`[GENERAL-MAP] Auto-update every ${updateInterval}ms`);
 
     this.autoUpdateInterval = setInterval(() => {
@@ -750,10 +1002,18 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (v === 'offline') return 'inactive';
     return v;
   }
-
+  //bottone di aggiornamento manuale delle posizioni
   public refreshAllVehicles(): void {
+    console.log('[GENERAL-MAP] Manual refresh triggered');
+
+    const mqttPositions = this.mqttService.getAllPositions();
+    console.log(`[GENERAL-MAP] MQTT cache contains ${mqttPositions.length} positions`);
+
     this.loadVehicles();
-    this.showToastNotification('Refreshing vehicle data...', 'success');
+    this.showToastNotification(
+      `Refreshing vehicles (${mqttPositions.length} MQTT positions available)`,
+      'success'
+    );
   }
 
   private showToastNotification(

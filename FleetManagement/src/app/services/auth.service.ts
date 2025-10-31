@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { IAuthResponse } from '../models/IAutentication';
 import { ILoginRequest } from '../models/ILogin';
 import { IUserInfo } from '../models/IUserInfo';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root',
@@ -12,14 +13,17 @@ import { IUserInfo } from '../models/IUserInfo';
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
+  private configService = inject(ConfigService);
 
-  // Base URL dall'API
-  private readonly API_BASE_URL = 'http://10.0.90.9/Stage/FleetManagement';
-  private readonly AUTH_ENDPOINTS = {
-    login: `${this.API_BASE_URL}/api/Auth/login`,
-    refresh: `${this.API_BASE_URL}/api/Auth/refresh`,
-    logout: `${this.API_BASE_URL}/api/Auth/logout`,
-  };
+  // Endpoint dinamici dal config.json
+  private get AUTH_ENDPOINTS() {
+    const baseUrl = this.configService.getApiBaseUrl();
+    return {
+      login: `${baseUrl}/api/Auth/login`,
+      refresh: `${baseUrl}/api/Auth/refresh`,
+      logout: `${baseUrl}/api/Auth/logout`,
+    };
+  }
 
   private readonly STORAGE_KEYS = {
     token: 'authToken',

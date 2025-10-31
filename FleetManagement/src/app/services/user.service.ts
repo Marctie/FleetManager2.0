@@ -2,17 +2,21 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IUser } from '../models/IUser';
+import { ConfigService } from './config.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UserService {
   private http = inject(HttpClient);
+  private configService = inject(ConfigService);
 
-  private readonly API_BASE_URL = 'http://10.0.90.9/Stage/FleetManagement';
-  private readonly USER_ENDPOINTS = {
-    list: `${this.API_BASE_URL}/api/Users`,
-  };
+  private get USER_ENDPOINTS() {
+    const baseUrl = this.configService.getApiBaseUrl();
+    return {
+      list: `${baseUrl}/api/Users`,
+    };
+  }
 
   /**
    * Get paginated list of users
