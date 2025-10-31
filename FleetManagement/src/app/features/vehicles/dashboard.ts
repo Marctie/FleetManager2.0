@@ -73,9 +73,9 @@ import { VehicleService } from '../../services/vehicle.service';
               [value]="vehicleList().length"
             ></app-stat-card>
 
-            <app-stat-card title="Active" [value]="18"></app-stat-card>
-            <app-stat-card title="In Maintenance" [value]="30"></app-stat-card>
-            <app-stat-card title="Alerts" [value]="2"></app-stat-card>
+            <app-stat-card title="Active" [value]="0"></app-stat-card>
+            <app-stat-card title="In Maintenance" [value]="0"></app-stat-card>
+            <app-stat-card title="Alerts" [value]="0"></app-stat-card>
           </div>
         </main>
       </div>

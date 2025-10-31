@@ -229,7 +229,6 @@ export class MqttService {
                 status: payload.status || 'unknown',
                 deviceIdentifier: payload.deviceIdentifier, // Manteniamo per debug
               };
-
               observer.next(positionUpdate);
               return;
             }
