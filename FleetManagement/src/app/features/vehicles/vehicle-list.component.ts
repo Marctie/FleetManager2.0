@@ -76,7 +76,7 @@ import { FormsModule } from '@angular/forms';
               <tbody>
                 @for (vehicle of vehicles(); track vehicle.id) {
                 <tr>
-                  <td>{{ vehicle.id }}</td>
+                  <!-- <td>{{ vehicle.id }}</td> -->
                   <td>{{ vehicle.model }}</td>
                   <td>{{ vehicle.licensePlate }}</td>
                   <td>
