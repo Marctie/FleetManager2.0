@@ -454,7 +454,7 @@ export class VehicleFormComponent {
   vehicleForm = this.fb.group({
     model: ['', [Validators.required]],
     brand: ['', [Validators.required]],
-    plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}\d{3}[A-Z]{2}$/)]],
+    plate: ['', [Validators.required]],
     year: [
       this.currentYear,
       [Validators.required, Validators.min(1900), Validators.max(this.currentYear)],
