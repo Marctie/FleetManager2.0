@@ -147,6 +147,7 @@ import { FormsModule } from '@angular/forms';
           <app-vehicle-detail
             [vehicle]="selectedVehicle()!"
             (closeModal)="handleCloseModal($event)"
+            (vehicleUpdated)="handleVehicleUpdated($event)"
           >
           </app-vehicle-detail>
           }
@@ -820,6 +821,49 @@ export class VehicleListComponent implements OnInit {
       this.showModal.set(false);
       this.selectedVehicle.set(null);
     }
+  }
+
+  handleVehicleUpdated(updatedVehicle: IVehicle) {
+    // Aggiorna il veicolo nella lista locale
+    const currentVehicles = this.vehicles();
+    const vehicleIndex = currentVehicles.findIndex(v => v.id === updatedVehicle.id);
+    
+    if (vehicleIndex !== -1) {
+      // Aggiorna il veicolo nella lista
+      const updatedVehicles = [...currentVehicles];
+      updatedVehicles[vehicleIndex] = updatedVehicle;
+      this.vehicles.set(updatedVehicles);
+      
+      // Aggiorna anche il selectedVehicle se è lo stesso
+      if (this.selectedVehicle()?.id === updatedVehicle.id) {
+        this.selectedVehicle.set(updatedVehicle);
+      }
+    } else {
+      // Se il veicolo non è nella lista (es. è stato eliminato), ricarica la lista
+      this.reloadCurrentPage();
+    }
+  }
+
+  // Metodo per ricaricare la pagina corrente mantenendo i filtri
+  private reloadCurrentPage(): void {
+    const filters: { search?: string; status?: string; model?: string } = {};
+    const query = this.searchQuery.trim();
+
+    if (query) {
+      switch (this.selectedFilterType) {
+        case 'status':
+          filters.status = query;
+          break;
+        case 'model':
+          filters.model = query;
+          break;
+        default:
+          filters.search = query;
+          break;
+      }
+    }
+
+    this.loadVehicles(filters);
   }
 
   //funzioni di  navigazione
