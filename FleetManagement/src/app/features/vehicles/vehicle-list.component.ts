@@ -826,14 +826,14 @@ export class VehicleListComponent implements OnInit {
   handleVehicleUpdated(updatedVehicle: IVehicle) {
     // Aggiorna il veicolo nella lista locale
     const currentVehicles = this.vehicles();
-    const vehicleIndex = currentVehicles.findIndex(v => v.id === updatedVehicle.id);
-    
+    const vehicleIndex = currentVehicles.findIndex((v) => v.id === updatedVehicle.id);
+
     if (vehicleIndex !== -1) {
       // Aggiorna il veicolo nella lista
       const updatedVehicles = [...currentVehicles];
       updatedVehicles[vehicleIndex] = updatedVehicle;
       this.vehicles.set(updatedVehicles);
-      
+
       // Aggiorna anche il selectedVehicle se è lo stesso
       if (this.selectedVehicle()?.id === updatedVehicle.id) {
         this.selectedVehicle.set(updatedVehicle);
