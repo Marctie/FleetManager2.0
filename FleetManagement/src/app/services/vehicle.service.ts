@@ -75,6 +75,7 @@ export class VehicleService {
       year: vehicle.year,
       currentKm: vehicle.currentKm,
       fuelType: Number(vehicle.fuelType),
+      status: vehicle.status,
       lastMaintenanceDate: vehicle.lastMaintenanceDate,
       insuranceExpiryDate: vehicle.insuranceExpiryDate,
     };

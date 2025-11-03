@@ -56,7 +56,13 @@ import { VehicleService } from '../../services/vehicle.service';
                 </div>
                 <div class="detail-item">
                   <label>Fuel Type</label>
-                  <p>{{ getFuelTypeName(vehicle.fuelType) }}</p>
+                  <p>
+                    {{
+                      vehicle.fuelType !== undefined && vehicle.fuelType !== null
+                        ? getFuelTypeName(vehicle.fuelType)
+                        : 'Not specified'
+                    }}
+                  </p>
                 </div>
                 <div class="detail-item">
                   <label>Last Service</label>
@@ -113,6 +119,15 @@ import { VehicleService } from '../../services/vehicle.service';
                       <option value="3">Hybrid</option>
                       <option value="4">LPG</option>
                       <option value="5">CNG</option>
+                    </select>
+                  </div>
+                  <div class="detail-item">
+                    <label>Status</label>
+                    <select formControlName="status">
+                      <option value="Available">Available</option>
+                      <option value="In Use">In Use</option>
+                      <option value="Maintenance">Maintenance</option>
+                      <option value="Out of Service">Out of Service</option>
                     </select>
                   </div>
                   <div class="detail-item">
@@ -537,7 +552,12 @@ export class VehicleDetailComponent {
     5: 'CNG',
   };
 
-  getFuelTypeName(fuelType: number): string {
+  getFuelTypeName(fuelType: number | string): string {
+    // Se è già una stringa (nome), restituiscila direttamente
+    if (typeof fuelType === 'string') {
+      return fuelType;
+    }
+    // Se è un numero, cerca nella mappa
     return this.fuelTypeMap[fuelType] || 'Unknown';
   }
 
@@ -554,7 +574,7 @@ export class VehicleDetailComponent {
   }
 
   initForm() {
-    // Convertiamo le date in formato yyyy-MM-dd per l'input type="date"
+    // conversione delle date in formato yyyy-MM-dd per l'input type="date"
     const lastMaintenanceDate = this.vehicle.lastMaintenanceDate
       ? new Date(this.vehicle.lastMaintenanceDate).toISOString().split('T')[0]
       : '';
@@ -571,6 +591,7 @@ export class VehicleDetailComponent {
       ],
       currentKm: [this.vehicle.currentKm, [Validators.required, Validators.min(0)]],
       fuelType: [this.vehicle.fuelType, [Validators.required]],
+      status: [this.vehicle.status, [Validators.required]],
       lastMaintenanceDate: [lastMaintenanceDate],
       insuranceExpiryDate: [insuranceExpiryDate],
     });
@@ -590,6 +611,7 @@ export class VehicleDetailComponent {
           year: parseInt(formValue.year),
           currentKm: parseInt(formValue.currentKm),
           fuelType: parseInt(formValue.fuelType),
+          status: formValue.status,
           lastMaintenanceDate: formValue.lastMaintenanceDate
             ? new Date(formValue.lastMaintenanceDate)
             : this.vehicle.lastMaintenanceDate,
@@ -600,10 +622,15 @@ export class VehicleDetailComponent {
 
         this.vehicleService.updateVehicle(updatedVehicle).subscribe({
           next: (result) => {
-            this.vehicle = result; // Aggiorniamo il veicolo locale con i dati aggiornati
+            // Se l'API non restituisce lo status, usiamo quello che abbiamo inviato
+            this.vehicle = {
+              ...result,
+              status: updatedVehicle.status,
+            };
+
             this.isSaving = false;
             this.isEditing = false;
-            this.vehicleUpdated.emit(result);
+            this.vehicleUpdated.emit(this.vehicle);
             alert('Vehicle updated successfully!');
           },
           error: (error: any) => {
