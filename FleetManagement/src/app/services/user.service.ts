@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { IUser } from '../models/IUser';
+import { IUser, IUserCreateRequest } from '../models/IUser';
 import { ConfigService } from './config.service';
 
 @Injectable({
@@ -30,5 +30,26 @@ export class UserService {
    */
   getUserById(id: string): Observable<IUser> {
     return this.http.get<IUser>(`${this.USER_ENDPOINTS.list}/${id}`);
+  }
+
+  /**
+   * Create a new user
+   */
+  createUser(user: IUserCreateRequest): Observable<IUser> {
+    return this.http.post<IUser>(this.USER_ENDPOINTS.list, user);
+  }
+
+  /**
+   * Update an existing user
+   */
+  updateUser(id: string, user: Partial<IUser>): Observable<IUser> {
+    return this.http.put<IUser>(`${this.USER_ENDPOINTS.list}/${id}`, user);
+  }
+
+  /**
+   * Delete a user
+   */
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.USER_ENDPOINTS.list}/${id}`);
   }
 }
