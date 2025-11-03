@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { IVehicle } from '../models/IVehicle';
 import { ConfigService } from './config.service';
 
@@ -21,9 +22,9 @@ export class VehicleService {
   }
 
   /**
-   * Lista veicoli con opzioni di filtro
-   * @param options Opzioni di filtro (ricerca, stato, modello)
-   * @returns Observable<IVehicle[]>
+   * Lista veicoli con opzioni di filtro e paginazione
+   * @param options Opzioni di filtro (ricerca, stato, modello, paginazione)
+   * @returns Observable<IVehicleRes> con items, total, page, pageSize
    */
   getListVehicles(options?: {
     page?: number;
@@ -31,25 +32,57 @@ export class VehicleService {
     search?: string;
     status?: string;
     model?: string;
-  }): Observable<IVehicle[]> {
+  }): Observable<{ items: IVehicle[]; total: number; page: number; pageSize: number }> {
     const params = new URLSearchParams();
 
     // Imposta i parametri di paginazione di default
-    params.append('page', (options?.page || 1).toString());
-    params.append('pageSize', (options?.pageSize || 1000).toString());
+    const page = options?.page || 1;
+    const pageSize = options?.pageSize || 20;
+
+    params.append('page', page.toString());
+    params.append('pageSize', pageSize.toString());
 
     // Aggiungi i parametri di filtro se presenti
     if (options?.search) params.append('search', options.search);
     if (options?.status) params.append('status', options.status);
     if (options?.model) params.append('model', options.model);
 
-    return this.http.get<IVehicle[]>(`${this.VEHICLE_ENDPOINTS.list}?${params.toString()}`);
+    return this.http.get<any>(`${this.VEHICLE_ENDPOINTS.list}?${params.toString()}`).pipe(
+      map((response: any) => {
+        // Se l'API restituisce già il formato paginato
+        if (response && typeof response === 'object' && 'items' in response) {
+          return response as { items: IVehicle[]; total: number; page: number; pageSize: number };
+        }
+
+        // Se l'API restituisce direttamente un array (formato vecchio)
+        if (Array.isArray(response)) {
+          console.warn(
+            '[VehicleService] API returned array instead of paginated response. Using fallback.'
+          );
+          return {
+            items: response,
+            total: response.length,
+            page: page,
+            pageSize: pageSize,
+          };
+        }
+
+        // Fallback per risposte inaspettate
+        console.error('[VehicleService] Unexpected API response format:', response);
+        return {
+          items: [],
+          total: 0,
+          page: page,
+          pageSize: pageSize,
+        };
+      })
+    );
   }
 
   /**
    *Lista veicoli con id
    */
-  getVehicleById(id: number): Observable<IVehicle> {
+  getVehicleById(id: number | string): Observable<IVehicle> {
     return this.http.get<IVehicle>(`${this.VEHICLE_ENDPOINTS.list}/${id}`);
   }
 
@@ -83,25 +116,36 @@ export class VehicleService {
 
   /**
    * Aggiorna lo stato di un veicolo
-   * @param id L'ID del veicolo
+   * @param id L'ID del veicolo (può essere number o string)
+   * @param status Lo stato del veicolo (enum number: 0=Available, 1=InUse, 2=Maintenance, 3=OutOfService)
    * @returns Observable<IVehicle> Il veicolo aggiornato
    */
-  updateVehicleStatus(id: number, status: string): Observable<IVehicle> {
-    return this.http.patch<IVehicle>(`${this.VEHICLE_ENDPOINTS.update}/${id}/status`, { status });
+  /**
+   * Aggiorna lo stato di un veicolo
+   * @param id L'ID del veicolo (può essere number o string)
+   * @param status Lo stato del veicolo (enum number: 0=Available, 1=InUse, 2=Maintenance, 3=OutOfService)
+   * @returns Observable<IVehicle> Il veicolo aggiornato
+   *
+   * NOTA: L'API si aspetta il valore enum DIRETTAMENTE nel body (non come oggetto { status: number })
+   */
+  updateVehicleStatus(id: number | string, status: number): Observable<IVehicle> {
+    const url = `${this.VEHICLE_ENDPOINTS.update}/${id}/status`;
+    // Il backend si aspetta direttamente il numero enum, non un oggetto
+    return this.http.patch<IVehicle>(url, status);
   }
 
   /**
    * Elimina un veicolo
    */
-  deleteVehicle(id: number): Observable<void> {
+  deleteVehicle(id: number | string): Observable<void> {
     return this.http.delete<void>(`${this.VEHICLE_ENDPOINTS.list}/${id}`);
   }
 
   /**
    * Ottiene i dati di telemetria (posizione GPS) per un veicolo specifico
    */
-  getVehicleTelemetry(vehicleId: number): Observable<{
-    vehicleId: number;
+  getVehicleTelemetry(vehicleId: number | string): Observable<{
+    vehicleId: number | string;
     latitude: number;
     longitude: number;
     speed: number;

@@ -316,10 +316,10 @@ export class DashboardComponent implements OnInit {
   }
 
   private loadVehicles(silent: boolean = false): void {
-    this.vehicleService.getListVehicles().subscribe({
-      next: (vehicles) => {
-        this.vehicleList.set(vehicles);
-        console.log(`Loaded ${vehicles.length} vehicles`);
+    this.vehicleService.getListVehicles({ page: 1, pageSize: 1000 }).subscribe({
+      next: (response) => {
+        this.vehicleList.set(response.items);
+        console.log(`Loaded ${response.items.length} vehicles of ${response.total} total`);
       },
       error: (error) => {
         console.error('Error loading vehicles:', error);

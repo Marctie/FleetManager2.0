@@ -1,13 +1,14 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
+import { VehicleStatusModalComponent } from './vehicle-status-modal.component';
 
 @Component({
   selector: 'app-vehicle-detail',
   standalone: true,
-  imports: [CommonModule, DatePipe, ReactiveFormsModule],
+  imports: [CommonModule, DatePipe, ReactiveFormsModule, VehicleStatusModalComponent],
   template: `
     <div class="modal-overlay">
       <div class="modal-container">
@@ -74,6 +75,7 @@ import { VehicleService } from '../../services/vehicle.service';
                 </div>
               </div>
               <div class="actions">
+                <button class="btn-status" (click)="openStatusModal()">Change Status</button>
                 <button class="btn-primary" (click)="startEditing()">Edit Vehicle</button>
                 <!-- <button class="btn-secondary">View History</button> -->
                 <button class="btn-danger" (click)="deleteVehicle()">Delete</button>
@@ -159,6 +161,15 @@ import { VehicleService } from '../../services/vehicle.service';
         </div>
       </div>
     </div>
+
+    <!-- Modale per il cambio stato -->
+    @if (showStatusModal()) {
+    <app-vehicle-status-modal
+      [vehicle]="vehicle"
+      (statusChanged)="handleStatusChanged($event)"
+      (closeModal)="closeStatusModal()"
+    />
+    }
   `,
   styles: [
     `
@@ -320,6 +331,23 @@ import { VehicleService } from '../../services/vehicle.service';
 
       .btn-primary:hover {
         background: #5a67d8;
+      }
+
+      .btn-status {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+      }
+
+      .btn-status:hover {
+        background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
       }
 
       .btn-secondary {
@@ -541,6 +569,7 @@ export class VehicleDetailComponent {
   isEditing = false;
   isSaving = false;
   currentYear = new Date().getFullYear();
+  showStatusModal = signal(false);
 
   // Mapping dei tipi di carburante
   private fuelTypeMap: { [key: number]: string } = {
@@ -704,5 +733,21 @@ export class VehicleDetailComponent {
     } else {
       this.closeModal.emit(true);
     }
+  }
+
+  // Metodi per la modale di cambio stato
+  openStatusModal() {
+    this.showStatusModal.set(true);
+  }
+
+  closeStatusModal() {
+    this.showStatusModal.set(false);
+  }
+
+  handleStatusChanged(updatedVehicle: IVehicle) {
+    // Aggiorna il veicolo locale con il nuovo stato
+    this.vehicle = { ...this.vehicle, status: updatedVehicle.status };
+    // Notifica il parent component
+    this.vehicleUpdated.emit(this.vehicle);
   }
 }

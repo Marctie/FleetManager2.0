@@ -1,5 +1,5 @@
 export interface IVehicle {
-  id: number;
+  id: number | string;
   licensePlate: string;
   brand: string;
   model: string;
@@ -13,7 +13,7 @@ export interface IVehicle {
   lastMaintenanceDate: Date;
   insuranceExpiryDate: Date;
   documentCount: number;
-  vehicleId: number;
+  vehicleId: number | string;
   lastPosition: {
     latitude: number;
     longitude: number;
