@@ -124,15 +124,6 @@ import { VehicleStatusModalComponent } from './vehicle-status-modal.component';
                     </select>
                   </div>
                   <div class="detail-item">
-                    <label>Status</label>
-                    <select formControlName="status">
-                      <option value="Available">Available</option>
-                      <option value="In Use">In Use</option>
-                      <option value="Maintenance">Maintenance</option>
-                      <option value="Out of Service">Out of Service</option>
-                    </select>
-                  </div>
-                  <div class="detail-item">
                     <label>Last Service Date</label>
                     <input type="date" formControlName="lastMaintenanceDate" />
                   </div>
@@ -620,7 +611,6 @@ export class VehicleDetailComponent {
       ],
       currentKm: [this.vehicle.currentKm, [Validators.required, Validators.min(0)]],
       fuelType: [this.vehicle.fuelType, [Validators.required]],
-      status: [this.vehicle.status, [Validators.required]],
       lastMaintenanceDate: [lastMaintenanceDate],
       insuranceExpiryDate: [insuranceExpiryDate],
     });
