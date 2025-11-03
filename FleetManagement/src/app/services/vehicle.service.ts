@@ -64,11 +64,9 @@ export class VehicleService {
 
   /**
    * Aggiorna un veicolo esistente
-   * @param vehicle Il veicolo con i dati aggiornati
    * @returns Observable<IVehicle> Il veicolo aggiornato
    */
   updateVehicle(vehicle: IVehicle): Observable<IVehicle> {
-    // Creiamo l'oggetto con solo i campi che possono essere aggiornati
     const updateData = {
       brand: vehicle.brand,
       model: vehicle.model,
@@ -86,7 +84,6 @@ export class VehicleService {
   /**
    * Aggiorna lo stato di un veicolo
    * @param id L'ID del veicolo
-   * @param status Il nuovo stato
    * @returns Observable<IVehicle> Il veicolo aggiornato
    */
   updateVehicleStatus(id: number, status: string): Observable<IVehicle> {
@@ -95,8 +92,6 @@ export class VehicleService {
 
   /**
    * Elimina un veicolo
-   * @param id L'ID del veicolo da eliminare
-   * @returns Observable<void>
    */
   deleteVehicle(id: number): Observable<void> {
     return this.http.delete<void>(`${this.VEHICLE_ENDPOINTS.list}/${id}`);
@@ -104,8 +99,6 @@ export class VehicleService {
 
   /**
    * Ottiene i dati di telemetria (posizione GPS) per un veicolo specifico
-   * @param vehicleId L'ID del veicolo
-   * @returns Observable con i dati di telemetria
    */
   getVehicleTelemetry(vehicleId: number): Observable<{
     vehicleId: number;
