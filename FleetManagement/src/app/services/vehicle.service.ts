@@ -32,7 +32,13 @@ export class VehicleService {
     search?: string;
     status?: string;
     model?: string;
-  }): Observable<{ items: IVehicle[]; total: number; page: number; pageSize: number }> {
+  }): Observable<{
+    items: IVehicle[];
+    status: string;
+    total: number;
+    page: number;
+    pageSize: number;
+  }> {
     const params = new URLSearchParams();
 
     // Imposta i parametri di paginazione di default
@@ -49,9 +55,20 @@ export class VehicleService {
 
     return this.http.get<any>(`${this.VEHICLE_ENDPOINTS.list}?${params.toString()}`).pipe(
       map((response: any) => {
+        // Normalize page values for reuse
+        const pageNum = page;
+        const pageSz = pageSize;
+
         // Se l'API restituisce già il formato paginato
         if (response && typeof response === 'object' && 'items' in response) {
-          return response as { items: IVehicle[]; total: number; page: number; pageSize: number };
+          const items = (response.items ?? []) as IVehicle[];
+          return {
+            items: items,
+            status: typeof response.status === 'string' ? response.status : '',
+            total: typeof response.total === 'number' ? response.total : items.length,
+            page: typeof response.page === 'number' ? response.page : pageNum,
+            pageSize: typeof response.pageSize === 'number' ? response.pageSize : pageSz,
+          };
         }
 
         // Se l'API restituisce direttamente un array (formato vecchio)
@@ -60,20 +77,22 @@ export class VehicleService {
             '[VehicleService] API returned array instead of paginated response. Using fallback.'
           );
           return {
-            items: response,
+            items: response as IVehicle[],
+            status: '',
             total: response.length,
-            page: page,
-            pageSize: pageSize,
+            page: pageNum,
+            pageSize: pageSz,
           };
         }
 
         // Fallback per risposte inaspettate
         console.error('[VehicleService] Unexpected API response format:', response);
         return {
-          items: [],
+          items: [] as IVehicle[],
+          status: '',
           total: 0,
-          page: page,
-          pageSize: pageSize,
+          page: pageNum,
+          pageSize: pageSz,
         };
       })
     );
