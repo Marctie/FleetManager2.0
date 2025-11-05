@@ -5,6 +5,7 @@ import { VehicleDetailComponent } from './vehicle-detail.component';
 import { VehicleService } from '../../services/vehicle.service';
 import { IVehicle } from '../../models/IVehicle';
 import { FormsModule } from '@angular/forms';
+import { RoleService } from '../../services/role.service';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -19,9 +20,11 @@ import { FormsModule } from '@angular/forms';
             <button class="btn-add" style="margin: 0px 5px" (click)="goVehicleMap()">
               Vehicle Map
             </button>
+            @if (roleService.canCreateVehicles()) {
             <button class="btn-add" style="margin: 0px 5px" (click)="goVehicleForm()">
               Vehicle Form
             </button>
+            }
             <button class="btn-back" style="margin: 0px 5px" (click)="goBack()">
               Back to Home
             </button>
@@ -631,6 +634,7 @@ export class VehicleListComponent implements OnInit {
 
   router = inject(Router);
   vehicleService = inject(VehicleService);
+  roleService = inject(RoleService);
 
   // Espone Math per il template
   Math = Math;

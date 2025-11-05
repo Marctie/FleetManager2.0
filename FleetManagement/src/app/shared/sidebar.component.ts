@@ -1,9 +1,12 @@
-import { Component, signal, Input, effect } from '@angular/core';
+import { Component, signal, Input, effect, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { RoleService, Permission } from '../services/role.service';
 
 interface IMenuItem {
   path: string;
   label: string;
+  requiredPermission?: Permission; // Permesso richiesto per vedere questa voce
+  adminOnly?: boolean; // Se true, solo Admin può vedere
 }
 
 @Component({
@@ -283,19 +286,46 @@ interface IMenuItem {
 export class SidebarComponent {
   @Input() isMobileOpen: boolean = false;
 
+  roleService = inject(RoleService);
   isCollapsed = signal(false);
 
-  menuItems: IMenuItem[] = [
+  private allMenuItems: IMenuItem[] = [
     { path: '/home', label: 'Home' },
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/vehicle-list', label: 'Vehicles' },
-    { path: '/general-map', label: 'Map' },
-    { path: '/vehicle-form', label: 'Vehicle Form' },
-    { path: '/user-management', label: 'Users' },
-    { path: '/associations', label: 'Associations' },
-    { path: '/reports', label: 'Reports' },
-    { path: '/documents', label: 'Documents' },
+    { path: '/dashboard', label: 'Dashboard', requiredPermission: Permission.DASHBOARD_VIEW },
+    { path: '/vehicle-list', label: 'Vehicles', requiredPermission: Permission.VEHICLES_VIEW },
+    { path: '/general-map', label: 'Map', requiredPermission: Permission.MAP_VIEW },
+    {
+      path: '/vehicle-form',
+      label: 'Vehicle Form',
+      requiredPermission: Permission.VEHICLES_CREATE,
+    },
+    { path: '/user-management', label: 'Users', adminOnly: true },
+    {
+      path: '/associations',
+      label: 'Associations',
+      requiredPermission: Permission.ASSIGNMENTS_VIEW,
+    },
+    { path: '/reports', label: 'Reports', requiredPermission: Permission.REPORTS_VIEW },
+    { path: '/documents', label: 'Documents', requiredPermission: Permission.DOCUMENTS_VIEW },
   ];
+
+  // Filtra i menu items in base ai permessi dell'utente
+  get menuItems(): IMenuItem[] {
+    return this.allMenuItems.filter((item) => {
+      // Se adminOnly è true, mostra solo agli admin
+      if (item.adminOnly) {
+        return this.roleService.isAdministrator();
+      }
+
+      // Se ha un permesso richiesto, verificalo
+      if (item.requiredPermission) {
+        return this.roleService.hasPermission(item.requiredPermission);
+      }
+
+      // Altrimenti mostra sempre (es. Home)
+      return true;
+    });
+  }
 
   toggleSidebar() {
     this.isCollapsed.update((value) => !value);

@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
 import { VehicleStatusModalComponent } from './vehicle-status-modal.component';
+import { RoleService } from '../../services/role.service';
 
 @Component({
   selector: 'app-vehicle-detail',
@@ -78,7 +79,9 @@ import { VehicleStatusModalComponent } from './vehicle-status-modal.component';
                 <button class="btn-status" (click)="openStatusModal()">Change Status</button>
                 <button class="btn-primary" (click)="startEditing()">Edit Vehicle</button>
                 <!-- <button class="btn-secondary">View History</button> -->
+                @if (roleService.canDeleteVehicles()) {
                 <button class="btn-danger" (click)="deleteVehicle()">Delete</button>
+                }
               </div>
               } @else {
               <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()" class="edit-form">
@@ -788,6 +791,7 @@ export class VehicleDetailComponent {
 
   private fb = inject(FormBuilder);
   private vehicleService = inject(VehicleService);
+  roleService = inject(RoleService);
 
   isEditing = false;
   isSaving = false;
@@ -917,6 +921,19 @@ export class VehicleDetailComponent {
   }
 
   deleteVehicle() {
+    // Check permissions
+    if (!this.roleService.canDeleteVehicles()) {
+      const currentRole = this.roleService.getCurrentUserRole() || 'Undefined';
+      alert(
+        `OPERATION NOT ALLOWED\n\n` +
+          `You do not have permission to delete vehicles.\n\n` +
+          `Your current role: ${currentRole}\n\n` +
+          `This operation is reserved only for Administrators.\n\n` +
+          `Please contact an administrator to request the necessary permissions.`
+      );
+      return;
+    }
+
     // Chiediamo conferma prima di eliminare
     if (
       confirm(

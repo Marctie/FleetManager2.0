@@ -3,8 +3,8 @@ import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
 /**
- * Auth Guard per proteggere le route che richiedono autenticazione
- * Uso: { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] }
+ * Auth Guard to protect routes that require authentication
+ * Usage: { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] }
  */
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
@@ -14,19 +14,19 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Salva l'URL a cui l'utente stava cercando di accedere
+  // Save the URL the user was trying to access
   const returnUrl = state.url;
-  console.warn('🔒 Accesso negato. Reindirizzamento al login...');
+  console.warn('Access denied. Redirecting to login...');
 
-  // Reindirizza al login
+  // Redirect to login
   router.navigate(['/login'], { queryParams: { returnUrl } });
   return false;
 };
 
 /**
- * Guest Guard per impedire agli utenti autenticati di accedere a determinate pagine
- * (es. login, register)
- * Uso: { path: 'login', component: LoginComponent, canActivate: [guestGuard] }
+ * Guest Guard to prevent authenticated users from accessing certain pages
+ * (e.g. login, register)
+ * Usage: { path: 'login', component: LoginComponent, canActivate: [guestGuard] }
  */
 export const guestGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
@@ -36,8 +36,8 @@ export const guestGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Se l'utente è già autenticato, reindirizza alla home o dashboard
-  console.log('Utente già autenticato. Reindirizzamento...');
+  // If user is already authenticated, redirect to home or dashboard
+  console.log('User already authenticated. Redirecting...');
   router.navigate(['/']);
   return false;
 };
