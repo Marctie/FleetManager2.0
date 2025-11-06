@@ -4,12 +4,19 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
 import { VehicleStatusModalComponent } from './vehicle-status-modal.component';
+import { VehicleAssignModalComponent } from './vehicle-assign-modal.component';
 import { RoleService } from '../../services/role.service';
 
 @Component({
   selector: 'app-vehicle-detail',
   standalone: true,
-  imports: [CommonModule, DatePipe, ReactiveFormsModule, VehicleStatusModalComponent],
+  imports: [
+    CommonModule,
+    DatePipe,
+    ReactiveFormsModule,
+    VehicleStatusModalComponent,
+    VehicleAssignModalComponent,
+  ],
   template: `
     <div class="modal-overlay">
       <div class="modal-container">
@@ -77,6 +84,9 @@ import { RoleService } from '../../services/role.service';
               </div>
               <div class="actions">
                 <button class="btn-status" (click)="openStatusModal()">Change Status</button>
+                @if (roleService.canManageAssignments()) {
+                <button class="btn-assign" (click)="openAssignModal()">Assign Driver</button>
+                }
                 <button class="btn-primary" (click)="startEditing()">Edit Vehicle</button>
                 <!-- <button class="btn-secondary">View History</button> -->
                 @if (roleService.canDeleteVehicles()) {
@@ -246,6 +256,15 @@ import { RoleService } from '../../services/role.service';
       [vehicle]="vehicle"
       (statusChanged)="handleStatusChanged($event)"
       (closeModal)="closeStatusModal()"
+    />
+    }
+
+    <!-- Modale per l'assegnazione del veicolo -->
+    @if (showAssignModal()) {
+    <app-vehicle-assign-modal
+      [vehicle]="vehicle"
+      (assignmentSuccess)="handleAssignmentSuccess($event)"
+      (closeModalEvent)="closeAssignModal()"
     />
     }
   `,
@@ -426,6 +445,23 @@ import { RoleService } from '../../services/role.service';
         background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+      }
+
+      .btn-assign {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        color: white;
+      }
+
+      .btn-assign:hover {
+        background: linear-gradient(135deg, #3182ce 0%, #2c5282 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(66, 153, 225, 0.4);
       }
 
       .btn-secondary {
@@ -797,6 +833,7 @@ export class VehicleDetailComponent {
   isSaving = false;
   currentYear = new Date().getFullYear();
   showStatusModal = signal(false);
+  showAssignModal = signal(false);
 
   // Mapping dei tipi di carburante
   private fuelTypeMap: { [key: number]: string } = {
@@ -988,5 +1025,21 @@ export class VehicleDetailComponent {
     this.vehicle = { ...this.vehicle, status: updatedVehicle.status };
     // Notifica il parent component
     this.vehicleUpdated.emit(this.vehicle);
+  }
+
+  // Methods for assignment modal
+  openAssignModal() {
+    this.showAssignModal.set(true);
+  }
+
+  closeAssignModal() {
+    this.showAssignModal.set(false);
+  }
+
+  handleAssignmentSuccess(updatedVehicle: IVehicle) {
+    // Update local vehicle data and notify parent
+    this.vehicle = { ...updatedVehicle };
+    this.vehicleUpdated.emit(this.vehicle);
+    this.showAssignModal.set(false);
   }
 }

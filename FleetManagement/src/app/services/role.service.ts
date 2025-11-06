@@ -210,4 +210,11 @@ export class RoleService {
   canCreateVehicles(): boolean {
     return this.hasPermission(Permission.VEHICLES_CREATE);
   }
+
+  /**
+   * Verifica se può gestire le assegnazioni veicoli
+   */
+  canManageAssignments(): boolean {
+    return this.hasPermission(Permission.ASSIGNMENTS_MANAGE);
+  }
 }

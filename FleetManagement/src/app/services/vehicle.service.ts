@@ -161,6 +161,29 @@ export class VehicleService {
   }
 
   /**
+   * Assegna un veicolo a un driver
+   */
+  assignVehicle(
+    vehicleId: number | string,
+    driverId: string,
+    notes?: string
+  ): Observable<any> {
+    const baseUrl = this.configService.getApiBaseUrl();
+    const url = `${baseUrl}/api/Assignments`;
+
+    const payload: any = {
+      vehicleId: vehicleId.toString(),
+      driverId: driverId,
+    };
+
+    if (notes) {
+      payload.notes = notes;
+    }
+
+    return this.http.post<any>(url, payload);
+  }
+
+  /**
    * Ottiene i dati di telemetria (posizione GPS) per un veicolo specifico
    */
   getVehicleTelemetry(vehicleId: number | string): Observable<{
