@@ -37,12 +37,11 @@ import { NotificationService } from '../../services/notification.service';
             }
           </div>
 
-
           @if (isLoading()) {
           <div class="loading-state">Loading drivers...</div>
           } @else if (error()) {
-          <div class="error-message">{{ error() }}</div>f
-          } @else {
+          <div class="error-message">{{ error() }}</div>
+          f } @else {
           <div class="form-group">
             <label for="driver-select" class="form-label">
               Select Driver
@@ -65,7 +64,7 @@ import { NotificationService } from '../../services/notification.service';
               }
             </select>
             @if (!selectedUserId && attemptedSubmit) {ç+ù4
-              
+
             <div class="error-text">Please select a driver</div>
             }
           </div>

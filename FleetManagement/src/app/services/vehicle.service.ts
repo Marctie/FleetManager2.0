@@ -163,11 +163,7 @@ export class VehicleService {
   /**
    * Assegna un veicolo a un driver
    */
-  assignVehicle(
-    vehicleId: number | string,
-    driverId: string,
-    notes?: string
-  ): Observable<any> {
+  assignVehicle(vehicleId: number | string, driverId: string, notes?: string): Observable<any> {
     const baseUrl = this.configService.getApiBaseUrl();
     const url = `${baseUrl}/api/Assignments`;
 
