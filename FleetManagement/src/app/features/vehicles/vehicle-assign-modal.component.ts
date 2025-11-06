@@ -453,14 +453,10 @@ export class VehicleAssignModalComponent implements OnInit {
 
     this.vehicleService.assignVehicle(this.vehicle.id, this.selectedUserId).subscribe({
       next: (assignmentResponse) => {
-        console.log('[VehicleAssignModal] Assignment response:', assignmentResponse);
-
-        // Show success notification
         this.notificationService.success(
           `Vehicle ${this.vehicle.brand} ${this.vehicle.model} successfully assigned to ${userName}!`
         );
 
-        // Crea un oggetto IVehicle aggiornato con il nuovo driver
         const updatedVehicle: IVehicle = {
           ...this.vehicle,
           assignedDriverId: this.selectedUserId,
@@ -471,10 +467,7 @@ export class VehicleAssignModalComponent implements OnInit {
         this.closeModal();
       },
       error: (error) => {
-        console.error('[VehicleAssignModal] Error assigning vehicle:', error);
-        console.error('[VehicleAssignModal] Error status:', error.status);
-        console.error('[VehicleAssignModal] Error body:', error.error);
-        console.error('[VehicleAssignModal] Error message:', error.message);
+        console.error('Error assigning vehicle:', error);
 
         let errorMessage = 'Failed to assign vehicle. ';
 
