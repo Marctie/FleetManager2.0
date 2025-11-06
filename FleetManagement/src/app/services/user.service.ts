@@ -23,22 +23,21 @@ export class UserService {
    * Get paginated list of users
    */
   getUsers(page: number = 1, pageSize: number = 1000): Observable<IUser[]> {
-    return this.http
-      .get<any>(`${this.USER_ENDPOINTS.list}?page=${page}&pageSize=${pageSize}`)
-      .pipe(
-        map((response: any) => {
-          if (response && typeof response === 'object' && 'items' in response) {
-            return Array.isArray(response.items) ? response.items : [];
-          }
+    return this.http.get<any>(`${this.USER_ENDPOINTS.list}?page=${page}&pageSize=${pageSize}`).pipe(
+      map((response: any) => {
+        if (response && typeof response === 'object' && 'items' in response) {
+          return Array.isArray(response.items) ? response.items : [];
+        }
 
-          if (Array.isArray(response)) {
-            return response;
-          }
+        if (Array.isArray(response)) {
+          return response;
+        }
 
-          return [];
-        })
-      );
-  }  /**
+        return [];
+      })
+    );
+  }
+  /**
    * Get user by ID
    */
   getUserById(id: string): Observable<IUser> {
