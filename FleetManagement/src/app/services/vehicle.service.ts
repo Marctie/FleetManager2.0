@@ -71,11 +71,7 @@ export class VehicleService {
           };
         }
 
-        // Se l'API restituisce direttamente un array (formato vecchio)
         if (Array.isArray(response)) {
-          console.warn(
-            '[VehicleService] API returned array instead of paginated response. Using fallback.'
-          );
           return {
             items: response as IVehicle[],
             status: '',
@@ -85,8 +81,6 @@ export class VehicleService {
           };
         }
 
-        // Fallback per risposte inaspettate
-        console.error('[VehicleService] Unexpected API response format:', response);
         return {
           items: [] as IVehicle[],
           status: '',
