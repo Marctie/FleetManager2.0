@@ -405,43 +405,31 @@ export class VehicleAssignModalComponent implements OnInit {
     this.isLoading.set(true);
     this.error.set(null);
 
-    console.log('[VehicleAssignModal] Loading users...');
     this.userService.getUsers().subscribe({
       next: (users) => {
-        console.log('[VehicleAssignModal] Users received:', users);
-        console.log('[VehicleAssignModal] Total users count:', users?.length || 0);
-
-        // Check if users is an array
         if (!Array.isArray(users)) {
-          console.error('[VehicleAssignModal] Users is not an array:', users);
           this.error.set('Invalid data format received from server.');
           this.notificationService.error('Invalid data format received from server.');
           this.isLoading.set(false);
           return;
         }
 
-        // Filter only active users (if isActive is undefined, assume active)
         const activeUsers = users
-          .filter((u) => u.isActive !== false) // Include users where isActive is true or undefined
+          .filter((u) => u.isActive !== false)
           .sort((a, b) => {
-            // Sort by role first (Driver, Fleet Manager, etc.)
             if (a.role !== b.role) {
               return a.role.localeCompare(b.role);
             }
-            // Then by name
             const nameA = a.fullName || a.username;
             const nameB = b.fullName || b.username;
             return nameA.localeCompare(nameB);
           });
 
-        console.log('[VehicleAssignModal] Active users:', activeUsers);
-        console.log('[VehicleAssignModal] Active users count:', activeUsers.length);
         this.users.set(activeUsers);
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('[VehicleAssignModal] Error loading users:', error);
-        console.error('[VehicleAssignModal] Error details:', error.error);
+        console.error('Error loading users:', error);
         this.error.set('Failed to load users. Please try again.');
         this.notificationService.error('Failed to load users. Please try again.');
         this.isLoading.set(false);
