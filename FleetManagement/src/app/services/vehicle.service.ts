@@ -135,21 +135,9 @@ export class VehicleService {
 
   /**
    * Aggiorna lo stato di un veicolo
-   * @param id L'ID del veicolo (può essere number o string)
-   * @param status Lo stato del veicolo (enum number: 0=Available, 1=InUse, 2=Maintenance, 3=OutOfService)
-   * @returns Observable<IVehicle> Il veicolo aggiornato
-   */
-  /**
-   * Aggiorna lo stato di un veicolo
-   * @param id L'ID del veicolo (può essere number o string)
-   * @param status Lo stato del veicolo (enum number: 0=Available, 1=InUse, 2=Maintenance, 3=OutOfService)
-   * @returns Observable<IVehicle> Il veicolo aggiornato
-   *
-   * NOTA: L'API si aspetta il valore enum DIRETTAMENTE nel body (non come oggetto { status: number })
    */
   updateVehicleStatus(id: number | string, status: number): Observable<IVehicle> {
     const url = `${this.VEHICLE_ENDPOINTS.update}/${id}/status`;
-    // Il backend si aspetta direttamente il numero enum, non un oggetto
     return this.http.patch<IVehicle>(url, status);
   }
 
