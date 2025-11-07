@@ -85,9 +85,9 @@ import { RoleService } from '../../services/role.service';
               <div class="actions">
                 <button class="btn-status" (click)="openStatusModal()">Change Status</button>
                 @if (roleService.canManageAssignments()) {
-                <button class="btn-assign" (click)="openAssignModal()">Assign Driver</button>
+                <button class="btn-status" (click)="openAssignModal()">Assign Driver</button>
                 }
-                <button class="btn-primary" (click)="startEditing()">Edit Vehicle</button>
+                <button class="btn-status" (click)="startEditing()">Edit Vehicle</button>
                 <!-- <button class="btn-secondary">View History</button> -->
                 @if (roleService.canDeleteVehicles()) {
                 <button class="btn-danger" (click)="deleteVehicle()">Delete</button>
@@ -232,7 +232,7 @@ import { RoleService } from '../../services/role.service';
                 <div class="form-actions">
                   <button
                     type="submit"
-                    class="btn-primary"
+                    class="btn-status"
                     [disabled]="vehicleForm.invalid || isSaving"
                   >
                     {{ isSaving ? 'Saving...' : 'Save Changes' }}

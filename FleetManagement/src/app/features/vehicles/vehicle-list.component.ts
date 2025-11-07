@@ -471,7 +471,7 @@ import { RoleService } from '../../services/role.service';
 
         .btn-add,
         .btn-back {
-          width: calc(50% - 0.5rem);
+          width: 100%;
           margin: 0 !important;
         }
       }

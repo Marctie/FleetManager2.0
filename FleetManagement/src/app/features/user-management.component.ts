@@ -319,6 +319,9 @@ import { filter } from 'rxjs';
         .btn-action {
           flex: 1;
         }
+        .user-avatar {
+          display: none;
+        }
       }
 
       @media (max-width: 480px) {

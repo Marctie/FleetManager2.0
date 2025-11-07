@@ -51,7 +51,7 @@ import { VehicleService } from '../../services/vehicle.service';
         <div class="modal-footer">
           <button class="btn-secondary" (click)="close()" [disabled]="isSaving()">Cancel</button>
           <button
-            class="btn-primary"
+            class="btn-status"
             (click)="updateStatus()"
             [disabled]="selectedStatus === vehicle.status || isSaving()"
           >
@@ -63,6 +63,22 @@ import { VehicleService } from '../../services/vehicle.service';
   `,
   styles: [
     `
+      .btn-status {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+      }
+
+      .btn-status:hover {
+        background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+      }
       .modal-overlay {
         position: fixed;
         top: 0;
