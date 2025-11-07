@@ -5,6 +5,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
 import { UserService } from '../services/user.service';
 import { IUser } from '../models/IUser';
 import { UserFormModalComponent } from './user-form-modal.component';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-user-management',
@@ -367,8 +368,9 @@ export class UserManagementComponent implements OnInit {
 
     this.userService.getUsers().subscribe({
       next: (users) => {
-        this.users.set(users);
-        this.filteredUsers.set(users);
+        const userlist = users.filter((f) => f.username !== localStorage.getItem('username'));
+        this.users.set(userlist);
+        this.filteredUsers.set(userlist);
         this.isLoading.set(false);
       },
       error: (error) => {
