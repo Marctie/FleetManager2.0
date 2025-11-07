@@ -63,7 +63,7 @@ import { NotificationService } from '../../services/notification.service';
               </option>
               }
             </select>
-            @if (!selectedUserId && attemptedSubmit) {ç+ù4
+            @if (!selectedUserId && attemptedSubmit) {
 
             <div class="error-text">Please select a driver</div>
             }
@@ -91,8 +91,7 @@ import { NotificationService } from '../../services/notification.service';
   `,
   styles: [
     `
-
-    .btn-status {
+      .btn-status {
         padding: 0.75rem 1.5rem;
         border: none;
         border-radius: 0.5rem;
