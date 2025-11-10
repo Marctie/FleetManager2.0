@@ -87,6 +87,7 @@ import { Subscription } from 'rxjs';
               <h3>Associations Management</h3>
             </div>
             <p>Manage associations</p>
+            
           </div> -->
           <div class="card" (click)="navigateTo('/reports')">
             <div class="card-header">

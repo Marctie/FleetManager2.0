@@ -23,7 +23,6 @@ import { RoleService } from '../../services/role.service';
         <div class="page-container">
           <header class="page-header">
             <h1>Vehicle Details</h1>
-            <button class="btn-back" (click)="goBack()">Close</button>
           </header>
 
           <main class="page-content">
@@ -92,6 +91,7 @@ import { RoleService } from '../../services/role.service';
                 @if (roleService.canDeleteVehicles()) {
                 <button class="btn-danger" (click)="deleteVehicle()">Delete</button>
                 }
+                <button class="btn-back" (click)="goBack()">Close</button>
               </div>
               } @else {
               <form [formGroup]="vehicleForm" (ngSubmit)="onSubmit()" class="edit-form">
@@ -299,10 +299,15 @@ import { RoleService } from '../../services/role.service';
       }
 
       .page-header {
+        position: sticky;
+        top: 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 1rem 0;
+        z-index: 10;
       }
 
       .page-header h1 {
