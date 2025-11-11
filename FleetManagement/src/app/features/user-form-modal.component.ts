@@ -20,6 +20,7 @@ import { UserService } from '../services/user.service';
           <div class="form-section">
             <h3 class="section-title">Account Information</h3>
             <div class="form-grid">
+              @if (!isEditMode) {
               <div class="form-field" [class.has-error]="isFieldInvalid('username')">
                 <label class="form-label">
                   Username
@@ -35,6 +36,7 @@ import { UserService } from '../services/user.service';
                 <div class="error-message">Username is required</div>
                 }
               </div>
+              }
 
               <div class="form-field" [class.has-error]="isFieldInvalid('email')">
                 <label class="form-label">
@@ -485,9 +487,7 @@ export class UserFormModalComponent implements OnInit {
     if (this.isEditMode && this.user) {
       // Edit mode - converti il role da stringa a numero
       const roleValue = this.roleToNumber[this.user.role] ?? 0;
-
       this.userForm = this.fb.group({
-        username: [this.user.username, [Validators.required]],
         email: [this.user.email, [Validators.required, Validators.email]],
         fullName: [this.user.fullName || ''],
         role: [roleValue.toString(), [Validators.required]], // Converti in stringa per il select
@@ -532,7 +532,6 @@ export class UserFormModalComponent implements OnInit {
       if (this.isEditMode && this.user) {
         // Update existing user - prepara i dati per l'API
         const updateData = {
-          username: formValue.username,
           email: formValue.email,
           role: parseInt(formValue.role), // Converte in numero
           ...(formValue.fullName && { fullName: formValue.fullName }),
