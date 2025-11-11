@@ -426,13 +426,23 @@ export class VehicleStatusModalComponent {
     this.isSaving.set(true);
     this.error.set(null);
 
+    const statusToEnum: { [key: string]: number } = {
+      Available: 0,
+      InUse: 1,
+      Maintenance: 2,
+      OutofService: 3,
+    };
+
+    const statusValue = statusToEnum[this.selectedStatus];
+
     console.log('[VehicleStatusModal] Updating status:', {
       vehicleId: this.vehicle.id,
       oldStatus: this.vehicle.status,
       newStatus: this.selectedStatus,
+      statusValue: statusValue,
     });
 
-    this.vehicleService.updateVehicleStatus(this.vehicle.id, this.selectedStatus).subscribe({
+    this.vehicleService.updateVehicleStatus(this.vehicle.id, statusValue).subscribe({
       next: (updatedVehicle) => {
         console.log('[VehicleStatusModal] Status updated successfully:', updatedVehicle);
         this.isSaving.set(false);

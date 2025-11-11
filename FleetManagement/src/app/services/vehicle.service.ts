@@ -182,7 +182,7 @@ export class VehicleService {
   /**
    * Aggiorna lo stato di un veicolo
    */
-  updateVehicleStatus(id: number | string, status: string): Observable<IVehicle> {
+  updateVehicleStatus(id: number | string, status: number): Observable<IVehicle> {
     const url = `${this.VEHICLE_ENDPOINTS.update}/${id}/status`;
     console.log('[VehicleService] Updating vehicle status:', {
       vehicleId: id,
