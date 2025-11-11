@@ -94,6 +94,55 @@ import { FormsModule } from '@angular/forms';
               </tbody>
             </table>
           </div>
+          }
+
+          <!-- Paginazione -->
+          @if (!isLoading() && !error() && totalPages() > 1) {
+          <div class="pagination-container">
+            <div class="pagination-info">
+              Showing {{ (currentPage() - 1) * pageSize() + 1 }} to
+              {{ Math.min(currentPage() * pageSize(), totalItems()) }}
+              of {{ totalItems() }} vehicles
+            </div>
+
+            <div class="pagination-controls">
+              <button class="btn-page" (click)="previousPage()" [disabled]="currentPage() === 1">
+                ← Previous
+              </button>
+
+              @for (pageNum of getPageNumbers(); track pageNum) {
+              <button
+                class="btn-page"
+                [class.active]="pageNum === currentPage()"
+                (click)="goToPage(pageNum)"
+              >
+                {{ pageNum }}
+              </button>
+              }
+
+              <button
+                class="btn-page"
+                (click)="nextPage()"
+                [disabled]="currentPage() === totalPages()"
+              >
+                Next →
+              </button>
+            </div>
+
+            <div class="page-size-selector">
+              <label>Items per page:</label>
+              <select
+                [(ngModel)]="pageSize"
+                (ngModelChange)="changePageSize($event)"
+                name="pageSize"
+              >
+                <option [value]="10">10</option>
+                <option [value]="20">20</option>
+                <option [value]="50">50</option>
+                <option [value]="100">100</option>
+              </select>
+            </div>
+          </div>
           } @if (showModal() && selectedVehicle()) {
           <app-vehicle-detail
             [vehicle]="selectedVehicle()!"
@@ -314,6 +363,89 @@ import { FormsModule } from '@angular/forms';
         font-weight: 500;
       }
 
+      /* Paginazione */
+      .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background: white;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .pagination-info {
+        color: #4a5568;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+
+      .pagination-controls {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+      }
+
+      .btn-page {
+        padding: 0.5rem 0.75rem;
+        background: white;
+        color: #667eea;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        cursor: pointer;
+        font-weight: 500;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+        min-width: 40px;
+      }
+
+      .btn-page:hover:not(:disabled) {
+        background: #f7fafc;
+        border-color: #667eea;
+      }
+
+      .btn-page.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      .btn-page:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        color: #a0aec0;
+      }
+
+      .page-size-selector {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: #4a5568;
+      }
+
+      .page-size-selector label {
+        font-weight: 500;
+      }
+
+      .page-size-selector select {
+        padding: 0.5rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.375rem;
+        background: white;
+        cursor: pointer;
+        font-size: 0.875rem;
+      }
+
+      .page-size-selector select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
       @media (max-width: 1024px) {
         .page-container {
           padding: 1rem;
@@ -368,6 +500,29 @@ import { FormsModule } from '@angular/forms';
         .btn-action {
           padding: 0.35rem 0.75rem;
           font-size: 0.75rem;
+        }
+
+        .pagination-container {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 1rem;
+        }
+
+        .pagination-info,
+        .page-size-selector {
+          text-align: center;
+          justify-content: center;
+        }
+
+        .pagination-controls {
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .btn-page {
+          padding: 0.4rem 0.6rem;
+          font-size: 0.75rem;
+          min-width: 35px;
         }
       }
 
@@ -464,31 +619,73 @@ export class VehicleListComponent implements OnInit {
   searchQuery = '';
   selectedFilterType = '';
 
-  // Array completo dei veicoli (non filtrato)
-  private allVehicles: IVehicle[] = [];
-  // timer per la ricerca automatica
+  // Proprietà per la paginazione
+  currentPage = signal(1);
+  pageSize = signal(20);
+  totalItems = signal(0);
+  totalPages = signal(0);
+
+  // timer per la ricerca automatica (debounce)
   private searchTimeout: any;
 
   router = inject(Router);
   vehicleService = inject(VehicleService);
 
+  // Espone Math per il template
+  Math = Math;
+
   ngOnInit(): void {
     this.loadVehicles();
   }
 
-  // caricamento dei veicoli
-  private loadVehicles(): void {
+  // Caricamento dei veicoli con filtri opzionali e paginazione
+  private loadVehicles(filters?: { search?: string; status?: string; model?: string }): void {
     this.isLoading.set(true);
     this.error.set(null);
 
-    this.vehicleService.getListVehicles().subscribe({
-      next: (vehicles) => {
-        // Salva
-        this.allVehicles = vehicles;
-        this.vehicles.set(vehicles);
-        //Filtro
-        const uniqueModels = [...new Set(vehicles.map((v) => v.model))].sort();
-        this.availableModels.set(uniqueModels);
+    // Costruisci le opzioni per la chiamata API
+    const options: any = {
+      page: this.currentPage(),
+      pageSize: this.pageSize(),
+    };
+
+    // Aggiungi i filtri se presenti
+    if (filters?.search) {
+      options.search = filters.search;
+    }
+    if (filters?.status) {
+      options.status = filters.status;
+    }
+    if (filters?.model) {
+      options.model = filters.model;
+    }
+
+    // Chiamata API con i parametri di ricerca e paginazione
+    this.vehicleService.getListVehicles(options).subscribe({
+      next: (response) => {
+        // Verifica se la risposta ha la struttura corretta
+        if (!response || !response.items) {
+          console.error('Invalid API response format:', response);
+          this.error.set('Invalid data format received from server.');
+          this.isLoading.set(false);
+          return;
+        }
+
+        // Imposta i veicoli dalla risposta paginata
+        this.vehicles.set(response.items);
+
+        // Aggiorna i dati di paginazione
+        this.totalItems.set(response.total || 0);
+        this.currentPage.set(response.page || 1);
+        this.pageSize.set(response.pageSize || 20);
+        this.totalPages.set(Math.ceil((response.total || 0) / (response.pageSize || 20)));
+
+        // Estrai i modelli unici per il filtro dropdown
+        if (response.items.length > 0) {
+          const uniqueModels = [...new Set(response.items.map((v: IVehicle) => v.model))].sort();
+          this.availableModels.set(uniqueModels);
+        }
+
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -498,61 +695,119 @@ export class VehicleListComponent implements OnInit {
       },
     });
   }
-  //cambio stato del filtro
-  onFilterTypeChange(): void {
-    this.searchQuery = ''; // Reset
-    this.searchVehicles(); // Aggiorna
-  }
-  //mostra i veicoli filtrati
-  searchVehicles(): void {
-    if (!this.allVehicles.length) return;
 
-    //timer per la ricerc
+  // Cambio del tipo di filtro
+  onFilterTypeChange(): void {
+    this.searchQuery = ''; // Reset della query
+    this.searchVehicles(); // Ricarica i dati
+  }
+
+  // Ricerca veicoli tramite API (con debounce)
+  searchVehicles(): void {
+    // Cancella il timer precedente se esiste
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }
 
+    // Imposta un nuovo timer per evitare troppe chiamate API
     this.searchTimeout = setTimeout(() => {
-      let filteredVehicles = [...this.allVehicles];
-      const query = this.searchQuery.trim().toLowerCase();
+      const query = this.searchQuery.trim();
+
+      // Costruisci l'oggetto filtri in base al tipo selezionato
+      const filters: { search?: string; status?: string; model?: string } = {};
 
       if (query) {
         switch (this.selectedFilterType) {
           case 'status':
-            // Filtra status
-            filteredVehicles = filteredVehicles.filter((vehicle) =>
-              vehicle.status.toLowerCase().includes(query)
-            );
+            filters.status = query;
             break;
-
           case 'model':
-            // Filtra modello
-            filteredVehicles = filteredVehicles.filter((vehicle) =>
-              vehicle.model.toLowerCase().includes(query)
-            );
+            filters.model = query;
             break;
-
           default:
-            filteredVehicles = filteredVehicles.filter(
-              (vehicle) =>
-                vehicle.model.toLowerCase().includes(query) ||
-                vehicle.licensePlate.toLowerCase().includes(query) ||
-                vehicle.status.toLowerCase().includes(query) ||
-                vehicle.assignedDriverName?.toLowerCase().includes(query)
-            );
+            // Ricerca generale (il backend cerca in tutti i campi)
+            filters.search = query;
+            break;
         }
       }
-      // fine timer per la ricerca
 
-      this.vehicles.set(filteredVehicles);
-    }, 300);
+      // Ricarica i veicoli con i filtri applicati
+      this.loadVehicles(filters);
+    }, 300); // Attende 300ms dopo l'ultimo input prima di chiamare l'API
   }
 
-  //reset filtri
+  // Reset dei filtri e ricarica tutti i veicoli
   resetFilters(): void {
     this.searchQuery = '';
     this.selectedFilterType = '';
-    this.vehicles.set(this.allVehicles);
+    this.currentPage.set(1); // Reset alla prima pagina
+    this.loadVehicles(); // Ricarica senza filtri
+  }
+
+  // Metodi per la paginazione
+  goToPage(page: number): void {
+    if (page < 1 || page > this.totalPages()) return;
+    this.currentPage.set(page);
+
+    // Ricarica con gli stessi filtri
+    const filters: { search?: string; status?: string; model?: string } = {};
+    const query = this.searchQuery.trim();
+
+    if (query) {
+      switch (this.selectedFilterType) {
+        case 'status':
+          filters.status = query;
+          break;
+        case 'model':
+          filters.model = query;
+          break;
+        default:
+          filters.search = query;
+          break;
+      }
+    }
+
+    this.loadVehicles(filters);
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages()) {
+      this.goToPage(this.currentPage() + 1);
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage() > 1) {
+      this.goToPage(this.currentPage() - 1);
+    }
+  }
+
+  changePageSize(newPageSize: number): void {
+    this.pageSize.set(newPageSize);
+    this.currentPage.set(1); // Reset alla prima pagina
+    this.searchVehicles(); // Ricarica con la nuova dimensione
+  }
+
+  // Genera array di numeri per la paginazione
+  getPageNumbers(): number[] {
+    const total = this.totalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+
+    // Mostra max 7 pagine
+    let start = Math.max(1, current - 3);
+    let end = Math.min(total, start + 6);
+
+    // Aggiusta se siamo vicini alla fine
+    if (end - start < 6) {
+      start = Math.max(1, end - 6);
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+
+    return pages;
   }
 
   openModal(vehicle: IVehicle) {

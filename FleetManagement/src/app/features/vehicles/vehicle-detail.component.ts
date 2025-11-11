@@ -1,13 +1,14 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Input, Output, inject, signal } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IVehicle } from '../../models/IVehicle';
 import { VehicleService } from '../../services/vehicle.service';
+import { VehicleStatusModalComponent } from './vehicle-status-modal.component';
 
 @Component({
   selector: 'app-vehicle-detail',
   standalone: true,
-  imports: [CommonModule, DatePipe, ReactiveFormsModule],
+  imports: [CommonModule, DatePipe, ReactiveFormsModule, VehicleStatusModalComponent],
   template: `
     <div class="modal-overlay">
       <div class="modal-container">
@@ -56,7 +57,13 @@ import { VehicleService } from '../../services/vehicle.service';
                 </div>
                 <div class="detail-item">
                   <label>Fuel Type</label>
-                  <p>{{ getFuelTypeName(vehicle.fuelType) }}</p>
+                  <p>
+                    {{
+                      vehicle.fuelType !== undefined && vehicle.fuelType !== null
+                        ? getFuelTypeName(vehicle.fuelType)
+                        : 'Not specified'
+                    }}
+                  </p>
                 </div>
                 <div class="detail-item">
                   <label>Last Service</label>
@@ -68,6 +75,7 @@ import { VehicleService } from '../../services/vehicle.service';
                 </div>
               </div>
               <div class="actions">
+                <button class="btn-status" (click)="openStatusModal()">Change Status</button>
                 <button class="btn-primary" (click)="startEditing()">Edit Vehicle</button>
                 <!-- <button class="btn-secondary">View History</button> -->
                 <button class="btn-danger" (click)="deleteVehicle()">Delete</button>
@@ -116,6 +124,15 @@ import { VehicleService } from '../../services/vehicle.service';
                     </select>
                   </div>
                   <div class="detail-item">
+                    <label>Status</label>
+                    <select formControlName="status">
+                      <option value="Available">Available</option>
+                      <option value="In Use">In Use</option>
+                      <option value="Maintenance">Maintenance</option>
+                      <option value="Out of Service">Out of Service</option>
+                    </select>
+                  </div>
+                  <div class="detail-item">
                     <label>Last Service Date</label>
                     <input type="date" formControlName="lastMaintenanceDate" />
                   </div>
@@ -144,6 +161,15 @@ import { VehicleService } from '../../services/vehicle.service';
         </div>
       </div>
     </div>
+
+    <!-- Modale per il cambio stato -->
+    @if (showStatusModal()) {
+    <app-vehicle-status-modal
+      [vehicle]="vehicle"
+      (statusChanged)="handleStatusChanged($event)"
+      (closeModal)="closeStatusModal()"
+    />
+    }
   `,
   styles: [
     `
@@ -305,6 +331,23 @@ import { VehicleService } from '../../services/vehicle.service';
 
       .btn-primary:hover {
         background: #5a67d8;
+      }
+
+      .btn-status {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+      }
+
+      .btn-status:hover {
+        background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
       }
 
       .btn-secondary {
@@ -526,6 +569,7 @@ export class VehicleDetailComponent {
   isEditing = false;
   isSaving = false;
   currentYear = new Date().getFullYear();
+  showStatusModal = signal(false);
 
   // Mapping dei tipi di carburante
   private fuelTypeMap: { [key: number]: string } = {
@@ -537,7 +581,12 @@ export class VehicleDetailComponent {
     5: 'CNG',
   };
 
-  getFuelTypeName(fuelType: number): string {
+  getFuelTypeName(fuelType: number | string): string {
+    // Se è già una stringa (nome), restituiscila direttamente
+    if (typeof fuelType === 'string') {
+      return fuelType;
+    }
+    // Se è un numero, cerca nella mappa
     return this.fuelTypeMap[fuelType] || 'Unknown';
   }
 
@@ -554,7 +603,7 @@ export class VehicleDetailComponent {
   }
 
   initForm() {
-    // Convertiamo le date in formato yyyy-MM-dd per l'input type="date"
+    // conversione delle date in formato yyyy-MM-dd per l'input type="date"
     const lastMaintenanceDate = this.vehicle.lastMaintenanceDate
       ? new Date(this.vehicle.lastMaintenanceDate).toISOString().split('T')[0]
       : '';
@@ -571,6 +620,7 @@ export class VehicleDetailComponent {
       ],
       currentKm: [this.vehicle.currentKm, [Validators.required, Validators.min(0)]],
       fuelType: [this.vehicle.fuelType, [Validators.required]],
+      status: [this.vehicle.status, [Validators.required]],
       lastMaintenanceDate: [lastMaintenanceDate],
       insuranceExpiryDate: [insuranceExpiryDate],
     });
@@ -590,6 +640,7 @@ export class VehicleDetailComponent {
           year: parseInt(formValue.year),
           currentKm: parseInt(formValue.currentKm),
           fuelType: parseInt(formValue.fuelType),
+          status: formValue.status,
           lastMaintenanceDate: formValue.lastMaintenanceDate
             ? new Date(formValue.lastMaintenanceDate)
             : this.vehicle.lastMaintenanceDate,
@@ -600,10 +651,15 @@ export class VehicleDetailComponent {
 
         this.vehicleService.updateVehicle(updatedVehicle).subscribe({
           next: (result) => {
-            this.vehicle = result; // Aggiorniamo il veicolo locale con i dati aggiornati
+            // Se l'API non restituisce lo status, usiamo quello che abbiamo inviato
+            this.vehicle = {
+              ...result,
+              status: updatedVehicle.status,
+            };
+
             this.isSaving = false;
             this.isEditing = false;
-            this.vehicleUpdated.emit(result);
+            this.vehicleUpdated.emit(this.vehicle);
             alert('Vehicle updated successfully!');
           },
           error: (error: any) => {
@@ -677,5 +733,21 @@ export class VehicleDetailComponent {
     } else {
       this.closeModal.emit(true);
     }
+  }
+
+  // Metodi per la modale di cambio stato
+  openStatusModal() {
+    this.showStatusModal.set(true);
+  }
+
+  closeStatusModal() {
+    this.showStatusModal.set(false);
+  }
+
+  handleStatusChanged(updatedVehicle: IVehicle) {
+    // Aggiorna il veicolo locale con il nuovo stato
+    this.vehicle = { ...this.vehicle, status: updatedVehicle.status };
+    // Notifica il parent component
+    this.vehicleUpdated.emit(this.vehicle);
   }
 }

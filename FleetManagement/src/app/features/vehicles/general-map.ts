@@ -508,9 +508,12 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   // load dei veicoli e merge con dati mqtt
   private loadVehicles(silent: boolean = false): void {
-    this.vehicleService.getListVehicles().subscribe({
-      next: (vehicles) => {
-        console.log(`[GENERAL-MAP] Loaded ${vehicles.length} vehicles from DB`);
+    this.vehicleService.getListVehicles({ page: 1, pageSize: 1000 }).subscribe({
+      next: (response) => {
+        const vehicles = response.items;
+        console.log(
+          `[GENERAL-MAP] Loaded ${vehicles.length} vehicles from DB (${response.total} total)`
+        );
 
         //recupero delle posizioni
         const mqttPositions = this.mqttService.getAllPositions();
