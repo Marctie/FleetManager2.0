@@ -126,13 +126,13 @@ import { IVehicle } from '../../models/IVehicle';
             <div class="document-item">
               <div class="doc-icon">
                 <span class="doc-type-badge" [class]="getDocumentTypeClass(doc.documentType)">
-                  {{ documentService.getDocumentTypeLabel(doc.documentType) }}
+                  {{ getDisplayLabel(doc.documentType) }}
                 </span>
               </div>
               <div class="doc-info">
                 <h4>{{ doc.fileName }}</h4>
                 <p class="doc-meta">
-                  {{ formatDate(doc.uploadDate) }} •
+                  {{ formatDate(doc.uploadedAt) }} •
                   {{ documentService.formatFileSize(doc.fileSize) }}
                 </p>
                 @if (doc.description) {
@@ -738,10 +738,20 @@ export class DocumentsComponent implements OnInit {
   }
 
   getDocumentsByType(type: number): IDocument[] {
-    return this.documents().filter((doc) => doc.documentType === type);
+    return this.documents().filter((doc) => {
+      const docType =
+        typeof doc.documentType === 'string'
+          ? this.documentService.getDocumentTypeValue(doc.documentType)
+          : doc.documentType;
+
+      return docType === type;
+    });
   }
 
-  getDocumentTypeClass(type: number): string {
+  getDocumentTypeClass(type: string | number): string {
+    const numType =
+      typeof type === 'string' ? this.documentService.getDocumentTypeValue(type) : type;
+
     const classes: { [key: number]: string } = {
       0: 'insurance',
       1: 'registration',
@@ -750,16 +760,33 @@ export class DocumentsComponent implements OnInit {
       4: 'contract',
       5: 'other',
     };
-    return classes[type] || 'other';
+    return classes[numType] || 'other';
   }
 
   formatDate(dateString: string): string {
+    if (!dateString) {
+      return 'N/A';
+    }
+
     const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      console.error('[DocumentsComponent] Invalid date:', dateString);
+      return 'Invalid Date';
+    }
+
     return date.toLocaleDateString('it-IT', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
     });
+  }
+
+  getDisplayLabel(type: string | number): string {
+    if (typeof type === 'string') {
+      return type;
+    }
+    return this.documentService.getDocumentTypeLabel(type);
   }
 
   goBack() {

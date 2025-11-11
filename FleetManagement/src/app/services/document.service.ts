@@ -24,16 +24,7 @@ export class DocumentService {
 
   getDocumentsByVehicle(vehicleId: string): Observable<IDocument[]> {
     const endpoints = this.getDocumentEndpoints(vehicleId);
-    console.log('[DocumentService] Fetching documents for vehicle:', vehicleId);
-
     return this.http.get<IDocument[]>(endpoints.list).pipe(
-      tap((documents) =>
-        console.log('[DocumentService] Documents received:', {
-          vehicleId,
-          count: documents.length,
-          documents,
-        })
-      ),
       catchError((error) => {
         console.error('[DocumentService] Error fetching documents:', error);
         throw error;
@@ -56,17 +47,7 @@ export class DocumentService {
       formData.append('description', description);
     }
 
-    console.log('[DocumentService] Uploading document:', {
-      vehicleId,
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      documentType,
-      description,
-    });
-
     return this.http.post<IDocument>(endpoints.upload, formData).pipe(
-      tap((document) => console.log('[DocumentService] Document uploaded successfully:', document)),
       catchError((error) => {
         console.error('[DocumentService] Error uploading document:', error);
         throw error;
@@ -76,23 +57,12 @@ export class DocumentService {
 
   downloadDocument(vehicleId: string, documentId: string, fileName: string): Observable<Blob> {
     const endpoints = this.getDocumentEndpoints(vehicleId);
-    console.log('[DocumentService] Downloading document:', {
-      vehicleId,
-      documentId,
-      fileName,
-    });
-
     return this.http
       .get(endpoints.getById(documentId), {
         responseType: 'blob',
       })
       .pipe(
         tap((blob) => {
-          console.log('[DocumentService] Document downloaded:', {
-            size: blob.size,
-            type: blob.type,
-          });
-
           const url = window.URL.createObjectURL(blob);
           const link = document.createElement('a');
           link.href = url;
@@ -109,13 +79,7 @@ export class DocumentService {
 
   deleteDocument(vehicleId: string, documentId: string): Observable<void> {
     const endpoints = this.getDocumentEndpoints(vehicleId);
-    console.log('[DocumentService] Deleting document:', {
-      vehicleId,
-      documentId,
-    });
-
     return this.http.delete<void>(endpoints.delete(documentId)).pipe(
-      tap(() => console.log('[DocumentService] Document deleted successfully')),
       catchError((error) => {
         console.error('[DocumentService] Error deleting document:', error);
         throw error;
@@ -133,6 +97,18 @@ export class DocumentService {
       5: 'Other',
     };
     return labels[type] || 'Unknown';
+  }
+
+  getDocumentTypeValue(label: string): number {
+    const values: { [key: string]: number } = {
+      Insurance: 0,
+      Registration: 1,
+      Maintenance: 2,
+      DamageReport: 3,
+      Recepit: 4,
+      Other: 5,
+    };
+    return values[label] ?? -1;
   }
 
   formatFileSize(bytes: number): string {

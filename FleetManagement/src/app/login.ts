@@ -25,7 +25,6 @@ import { AuthService } from './services/auth.service';
           </div>
           <h1>FleetManagement</h1>
           <p class="subtitle">Access the system</p>
-          <p class="guest-hint">Click the logo to enter as guest</p>
         </div>
 
         <form class="login-form" (ngSubmit)="onSubmit()">
@@ -363,7 +362,7 @@ export class LoginComponent {
 
   loginAsGuest() {
     console.log('Accesso come ospite...');
-    this.authService.loginAsGuest();
-    this.router.navigate(['/home']);
+    // this.authService.loginAsGuest();
+    // this.router.navigate(['/home']);
   }
 }

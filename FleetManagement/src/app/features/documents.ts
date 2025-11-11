@@ -68,8 +68,8 @@ import { IVehicle } from '../models/IVehicle';
                   <option [value]="0">Insurance</option>
                   <option [value]="1">Registration</option>
                   <option [value]="2">Maintenance</option>
-                  <option [value]="3">Inspection</option>
-                  <option [value]="4">Contract</option>
+                  <option [value]="3">Damage Report</option>
+                  <option [value]="4">Recepit</option>
                   <option [value]="5">Other</option>
                 </select>
               </div>
@@ -128,13 +128,13 @@ import { IVehicle } from '../models/IVehicle';
               <div class="document-item">
                 <div class="doc-icon">
                   <span class="doc-type-badge" [class]="getDocumentTypeClass(doc.documentType)">
-                    {{ documentService.getDocumentTypeLabel(doc.documentType) }}
+                    {{ getDisplayLabel(doc.documentType) }}
                   </span>
                 </div>
                 <div class="doc-info">
                   <h4>{{ doc.fileName }}</h4>
                   <p class="doc-meta">
-                    {{ formatDate(doc.uploadDate) }} •
+                    {{ formatDate(doc.uploadedAt) }} •
                     {{ documentService.formatFileSize(doc.fileSize) }}
                   </p>
                   @if (doc.description) {
@@ -619,7 +619,6 @@ export class DocumentsComponent implements OnInit {
     this.vehicleService.getListVehicles().subscribe({
       next: (response) => {
         this.vehicles.set(response.items);
-        console.log('[DocumentsComponent] Vehicles loaded:', response.items.length);
       },
       error: (error) => {
         console.error('[DocumentsComponent] Error loading vehicles:', error);
@@ -675,8 +674,7 @@ export class DocumentsComponent implements OnInit {
         this.documentDescription || undefined
       )
       .subscribe({
-        next: (document) => {
-          console.log('[DocumentsComponent] Document uploaded:', document);
+        next: () => {
           this.isUploading.set(false);
           this.loadDocuments();
           this.resetUploadForm();
@@ -718,7 +716,6 @@ export class DocumentsComponent implements OnInit {
   deleteDocument(document: IDocument) {
     this.documentService.deleteDocument(this.selectedVehicleId, document.id).subscribe({
       next: () => {
-        console.log('[DocumentsComponent] Document deleted:', document.fileName);
         this.loadDocuments();
       },
       error: (error) => {
@@ -741,28 +738,55 @@ export class DocumentsComponent implements OnInit {
   }
 
   getDocumentsByType(type: number): IDocument[] {
-    return this.documents().filter((doc) => doc.documentType === type);
+    return this.documents().filter((doc) => {
+      const docType =
+        typeof doc.documentType === 'string'
+          ? this.documentService.getDocumentTypeValue(doc.documentType)
+          : doc.documentType;
+
+      return docType === type;
+    });
   }
 
-  getDocumentTypeClass(type: number): string {
+  getDocumentTypeClass(type: string | number): string {
+    const numType =
+      typeof type === 'string' ? this.documentService.getDocumentTypeValue(type) : type;
+
     const classes: { [key: number]: string } = {
       0: 'insurance',
       1: 'registration',
       2: 'maintenance',
-      3: 'inspection',
-      4: 'contract',
+      3: 'damagereport',
+      4: 'recepit',
       5: 'other',
     };
-    return classes[type] || 'other';
+    return classes[numType] || 'other';
   }
 
   formatDate(dateString: string): string {
+    if (!dateString) {
+      return 'N/A';
+    }
+
     const date = new Date(dateString);
+
+    if (isNaN(date.getTime())) {
+      console.error('[DocumentsComponent] Invalid date:', dateString);
+      return 'Invalid Date';
+    }
+
     return date.toLocaleDateString('it-IT', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
     });
+  }
+
+  getDisplayLabel(type: string | number): string {
+    if (typeof type === 'string') {
+      return type;
+    }
+    return this.documentService.getDocumentTypeLabel(type);
   }
 
   goBack() {
