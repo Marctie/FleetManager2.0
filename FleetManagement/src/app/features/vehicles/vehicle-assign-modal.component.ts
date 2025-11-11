@@ -47,7 +47,7 @@ import { NotificationService } from '../../services/notification.service';
               Select Driver
               <span class="required">*</span>
               @if (users().length > 0) {
-              <span class="user-count">({{ users().length }} available)</span>
+              <span class="user-count">({{ users().length - 1 }} available)</span>
               }
             </label>
             <select
