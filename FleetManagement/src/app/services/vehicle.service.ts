@@ -58,7 +58,7 @@ export class VehicleService {
       pageSize,
       search: options?.search,
       status: options?.status,
-      model: options?.model
+      model: options?.model,
     });
 
     return this.http.get<any>(`${this.VEHICLE_ENDPOINTS.list}?${params.toString()}`).pipe(
@@ -73,7 +73,11 @@ export class VehicleService {
           console.log('[VehicleService] Vehicles received (paginated):', {
             count: items.length,
             total: response.total,
-            statuses: items.map(v => ({ id: v.id, licensePlate: v.licensePlate, status: v.status }))
+            statuses: items.map((v) => ({
+              id: v.id,
+              licensePlate: v.licensePlate,
+              status: v.status,
+            })),
           });
           return {
             items: items,
@@ -87,7 +91,11 @@ export class VehicleService {
         if (Array.isArray(response)) {
           console.log('[VehicleService] Vehicles received (array):', {
             count: response.length,
-            statuses: response.map((v: IVehicle) => ({ id: v.id, licensePlate: v.licensePlate, status: v.status }))
+            statuses: response.map((v: IVehicle) => ({
+              id: v.id,
+              licensePlate: v.licensePlate,
+              status: v.status,
+            })),
           });
           return {
             items: response as IVehicle[],
@@ -127,7 +135,7 @@ export class VehicleService {
       brand: vehicle.brand,
       model: vehicle.model,
       status: vehicle.status,
-      fullPayload: vehicle
+      fullPayload: vehicle,
     });
     return this.http.post<IVehicle>(this.VEHICLE_ENDPOINTS.create, vehicle).pipe(
       tap((response) => console.log('[VehicleService] Vehicle created successfully:', response)),
@@ -157,16 +165,18 @@ export class VehicleService {
     console.log('[VehicleService] Updating vehicle:', {
       vehicleId: vehicle.id,
       status: vehicle.status,
-      fullPayload: updateData
+      fullPayload: updateData,
     });
 
-    return this.http.put<IVehicle>(`${this.VEHICLE_ENDPOINTS.update}/${vehicle.id}`, updateData).pipe(
-      tap((response) => console.log('[VehicleService] Vehicle updated successfully:', response)),
-      catchError((error) => {
-        console.error('[VehicleService] Error updating vehicle:', error);
-        throw error;
-      })
-    );
+    return this.http
+      .put<IVehicle>(`${this.VEHICLE_ENDPOINTS.update}/${vehicle.id}`, updateData)
+      .pipe(
+        tap((response) => console.log('[VehicleService] Vehicle updated successfully:', response)),
+        catchError((error) => {
+          console.error('[VehicleService] Error updating vehicle:', error);
+          throw error;
+        })
+      );
   }
 
   /**
@@ -177,7 +187,7 @@ export class VehicleService {
     console.log('[VehicleService] Updating vehicle status:', {
       vehicleId: id,
       status: status,
-      endpoint: url
+      endpoint: url,
     });
     return this.http.patch<IVehicle>(url, status).pipe(
       tap((response) => console.log('[VehicleService] Status updated successfully:', response)),

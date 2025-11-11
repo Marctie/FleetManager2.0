@@ -402,7 +402,7 @@ export class VehicleStatusModalComponent {
       vehicleId: this.vehicle.id,
       brand: this.vehicle.brand,
       model: this.vehicle.model,
-      currentStatus: this.vehicle.status
+      currentStatus: this.vehicle.status,
     });
   }
 
@@ -429,7 +429,7 @@ export class VehicleStatusModalComponent {
     console.log('[VehicleStatusModal] Updating status:', {
       vehicleId: this.vehicle.id,
       oldStatus: this.vehicle.status,
-      newStatus: this.selectedStatus
+      newStatus: this.selectedStatus,
     });
 
     this.vehicleService.updateVehicleStatus(this.vehicle.id, this.selectedStatus).subscribe({
