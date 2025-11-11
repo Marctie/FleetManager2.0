@@ -5,6 +5,7 @@ import { VehicleDetailComponent } from './vehicle-detail.component';
 import { VehicleService } from '../../services/vehicle.service';
 import { IVehicle } from '../../models/IVehicle';
 import { FormsModule } from '@angular/forms';
+import { RoleService } from '../../services/role.service';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -19,9 +20,11 @@ import { FormsModule } from '@angular/forms';
             <button class="btn-add" style="margin: 0px 5px" (click)="goVehicleMap()">
               Vehicle Map
             </button>
+            @if (roleService.canCreateVehicles()) {
             <button class="btn-add" style="margin: 0px 5px" (click)="goVehicleForm()">
               Vehicle Form
             </button>
+            }
             <button class="btn-back" style="margin: 0px 5px" (click)="goBack()">
               Back to Home
             </button>
@@ -147,6 +150,7 @@ import { FormsModule } from '@angular/forms';
           <app-vehicle-detail
             [vehicle]="selectedVehicle()!"
             (closeModal)="handleCloseModal($event)"
+            (vehicleUpdated)="handleVehicleUpdated($event)"
           >
           </app-vehicle-detail>
           }
@@ -467,7 +471,7 @@ import { FormsModule } from '@angular/forms';
 
         .btn-add,
         .btn-back {
-          width: calc(50% - 0.5rem);
+          width: 100%;
           margin: 0 !important;
         }
       }
@@ -630,6 +634,7 @@ export class VehicleListComponent implements OnInit {
 
   router = inject(Router);
   vehicleService = inject(VehicleService);
+  roleService = inject(RoleService);
 
   // Espone Math per il template
   Math = Math;
@@ -820,6 +825,49 @@ export class VehicleListComponent implements OnInit {
       this.showModal.set(false);
       this.selectedVehicle.set(null);
     }
+  }
+
+  handleVehicleUpdated(updatedVehicle: IVehicle) {
+    // Aggiorna il veicolo nella lista locale
+    const currentVehicles = this.vehicles();
+    const vehicleIndex = currentVehicles.findIndex((v) => v.id === updatedVehicle.id);
+
+    if (vehicleIndex !== -1) {
+      // Aggiorna il veicolo nella lista
+      const updatedVehicles = [...currentVehicles];
+      updatedVehicles[vehicleIndex] = updatedVehicle;
+      this.vehicles.set(updatedVehicles);
+
+      // Aggiorna anche il selectedVehicle se è lo stesso
+      if (this.selectedVehicle()?.id === updatedVehicle.id) {
+        this.selectedVehicle.set(updatedVehicle);
+      }
+    } else {
+      // Se il veicolo non è nella lista (es. è stato eliminato), ricarica la lista
+      this.reloadCurrentPage();
+    }
+  }
+
+  // Metodo per ricaricare la pagina corrente mantenendo i filtri
+  private reloadCurrentPage(): void {
+    const filters: { search?: string; status?: string; model?: string } = {};
+    const query = this.searchQuery.trim();
+
+    if (query) {
+      switch (this.selectedFilterType) {
+        case 'status':
+          filters.status = query;
+          break;
+        case 'model':
+          filters.model = query;
+          break;
+        default:
+          filters.search = query;
+          break;
+      }
+    }
+
+    this.loadVehicles(filters);
   }
 
   //funzioni di  navigazione

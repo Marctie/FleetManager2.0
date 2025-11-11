@@ -82,12 +82,13 @@ import { Subscription } from 'rxjs';
             </div>
             <p>Manage users</p>
           </div>
-          <div class="card" (click)="navigateTo('/associations')">
+           <div class="card" (click)="navigateTo('/associations')">
             <div class="card-header">
               <h3>Associations Management</h3>
             </div>
             <p>Manage associations</p>
-          </div>
+
+          </div> 
           <div class="card" (click)="navigateTo('/reports')">
             <div class="card-header">
               <h3>Reports and Statistics</h3>

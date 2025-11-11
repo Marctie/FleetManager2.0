@@ -1,12 +1,37 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+  AbstractControl,
+  ValidationErrors,
+} from '@angular/forms';
 import { Router } from '@angular/router';
 import { MainLayoutComponent } from '../../shared/main-layout.component';
 import { IVehicleForm } from '../../models/IVehicleForm';
 import { VehicleService } from '../../services/vehicle.service';
 
 import { LOCALE_ID } from '@angular/core';
+
+// Validatore personalizzato per data antecedente a oggi
+function pastDateValidator(control: AbstractControl): ValidationErrors | null {
+  if (!control.value) {
+    return null; // Se non c'è valore, non validiamo (gestito da required se necessario)
+  }
+
+  const inputDate = new Date(control.value);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); // Reset ore per confronto solo data
+  inputDate.setHours(0, 0, 0, 0);
+
+  if (inputDate > today) {
+    return { futureDate: { value: control.value } };
+  }
+
+  return null;
+}
 
 @Component({
   selector: 'app-vehicle-form',
@@ -97,7 +122,16 @@ import { LOCALE_ID } from '@angular/core';
               <div class="form-row">
                 <div class="form-group">
                   <label>Last Maintenance Date</label>
-                  <input type="date" formControlName="lastMaintenanceDate" [min]="'1900-01-01'" />
+                  <input
+                    type="date"
+                    formControlName="lastMaintenanceDate"
+                    [min]="'1900-01-01'"
+                    [max]="currentDate.toISOString().split('T')[0]"
+                  />
+                  @if (vehicleForm.get('lastMaintenanceDate')?.touched &&
+                  vehicleForm.get('lastMaintenanceDate')?.invalid) {
+                  <div class="error-message">{{ getErrorMessage('lastMaintenanceDate') }}</div>
+                  }
                 </div>
                 <div class="form-group">
                   <label>Insurance Expiry Date</label>
@@ -454,7 +488,7 @@ export class VehicleFormComponent {
   vehicleForm = this.fb.group({
     model: ['', [Validators.required]],
     brand: ['', [Validators.required]],
-    plate: ['', [Validators.required, Validators.pattern(/^[A-Z]{2}\d{3}[A-Z]{2}$/)]],
+    plate: ['', [Validators.required]],
     year: [
       this.currentYear,
       [Validators.required, Validators.min(1900), Validators.max(this.currentYear)],
@@ -462,7 +496,7 @@ export class VehicleFormComponent {
     fuelType: [0, [Validators.required]], // Impostiamo il valore numerico dell'enum
     currentKm: [0, [Validators.required, Validators.min(0)]],
     vin: ['', [Validators.required, Validators.minLength(17), Validators.maxLength(17)]],
-    lastMaintenanceDate: [new Date()],
+    lastMaintenanceDate: [new Date(), [pastDateValidator]],
     insuranceExpiryDate: [new Date(new Date().setFullYear(new Date().getFullYear() + 1))],
   });
 
@@ -474,6 +508,8 @@ export class VehicleFormComponent {
       if (control.errors['max']) return `Maximum value: ${control.errors['max'].max}`;
       if (control.errors['pattern'] && controlName === 'plate')
         return 'Invalid license plate format (e.g. AB123CD)';
+      if (control.errors['futureDate'] && controlName === 'lastMaintenanceDate')
+        return 'Maintenance date must be today or in the past';
     }
     return '';
   }

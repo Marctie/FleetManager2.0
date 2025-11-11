@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './login';
 import { HomeComponent } from './features/home';
 import { authGuard, guestGuard } from './features/auth/auth-guard';
+import { adminGuard, managerGuard } from './guards/role.guard';
 import { DashboardComponent } from './features/vehicles/dashboard';
 import { VehicleListComponent } from './features/vehicles/vehicle-list.component';
 import { VehicleDetailComponent } from './features/vehicles/vehicle-detail.component';
@@ -47,12 +48,12 @@ export const routes: Routes = [
   {
     path: 'vehicle-form',
     component: VehicleFormComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, managerGuard], // Solo Admin e Fleet Manager
   },
   {
     path: 'user-management',
     component: UserManagementComponent,
-    canActivate: [authGuard],
+    canActivate: [authGuard, adminGuard], // Solo Administrator
   },
   {
     path: 'associations',

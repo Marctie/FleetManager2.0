@@ -19,7 +19,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
           <div class="coming-soon"></div>
 
           <!-- CODICE TEMPORANEAMENTE NASCOSTO - DA IMPLEMENTARE-->
-          <!--
+          
           <div class="associations-table">
             <table>
               <thead>
@@ -58,7 +58,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
           </div>
 
           <button class="btn-create">Create New Association</button>
-          -->
+          
         </main>
       </div>
     </app-main-layout>
@@ -256,7 +256,7 @@ import { MainLayoutComponent } from '../shared/main-layout.component';
 })
 export class AssociationsComponent {
   // DATI TEMPORANEAMENTE COMMENTATI - DA RIATTIVARE
-  /*
+  
   associations = [
     {
       vehicleId: 'V001',
@@ -266,7 +266,7 @@ export class AssociationsComponent {
       status: 'active',
     },
   ];
-  */
+  
 
   constructor(private router: Router) {}
 

@@ -8,6 +8,13 @@ export interface IUser {
   lastLogin?: Date;
 }
 
+export interface IUserCreateRequest {
+  username: string;
+  email: string;
+  password: string;
+  role: string; // "Administrator", "Fleet Manager", "Driver", "Viewer"
+}
+
 export interface IUserResponse {
   items: IUser[];
   total: number;

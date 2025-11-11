@@ -57,7 +57,7 @@ import { StatCardComponent } from '../../shared/stat-card.component';
             </div>
             <div class="stat-card offline-status">
               <span class="stat-label">Offline</span>
-              <span class="stat-value">{{ getVehiclesOffline() }}</span>
+              <span class="stat-value">{{ getVehiclesInUse() }}</span>
             </div>
             <div class="stat-card maintenance-status">
               <span class="stat-label">Maintenance</span>
@@ -69,25 +69,30 @@ import { StatCardComponent } from '../../shared/stat-card.component';
               title="Total Vehicles"
               [value]="vehicleList().length"
             ></app-stat-card>
-            <app-stat-card
+            <!-- <app-stat-card
               class="position-status"
               title="With Position"
               [value]="getVehiclesWithPosition()"
-            ></app-stat-card>
+            ></app-stat-card> -->
             <app-stat-card
               class="online-status"
-              title="Online"
+              title="Available"
               [value]="getVehiclesOnline()"
             ></app-stat-card>
             <app-stat-card
               class="offline-status"
-              title="Offline"
-              [value]="getVehiclesOffline()"
+              title="In Use"
+              [value]="getVehiclesInUse()"
             ></app-stat-card>
             <app-stat-card
               class="maintenance-status"
               title="Maintenance"
               [value]="getVehiclesMaintenance()"
+            ></app-stat-card>
+            <app-stat-card
+              class="maintenance-status"
+              title="Out of Service"
+              [value]="getVehiclesOutOfService()"
             ></app-stat-card>
           </div>
         </div>
@@ -463,11 +468,12 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   // Status colors
   private statusColorMap: { [key: string]: string } = {
     active: '#48bb78',
+    available: '#48bb78',
     online: '#48bb78',
     inactive: '#f56565',
     offline: '#f56565',
     maintenance: '#ecc94b',
-    default: '#718096',
+    outofservice: '#718096',
   };
 
   constructor() {
@@ -1035,11 +1041,16 @@ export class GeneralMapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public getVehiclesOnline(): number {
-    return this.vehicleList().filter((v) => this.normalizeStatus(v.status) === 'active').length;
+    return this.vehicleList().filter(
+      (v) => v.status.toLowerCase() === 'available' || v.status.toLowerCase() === 'active'
+    ).length;
   }
 
-  public getVehiclesOffline(): number {
-    return this.vehicleList().filter((v) => this.normalizeStatus(v.status) === 'inactive').length;
+  public getVehiclesInUse(): number {
+    return this.vehicleList().filter((v) => v.status.toLowerCase() === 'inuse').length;
+  }
+  public getVehiclesOutOfService(): number {
+    return this.vehicleList().filter((v) => v.status.toLowerCase() === 'outofservice').length;
   }
 
   public getVehiclesMaintenance(): number {

@@ -66,16 +66,15 @@ import { VehicleService } from '../../services/vehicle.service';
             <button class="btn-back" (click)="goBack()">&laquo; Back to Home</button>
           </div>
           <div class="stats-grid">
-            <!--  esercizio 6 con i dati  -->
-            <app-stat-card
-              class="total-status"
-              title="Total Vehicles"
-              [value]="vehicleList().length"
-            ></app-stat-card>
+            <app-stat-card title="Total Vehicles" [value]="vehicleList().length"></app-stat-card>
 
-            <app-stat-card title="Active" [value]="0"></app-stat-card>
-            <app-stat-card title="In Maintenance" [value]="0"></app-stat-card>
-            <app-stat-card title="Alerts" [value]="0"></app-stat-card>
+            <app-stat-card title="Available" [value]="activeVehicles"></app-stat-card>
+
+            <app-stat-card title="In Use" [value]="inUseVehicles"></app-stat-card>
+
+            <app-stat-card title="In Maintenance" [value]="maintenanceVehicles"></app-stat-card>
+
+            <app-stat-card title="Out of Service" [value]="outOfServiceVehicles"></app-stat-card>
           </div>
         </main>
       </div>
@@ -315,7 +314,26 @@ export class DashboardComponent implements OnInit {
     this.loadVehicles();
   }
 
-  private loadVehicles(silent: boolean = false): void {
+  // Calcolo dei numeri di veicoli + filtro per stato
+  get activeVehicles(): number {
+    return this.vehicleList().filter(
+      (v) => v.status.toLowerCase() === 'available' || v.status.toLowerCase() === 'active'
+    ).length;
+  }
+
+  get maintenanceVehicles(): number {
+    return this.vehicleList().filter((v) => v.status.toLowerCase() === 'maintenance').length;
+  }
+
+  get inUseVehicles(): number {
+    return this.vehicleList().filter((v) => v.status.toLowerCase() === 'inuse').length;
+  }
+
+  get outOfServiceVehicles(): number {
+    return this.vehicleList().filter((v) => v.status.toLowerCase() === 'outofservice').length;
+  }
+
+  private loadVehicles(boolean = false): void {
     this.vehicleService.getListVehicles({ page: 1, pageSize: 1000 }).subscribe({
       next: (response) => {
         this.vehicleList.set(response.items);

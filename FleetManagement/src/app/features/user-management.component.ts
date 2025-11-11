@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { MainLayoutComponent } from '../shared/main-layout.component';
 import { UserService } from '../services/user.service';
 import { IUser } from '../models/IUser';
+import { UserFormModalComponent } from './user-form-modal.component';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, MainLayoutComponent],
+  imports: [CommonModule, MainLayoutComponent, UserFormModalComponent],
   template: `
     <app-main-layout>
       <div class="page-container">
@@ -25,8 +27,7 @@ import { IUser } from '../models/IUser';
               class="search-input"
               (input)="onSearch($event)"
             />
-            <!-- <button class="btn-add">Search</button> -->
-            <!-- <button class="btn-add">Add User</button> -->
+            <button class="btn-add" (click)="openCreateModal()">Add User</button>
           </div>
 
           @if (error()) {
@@ -50,7 +51,8 @@ import { IUser } from '../models/IUser';
                 <div class="user-email">{{ user.email }}</div>
               </div>
               <div class="user-actions">
-                <button class="btn-icon edit" title="Edit user">Edit</button>
+                <button class="btn-action edit" (click)="openEditModal(user)">Edit</button>
+                <button class="btn-action delete" (click)="confirmDelete(user)">Delete</button>
               </div>
             </div>
             }
@@ -59,6 +61,15 @@ import { IUser } from '../models/IUser';
         </main>
       </div>
     </app-main-layout>
+
+    <!-- Modale per creare/modificare utente -->
+    @if (showModal()) {
+    <app-user-form-modal
+      [user]="selectedUser()"
+      (closeModal)="closeModal()"
+      (userSaved)="handleUserSaved($event)"
+    />
+    }
   `,
   styles: [
     `
@@ -188,20 +199,41 @@ import { IUser } from '../models/IUser';
 
       .user-actions {
         display: flex;
+        flex-direction: column;
         gap: 0.5rem;
       }
 
-      .btn-icon {
-        background: none;
+      .btn-action {
+        padding: 0.5rem 1rem;
         border: none;
-        font-size: 1.25rem;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        font-weight: 600;
         cursor: pointer;
-        padding: 0.5rem;
-        transition: transform 0.2s ease;
+        transition: all 0.2s ease;
+        white-space: nowrap;
       }
 
-      .btn-icon:hover {
-        transform: scale(1.2);
+      .btn-action.edit {
+        background: #667eea;
+        color: white;
+      }
+
+      .btn-action.edit:hover {
+        background: #5a67d8;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-action.delete {
+        background: #fc8181;
+        color: white;
+      }
+
+      .btn-action.delete:hover {
+        background: #f56565;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(252, 129, 129, 0.3);
       }
 
       .loading-state,
@@ -273,6 +305,47 @@ import { IUser } from '../models/IUser';
         .users-grid {
           grid-template-columns: 1fr;
         }
+
+        .user-card {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .user-actions {
+          flex-direction: row;
+          width: 100%;
+        }
+
+        .btn-action {
+          flex: 1;
+        }
+        .user-avatar {
+          display: none;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page-container {
+          padding: 1rem;
+        }
+
+        .page-header {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        .btn-back,
+        .btn-add {
+          width: 100%;
+        }
+
+        .actions-bar {
+          flex-direction: column;
+        }
+
+        .search-input {
+          width: 100%;
+        }
       }
     `,
   ],
@@ -285,6 +358,8 @@ export class UserManagementComponent implements OnInit {
   isLoading = signal(false);
   error = signal<string | null>(null);
   searchTerm = signal('');
+  showModal = signal(false);
+  selectedUser = signal<IUser | undefined>(undefined);
 
   ngOnInit(): void {
     this.loadUsers();
@@ -296,8 +371,9 @@ export class UserManagementComponent implements OnInit {
 
     this.userService.getUsers().subscribe({
       next: (users) => {
-        this.users.set(users);
-        this.filteredUsers.set(users);
+        const userlist = users.filter((f) => f.username !== localStorage.getItem('username'));
+        this.users.set(userlist);
+        this.filteredUsers.set(userlist);
         this.isLoading.set(false);
       },
       error: (error) => {
@@ -311,6 +387,83 @@ export class UserManagementComponent implements OnInit {
   onSearch(event: Event): void {
     const searchTerm = (event.target as HTMLInputElement).value.toLowerCase();
     this.searchTerm.set(searchTerm);
+
+    const filtered = this.users().filter(
+      (user) =>
+        user.username.toLowerCase().includes(searchTerm) ||
+        user.fullName?.toLowerCase().includes(searchTerm) ||
+        user.email.toLowerCase().includes(searchTerm) ||
+        user.role.toLowerCase().includes(searchTerm)
+    );
+
+    this.filteredUsers.set(filtered);
+  }
+
+  openCreateModal(): void {
+    this.selectedUser.set(undefined);
+    this.showModal.set(true);
+  }
+
+  openEditModal(user: IUser): void {
+    this.selectedUser.set(user);
+    this.showModal.set(true);
+  }
+
+  closeModal(): void {
+    this.showModal.set(false);
+    this.selectedUser.set(undefined);
+  }
+
+  handleUserSaved(savedUser: IUser): void {
+    const currentUsers = this.users();
+    const userIndex = currentUsers.findIndex((u) => u.id === savedUser.id);
+
+    if (userIndex !== -1) {
+      // Update existing user
+      const updatedUsers = [...currentUsers];
+      updatedUsers[userIndex] = savedUser;
+      this.users.set(updatedUsers);
+    } else {
+      // Add new user
+      this.users.set([...currentUsers, savedUser]);
+    }
+
+    // Update filtered list
+    this.applySearch();
+  }
+
+  confirmDelete(user: IUser): void {
+    const confirmed = confirm(
+      `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`
+    );
+
+    if (confirmed) {
+      this.deleteUser(user.id);
+    }
+  }
+
+  private deleteUser(userId: string): void {
+    this.userService.deleteUser(userId).subscribe({
+      next: () => {
+        // Remove user from lists
+        const updatedUsers = this.users().filter((u) => u.id !== userId);
+        this.users.set(updatedUsers);
+        this.applySearch();
+        alert('User deleted successfully!');
+      },
+      error: (error) => {
+        console.error('Error deleting user:', error);
+        alert('Error deleting user. Please try again.');
+      },
+    });
+  }
+
+  private applySearch(): void {
+    const searchTerm = this.searchTerm();
+    if (!searchTerm) {
+      this.filteredUsers.set(this.users());
+      return;
+    }
 
     const filtered = this.users().filter(
       (user) =>

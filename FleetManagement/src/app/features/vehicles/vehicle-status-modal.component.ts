@@ -51,7 +51,7 @@ import { VehicleService } from '../../services/vehicle.service';
         <div class="modal-footer">
           <button class="btn-secondary" (click)="close()" [disabled]="isSaving()">Cancel</button>
           <button
-            class="btn-primary"
+            class="btn-status"
             (click)="updateStatus()"
             [disabled]="selectedStatus === vehicle.status || isSaving()"
           >
@@ -63,6 +63,22 @@ import { VehicleService } from '../../services/vehicle.service';
   `,
   styles: [
     `
+      .btn-status {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        color: white;
+      }
+
+      .btn-status:hover {
+        background: linear-gradient(135deg, #38a169 0%, #2f855a 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+      }
       .modal-overlay {
         position: fixed;
         top: 0;
@@ -380,16 +396,14 @@ export class VehicleStatusModalComponent {
   isSaving = signal(false);
   error = signal<string | null>(null);
 
-  // Mapping status string -> enum number (come definito in config.json)
-  private statusToEnum: { [key: string]: number } = {
-    Available: 0,
-    'In Use': 1,
-    Maintenance: 2,
-    'Out of Service': 3,
-  };
-
   ngOnInit() {
     this.selectedStatus = this.vehicle.status;
+    console.log('[VehicleStatusModal] Initialized with vehicle:', {
+      vehicleId: this.vehicle.id,
+      brand: this.vehicle.brand,
+      model: this.vehicle.model,
+      currentStatus: this.vehicle.status,
+    });
   }
 
   onOverlayClick(event: MouseEvent) {
@@ -412,32 +426,39 @@ export class VehicleStatusModalComponent {
     this.isSaving.set(true);
     this.error.set(null);
 
-    // Converti lo status string in enum number
-    const statusEnum = this.statusToEnum[this.selectedStatus];
+    const statusToEnum: { [key: string]: number } = {
+      Available: 0,
+      InUse: 1,
+      Maintenance: 2,
+      OutofService: 3,
+    };
 
-    if (statusEnum === undefined) {
-      this.error.set('Invalid status selected');
-      return;
-    }
+    const statusValue = statusToEnum[this.selectedStatus];
 
-    this.vehicleService.updateVehicleStatus(this.vehicle.id, statusEnum).subscribe({
+    console.log('[VehicleStatusModal] Updating status:', {
+      vehicleId: this.vehicle.id,
+      oldStatus: this.vehicle.status,
+      newStatus: this.selectedStatus,
+      statusValue: statusValue,
+    });
+
+    this.vehicleService.updateVehicleStatus(this.vehicle.id, statusValue).subscribe({
       next: (updatedVehicle) => {
+        console.log('[VehicleStatusModal] Status updated successfully:', updatedVehicle);
         this.isSaving.set(false);
-        // Aggiorna il veicolo locale con il nuovo stato
         this.vehicle = { ...this.vehicle, status: this.selectedStatus };
         this.statusChanged.emit(this.vehicle);
         this.close();
       },
       error: (err) => {
+        console.error('[VehicleStatusModal] Error updating status:', err);
         this.isSaving.set(false);
 
-        // Mostra un messaggio di errore più dettagliato
         let errorMessage = 'Failed to update status. ';
 
         if (err.error?.message) {
           errorMessage += err.error.message;
         } else if (err.error?.errors) {
-          // Gestisce errori di validazione
           const errors = Object.values(err.error.errors).flat();
           errorMessage += errors.join(', ');
         } else if (err.statusText) {
