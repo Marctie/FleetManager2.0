@@ -41,7 +41,7 @@ import { NotificationService } from '../../services/notification.service';
           <div class="loading-state">Loading drivers...</div>
           } @else if (error()) {
           <div class="error-message">{{ error() }}</div>
-          f } @else {
+          } @else {
           <div class="form-group">
             <label for="driver-select" class="form-label">
               Select Driver
@@ -431,7 +431,7 @@ export class VehicleAssignModalComponent implements OnInit {
         }
 
         const activeUsers = users
-          .filter((u) => u.isActive !== false)
+          .filter((u) => u.role === 'Driver')
           .sort((a, b) => {
             if (a.role !== b.role) {
               return a.role.localeCompare(b.role);
