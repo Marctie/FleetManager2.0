@@ -305,7 +305,6 @@ import { RoleService } from '../../services/role.service';
         justify-content: space-between;
         align-items: center;
         margin-bottom: 2rem;
-        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
         padding: 1rem 0;
         z-index: 10;
       }

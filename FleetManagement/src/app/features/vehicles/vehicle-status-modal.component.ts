@@ -396,16 +396,14 @@ export class VehicleStatusModalComponent {
   isSaving = signal(false);
   error = signal<string | null>(null);
 
-  // Mapping status string -> enum number (come definito in config.json)
-  private statusToEnum: { [key: string]: number } = {
-    Available: 0,
-    'In Use': 1,
-    Maintenance: 2,
-    'Out of Service': 3,
-  };
-
   ngOnInit() {
     this.selectedStatus = this.vehicle.status;
+    console.log('[VehicleStatusModal] Initialized with vehicle:', {
+      vehicleId: this.vehicle.id,
+      brand: this.vehicle.brand,
+      model: this.vehicle.model,
+      currentStatus: this.vehicle.status
+    });
   }
 
   onOverlayClick(event: MouseEvent) {
@@ -428,32 +426,29 @@ export class VehicleStatusModalComponent {
     this.isSaving.set(true);
     this.error.set(null);
 
-    // Converti lo status string in enum number
-    const statusEnum = this.statusToEnum[this.selectedStatus];
+    console.log('[VehicleStatusModal] Updating status:', {
+      vehicleId: this.vehicle.id,
+      oldStatus: this.vehicle.status,
+      newStatus: this.selectedStatus
+    });
 
-    if (statusEnum === undefined) {
-      this.error.set('Invalid status selected');
-      return;
-    }
-
-    this.vehicleService.updateVehicleStatus(this.vehicle.id, statusEnum).subscribe({
+    this.vehicleService.updateVehicleStatus(this.vehicle.id, this.selectedStatus).subscribe({
       next: (updatedVehicle) => {
+        console.log('[VehicleStatusModal] Status updated successfully:', updatedVehicle);
         this.isSaving.set(false);
-        // Aggiorna il veicolo locale con il nuovo stato
         this.vehicle = { ...this.vehicle, status: this.selectedStatus };
         this.statusChanged.emit(this.vehicle);
         this.close();
       },
       error: (err) => {
+        console.error('[VehicleStatusModal] Error updating status:', err);
         this.isSaving.set(false);
 
-        // Mostra un messaggio di errore più dettagliato
         let errorMessage = 'Failed to update status. ';
 
         if (err.error?.message) {
           errorMessage += err.error.message;
         } else if (err.error?.errors) {
-          // Gestisce errori di validazione
           const errors = Object.values(err.error.errors).flat();
           errorMessage += errors.join(', ');
         } else if (err.statusText) {
