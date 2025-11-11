@@ -86,8 +86,8 @@ import { UserService } from '../services/user.service';
                 </label>
                 <select formControlName="role" class="form-select">
                   <option value="">Select role</option>
-                  <option value="0">Admin</option>
-                  <option value="1">Manager</option>
+                  <option value="0">Administrator</option>
+                  <option value="1">Fleet Manager</option>
                   <option value="2">Driver</option>
                   <option value="3">Viewer</option>
                 </select>
@@ -470,12 +470,20 @@ export class UserFormModalComponent implements OnInit {
   error = signal<string | null>(null);
   isEditMode = false;
 
-  // Mappatura ruoli stringa -> numero
-  private roleToNumber: { [key: string]: number } = {
-    Admin: 0,
-    Manager: 1,
-    Driver: 2,
-    Viewer: 3,
+  // Mappatura ruoli per il form (valore select -> nome API)
+  private roleMapping: { [key: string]: string } = {
+    '0': 'Administrator',
+    '1': 'Fleet Manager',
+    '2': 'Driver',
+    '3': 'Viewer',
+  };
+
+  // Mappatura inversa (nome API -> valore select)
+  private roleToSelectValue: { [key: string]: string } = {
+    Administrator: '0',
+    'Fleet Manager': '1',
+    Driver: '2',
+    Viewer: '3',
   };
 
   ngOnInit() {
@@ -485,16 +493,23 @@ export class UserFormModalComponent implements OnInit {
 
   private initForm() {
     if (this.isEditMode && this.user) {
-      // Edit mode - converti il role da stringa a numero
-      const roleValue = this.roleToNumber[this.user.role] ?? 0;
+      // Edit mode - converti il role da stringa API a valore select
+      const selectValue = this.roleToSelectValue[this.user.role] || '0';
+      console.log('[UserForm] Edit mode - Role mapping:', {
+        apiRole: this.user.role,
+        selectValue: selectValue,
+        user: this.user,
+      });
+
       this.userForm = this.fb.group({
         email: [this.user.email, [Validators.required, Validators.email]],
         fullName: [this.user.fullName || ''],
-        role: [roleValue.toString(), [Validators.required]], // Converti in stringa per il select
+        role: [selectValue, [Validators.required]],
         isActive: [this.user.isActive],
       });
     } else {
       // Create mode
+      console.log('[UserForm] Create mode initialized');
       this.userForm = this.fb.group({
         username: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
@@ -530,44 +545,59 @@ export class UserFormModalComponent implements OnInit {
       const formValue = this.userForm.value;
 
       if (this.isEditMode && this.user) {
-        // Update existing user - prepara i dati per l'API
+        // Update existing user - converti valore select in stringa API
+        const roleString = this.roleMapping[formValue.role] || 'Viewer';
         const updateData = {
           email: formValue.email,
-          role: parseInt(formValue.role), // Converte in numero
+          role: roleString,
           ...(formValue.fullName && { fullName: formValue.fullName }),
         };
 
+        console.log('[UserForm] Updating user:', {
+          userId: this.user.id,
+          selectValue: formValue.role,
+          roleString: roleString,
+          fullPayload: updateData,
+        });
+
         this.userService.updateUser(this.user.id, updateData).subscribe({
           next: (updatedUser) => {
+            console.log('[UserForm] User updated successfully:', updatedUser);
             this.isSaving.set(false);
             this.userSaved.emit(updatedUser);
             this.close();
           },
           error: (error) => {
-            console.error('Error updating user:', error);
+            console.error('[UserForm] Error updating user:', error);
             this.error.set(error.error?.message || 'Error updating user. Please try again.');
             this.isSaving.set(false);
           },
         });
       } else {
-        // Create new user - prepara i dati per l'API
+        // Create new user - converti valore select in stringa API
+        const roleString = this.roleMapping[formValue.role] || 'Viewer';
         const createData = {
           username: formValue.username,
           email: formValue.email,
           password: formValue.password,
-          role: parseInt(formValue.role), // Converte la stringa in numero
+          role: roleString,
         };
 
-        console.log('Sending user data:', createData);
+        console.log('[UserForm] Creating user:', {
+          selectValue: formValue.role,
+          roleString: roleString,
+          fullPayload: createData,
+        });
 
         this.userService.createUser(createData).subscribe({
           next: (newUser) => {
+            console.log('[UserForm] User created successfully:', newUser);
             this.isSaving.set(false);
             this.userSaved.emit(newUser);
             this.close();
           },
           error: (error) => {
-            console.error('Error creating user:', error);
+            console.error('[UserForm] Error creating user:', error);
             // Mostra gli errori di validazione specifici se disponibili
             if (error.error?.errors) {
               const errorMessages = Object.values(error.error.errors).flat().join(', ');

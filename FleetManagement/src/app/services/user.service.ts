@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, tap, catchError } from 'rxjs/operators';
 import { IUser, IUserCreateRequest } from '../models/IUser';
 import { ConfigService } from './config.service';
 
@@ -23,16 +23,29 @@ export class UserService {
    * Get paginated list of users
    */
   getUsers(page: number = 1, pageSize: number = 1000): Observable<IUser[]> {
+    console.log('[UserService] Fetching users - page:', page, 'pageSize:', pageSize);
     return this.http.get<any>(`${this.USER_ENDPOINTS.list}?page=${page}&pageSize=${pageSize}`).pipe(
       map((response: any) => {
         if (response && typeof response === 'object' && 'items' in response) {
-          return Array.isArray(response.items) ? response.items : [];
+          const users = Array.isArray(response.items) ? response.items : [];
+          console.log('[UserService] Users received:', users.length, 'users');
+          console.log(
+            '[UserService] Roles in response:',
+            users.map((u: IUser) => ({ username: u.username, role: u.role }))
+          );
+          return users;
         }
 
         if (Array.isArray(response)) {
+          console.log('[UserService] Users received (array):', response.length, 'users');
+          console.log(
+            '[UserService] Roles in response:',
+            response.map((u: IUser) => ({ username: u.username, role: u.role }))
+          );
           return response;
         }
 
+        console.warn('[UserService] Unexpected response format:', response);
         return [];
       })
     );
@@ -48,14 +61,28 @@ export class UserService {
    * Create a new user
    */
   createUser(user: IUserCreateRequest): Observable<IUser> {
-    return this.http.post<IUser>(this.USER_ENDPOINTS.list, user);
+    console.log('[UserService] Creating user with role:', user.role, 'payload:', user);
+    return this.http.post<IUser>(this.USER_ENDPOINTS.list, user).pipe(
+      tap((response) => console.log('[UserService] User created successfully:', response)),
+      catchError((error) => {
+        console.error('[UserService] Error creating user:', error);
+        throw error;
+      })
+    );
   }
 
   /**
    * Update an existing user
    */
   updateUser(id: string, user: Partial<IUser>): Observable<IUser> {
-    return this.http.put<IUser>(`${this.USER_ENDPOINTS.list}/${id}`, user);
+    console.log('[UserService] Updating user:', id, 'with role:', user.role, 'payload:', user);
+    return this.http.put<IUser>(`${this.USER_ENDPOINTS.list}/${id}`, user).pipe(
+      tap((response) => console.log('[UserService] User updated successfully:', response)),
+      catchError((error) => {
+        console.error('[UserService] Error updating user:', error);
+        throw error;
+      })
+    );
   }
 
   /**

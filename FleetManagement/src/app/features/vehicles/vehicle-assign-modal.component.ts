@@ -430,8 +430,25 @@ export class VehicleAssignModalComponent implements OnInit {
           return;
         }
 
+        console.log('[VehicleAssignModal] All users received:', users.length);
+        console.log(
+          '[VehicleAssignModal] Roles in users:',
+          users.map((u) => ({ username: u.username, role: u.role }))
+        );
+
         const activeUsers = users
-          .filter((u) => u.role === 'Driver')
+          .filter((u) => {
+            const isDriver = u.role === 'Driver';
+            console.log(
+              '[VehicleAssignModal] Filtering user:',
+              u.username,
+              'role:',
+              u.role,
+              'isDriver:',
+              isDriver
+            );
+            return isDriver;
+          })
           .sort((a, b) => {
             if (a.role !== b.role) {
               return a.role.localeCompare(b.role);
@@ -441,11 +458,12 @@ export class VehicleAssignModalComponent implements OnInit {
             return nameA.localeCompare(nameB);
           });
 
+        console.log('[VehicleAssignModal] Filtered drivers:', activeUsers.length);
         this.users.set(activeUsers);
         this.isLoading.set(false);
       },
       error: (error) => {
-        console.error('Error loading users:', error);
+        console.error('[VehicleAssignModal] Error loading users:', error);
         this.error.set('Failed to load users. Please try again.');
         this.notificationService.error('Failed to load users. Please try again.');
         this.isLoading.set(false);

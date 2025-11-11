@@ -120,7 +120,9 @@ export class RoleService {
    */
   getCurrentUserRole(): string | null {
     const user = this.authService.getCurrentUser();
-    return user?.role || null;
+    const role = user?.role || null;
+    console.log('[RoleService] Getting current user role:', role, 'user:', user);
+    return role;
   }
 
   /**
@@ -128,10 +130,20 @@ export class RoleService {
    */
   hasPermission(permission: Permission): boolean {
     const role = this.getCurrentUserRole();
-    if (!role) return false;
+    if (!role) {
+      console.log('[RoleService] No role found for permission check:', permission);
+      return false;
+    }
 
     const permissions = this.rolePermissions[role] || [];
-    return permissions.includes(permission);
+    const hasPermission = permissions.includes(permission);
+    console.log('[RoleService] Checking permission:', {
+      role,
+      permission,
+      hasPermission,
+      totalPermissions: permissions.length,
+    });
+    return hasPermission;
   }
 
   /**

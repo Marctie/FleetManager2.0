@@ -12,7 +12,7 @@ export interface IUserCreateRequest {
   username: string;
   email: string;
   password: string;
-  role: number; // 0=Admin, 1=Manager, 2=Driver, 3=Viewer
+  role: string; // "Administrator", "Fleet Manager", "Driver", "Viewer"
 }
 
 export interface IUserResponse {
