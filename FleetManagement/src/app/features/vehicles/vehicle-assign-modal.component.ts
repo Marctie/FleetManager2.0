@@ -57,11 +57,11 @@ import { NotificationService } from '../../services/notification.service';
               [disabled]="isAssigning()"
             >
               <option value="">-- Select a driver --</option>
-              @for (user of users(); track user.id) {
-              <option [value]="user.id">
+              @for(user of users(); track user.id) { @if(user.id !== vehicle.assignedDriverId) {
+              <option value="{{ user.id }}">
                 {{ user.fullName || user.username }} - {{ user.role }} ({{ user.email }})
               </option>
-              }
+              } }
             </select>
             @if (!selectedUserId && attemptedSubmit) {
 
