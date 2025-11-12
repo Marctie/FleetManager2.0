@@ -498,7 +498,6 @@ export class UserFormModalComponent implements OnInit {
       });
     } else {
       // Create mode
-      console.log('[UserForm] Create mode initialized');
       this.userForm = this.fb.group({
         username: ['', [Validators.required]],
         email: ['', [Validators.required, Validators.email]],
