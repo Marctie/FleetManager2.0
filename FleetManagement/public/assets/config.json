@@ -1,6 +1,6 @@
 {
   "apiConfig": {
-    "baseUrl": "http://10.0.90.9/Stage/FleetManagement",
+    "baseUrl": "",
     "timeout": 30000,
     "retryAttempts": 3
   },

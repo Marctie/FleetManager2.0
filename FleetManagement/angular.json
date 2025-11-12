@@ -60,7 +60,9 @@
               "buildTarget": "FleetManagement:build:production"
             },
             "development": {
-              "buildTarget": "FleetManagement:build:development"
+              "buildTarget": "FleetManagement:build:development",
+              "proxyConfig": "proxy.conf.json"
+
             }
           },
           "defaultConfiguration": "development"

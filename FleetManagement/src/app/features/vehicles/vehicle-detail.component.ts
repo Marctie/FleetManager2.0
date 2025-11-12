@@ -974,7 +974,6 @@ export class VehicleDetailComponent {
       );
       return;
     }
-
     // Chiediamo conferma prima di eliminare
     if (
       confirm(
