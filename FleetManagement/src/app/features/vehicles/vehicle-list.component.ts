@@ -325,8 +325,8 @@ import { RoleService } from '../../services/role.service';
       }
 
       .status-badge.maintenance {
-        background: #fed7d7;
-        color: #742a2a;
+        // background: #fed7d7;
+        // color: #742a2a;
       }
 
       .status-badge.parked {
@@ -823,6 +823,9 @@ export class VehicleListComponent implements OnInit {
     if (event) {
       this.showModal.set(false);
       this.selectedVehicle.set(null);
+
+      // Auto-refresh after modal close
+      this.reloadCurrentPage();
     }
   }
 
@@ -842,7 +845,7 @@ export class VehicleListComponent implements OnInit {
         this.selectedVehicle.set(updatedVehicle);
       }
     } else {
-      // Se il veicolo non è nella lista (es. è stato eliminato), ricarica la lista
+      // Se il veicolo non è nella lista (es. è stato eliminato o è nuovo), ricarica la lista
       this.reloadCurrentPage();
     }
   }
@@ -867,6 +870,29 @@ export class VehicleListComponent implements OnInit {
     }
 
     this.loadVehicles(filters);
+  }
+
+  // Handle vehicle deletion
+  handleVehicleDeleted(deletedVehicleId: string | number) {
+    const currentVehicles = this.vehicles();
+    const updatedVehicles = currentVehicles.filter((v) => v.id !== deletedVehicleId);
+
+    // Update vehicles list
+    this.vehicles.set(updatedVehicles);
+
+    // Update total count
+    this.totalItems.set(this.totalItems() - 1);
+
+    // Close modal if the deleted vehicle was selected
+    if (this.selectedVehicle()?.id === deletedVehicleId) {
+      this.showModal.set(false);
+      this.selectedVehicle.set(null);
+    }
+  }
+
+  // Refresh entire list (for complex operations)
+  refreshVehicleList() {
+    this.reloadCurrentPage();
   }
 
   //funzioni di  navigazione

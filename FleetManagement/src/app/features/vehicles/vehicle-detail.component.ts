@@ -995,7 +995,6 @@ export class VehicleDetailComponent {
 
     // Check if vehicle is assigned to a non-admin user
     if (this.vehicle.assignedDriverId && this.vehicle.assignedDriverName) {
-      // Get user details to check if assigned to admin
       this.userService.getUsers().subscribe({
         next: (users: IUser[]) => {
           const assignedUser = users.find((user) => user.id === this.vehicle.assignedDriverId);
@@ -1009,7 +1008,7 @@ export class VehicleDetailComponent {
 
             if (!isAdmin) {
               alert(
-                `⚠️ Cannot delete vehicle "${this.vehicle.brand} ${this.vehicle.model}" (${this.vehicle.licensePlate}).\n\n` +
+                `Cannot delete vehicle "${this.vehicle.brand} ${this.vehicle.model}" (${this.vehicle.licensePlate}).\n\n` +
                   `This vehicle is currently assigned to: ${this.vehicle.assignedDriverName}\n\n` +
                   `Vehicles can only be deleted when assigned to administrators.\n\n` +
                   `Please use the "Reassign to Admin" button first.`
@@ -1071,10 +1070,8 @@ export class VehicleDetailComponent {
     );
 
     if (confirmed) {
-      // First, get the list of users to find an admin
       this.userService.getUsers().subscribe({
         next: (users: IUser[]) => {
-          // Find the first admin user (role: "0" or "Administrator" or similar)
           const adminUser = users.find(
             (user) =>
               user.role === '0' ||
@@ -1087,8 +1084,7 @@ export class VehicleDetailComponent {
             alert('No administrator found. Cannot remove assignment.');
             return;
           }
-
-          // Assign the vehicle to the admin user
+          //assegno il veicolo ad un admin (in questo caso Marco)
           this.vehicleService
             .assignVehicle(
               this.vehicle.id,
@@ -1102,7 +1098,6 @@ export class VehicleDetailComponent {
                     adminUser.fullName || adminUser.username
                   }.`
                 );
-                // Update vehicle data with new assignment
                 this.vehicle.assignedDriverId = adminUser.id;
                 this.vehicle.assignedDriverName = adminUser.fullName || adminUser.username;
                 this.vehicleUpdated.emit(this.vehicle);
