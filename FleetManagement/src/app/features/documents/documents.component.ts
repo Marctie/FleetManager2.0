@@ -66,8 +66,8 @@ import { IVehicle } from '../../models/IVehicle';
                 <option [value]="0">Insurance</option>
                 <option [value]="1">Registration</option>
                 <option [value]="2">Maintenance</option>
-                <option [value]="3">Inspection</option>
-                <option [value]="4">Contract</option>
+                <option [value]="3">Damage Report</option>
+                <option [value]="4">Recepit</option>
                 <option [value]="5">Other</option>
               </select>
             </div>
@@ -454,7 +454,7 @@ import { IVehicle } from '../../models/IVehicle';
         color: #7c2d12;
       }
 
-      .doc-type-badge.inspection {
+      .doc-type-badge.damagereport {
         background: #e9d8fd;
         color: #44337a;
       }

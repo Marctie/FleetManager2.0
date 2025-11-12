@@ -104,7 +104,7 @@ export class DocumentService {
       Insurance: 0,
       Registration: 1,
       Maintenance: 2,
-      DamageReport: 3,
+      Report: 3,
       Recepit: 4,
       Other: 5,
     };

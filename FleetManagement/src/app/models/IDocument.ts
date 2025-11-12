@@ -2,9 +2,9 @@ export interface IDocument {
   id: string;
   fileName: string;
   fileType: string;
-  uploadedAt: string; // Changed from uploadDate to match API response
+  uploadedAt: string; 
   vehicleId: string;
-  documentType: string | number; // API returns string ("Insurance"), we send number (0)
+  documentType: string | number;
   fileSize: number;
   description?: string;
 }
