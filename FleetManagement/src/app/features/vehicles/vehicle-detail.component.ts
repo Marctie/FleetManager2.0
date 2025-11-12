@@ -6,6 +6,8 @@ import { VehicleService } from '../../services/vehicle.service';
 import { VehicleStatusModalComponent } from './vehicle-status-modal.component';
 import { VehicleAssignModalComponent } from './vehicle-assign-modal.component';
 import { RoleService } from '../../services/role.service';
+import { UserService } from '../../services/user.service';
+import { IUser } from '../../models/IUser';
 
 @Component({
   selector: 'app-vehicle-detail',
@@ -90,6 +92,8 @@ import { RoleService } from '../../services/role.service';
                 <button class="btn-status" (click)="openStatusModal()">Change Status</button>
                 @if (roleService.canManageAssignments()) {
                 <button class="btn-status" (click)="openAssignModal()">Assign Driver</button>
+                } @if (vehicle.assignedDriverId && roleService.canManageAssignments()) {
+                <button class="btn-warning" (click)="removeAssignment()">Reassign to Admin</button>
                 }
                 <button class="btn-status" (click)="startEditing()">Edit Vehicle</button>
                 <!-- <button class="btn-secondary">View History</button> -->
@@ -421,6 +425,7 @@ import { RoleService } from '../../services/role.service';
 
       .btn-primary,
       .btn-secondary,
+      .btn-warning,
       .btn-danger {
         padding: 0.75rem 1.5rem;
         border: none;
@@ -437,6 +442,15 @@ import { RoleService } from '../../services/role.service';
 
       .btn-primary:hover {
         background: #5a67d8;
+      }
+
+      .btn-warning {
+        background: #f6ad55;
+        color: white;
+      }
+
+      .btn-warning:hover {
+        background: #ed8936;
       }
 
       .btn-status {
@@ -836,6 +850,7 @@ export class VehicleDetailComponent {
 
   private fb = inject(FormBuilder);
   private vehicleService = inject(VehicleService);
+  private userService = inject(UserService);
   roleService = inject(RoleService);
 
   isEditing = false;
@@ -977,6 +992,47 @@ export class VehicleDetailComponent {
       );
       return;
     }
+
+    // Check if vehicle is assigned to a non-admin user
+    if (this.vehicle.assignedDriverId && this.vehicle.assignedDriverName) {
+      // Get user details to check if assigned to admin
+      this.userService.getUsers().subscribe({
+        next: (users: IUser[]) => {
+          const assignedUser = users.find((user) => user.id === this.vehicle.assignedDriverId);
+
+          if (assignedUser) {
+            const isAdmin =
+              assignedUser.role === '0' ||
+              assignedUser.role === 'Administrator' ||
+              assignedUser.role === 'admin' ||
+              assignedUser.role.toLowerCase().includes('admin');
+
+            if (!isAdmin) {
+              alert(
+                `⚠️ Cannot delete vehicle "${this.vehicle.brand} ${this.vehicle.model}" (${this.vehicle.licensePlate}).\n\n` +
+                  `This vehicle is currently assigned to: ${this.vehicle.assignedDriverName}\n\n` +
+                  `Vehicles can only be deleted when assigned to administrators.\n\n` +
+                  `Please use the "Reassign to Admin" button first.`
+              );
+              return;
+            }
+
+            this.proceedWithDeletion();
+          } else {
+            this.proceedWithDeletion();
+          }
+        },
+        error: (error: any) => {
+          console.error('Error fetching users:', error);
+          alert('Error checking user assignments. Please try again.');
+        },
+      });
+    } else {
+      this.proceedWithDeletion();
+    }
+  }
+
+  proceedWithDeletion() {
     if (
       confirm(
         `Are you sure you want to delete the vehicle ${this.vehicle.brand} ${this.vehicle.model} (${this.vehicle.licensePlate})? This action cannot be undone.`
@@ -985,7 +1041,6 @@ export class VehicleDetailComponent {
       this.vehicleService.deleteVehicle(this.vehicle.id).subscribe({
         next: () => {
           alert('Vehicle deleted successfully!');
-          // veicolo è stato eliminato
           this.vehicleUpdated.emit(this.vehicle);
           this.closeModal.emit(true);
         },
@@ -1000,6 +1055,67 @@ export class VehicleDetailComponent {
           }
 
           alert(errorMessage);
+        },
+      });
+    }
+  }
+
+  removeAssignment() {
+    if (!this.vehicle.assignedDriverId || !this.vehicle.assignedDriverName) {
+      alert('This vehicle is not assigned to any driver.');
+      return;
+    }
+
+    const confirmed = confirm(
+      `Are you sure you want to remove the assignment of this vehicle from "${this.vehicle.assignedDriverName}"?\n\nThe vehicle will be reassigned to an administrator.`
+    );
+
+    if (confirmed) {
+      // First, get the list of users to find an admin
+      this.userService.getUsers().subscribe({
+        next: (users: IUser[]) => {
+          // Find the first admin user (role: "0" or "Administrator" or similar)
+          const adminUser = users.find(
+            (user) =>
+              user.role === '0' ||
+              user.role === 'Administrator' ||
+              user.role === 'admin' ||
+              user.role.toLowerCase().includes('admin')
+          );
+
+          if (!adminUser) {
+            alert('No administrator found. Cannot remove assignment.');
+            return;
+          }
+
+          // Assign the vehicle to the admin user
+          this.vehicleService
+            .assignVehicle(
+              this.vehicle.id,
+              adminUser.id,
+              `Vehicle reassigned from ${this.vehicle.assignedDriverName} to administrator`
+            )
+            .subscribe({
+              next: () => {
+                alert(
+                  `Assignment removed successfully! Vehicle reassigned to ${
+                    adminUser.fullName || adminUser.username
+                  }.`
+                );
+                // Update vehicle data with new assignment
+                this.vehicle.assignedDriverId = adminUser.id;
+                this.vehicle.assignedDriverName = adminUser.fullName || adminUser.username;
+                this.vehicleUpdated.emit(this.vehicle);
+              },
+              error: (error: any) => {
+                console.error('Error reassigning vehicle:', error);
+                alert('Error reassigning vehicle. Please try again.');
+              },
+            });
+        },
+        error: (error: any) => {
+          console.error('Error fetching users:', error);
+          alert('Error fetching user list. Please try again.');
         },
       });
     }

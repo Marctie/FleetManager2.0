@@ -202,6 +202,8 @@ export class VehicleService {
    * Elimina un veicolo
    */
   deleteVehicle(id: number | string): Observable<void> {
+    console.log('🚨 VehicleService.deleteVehicle() called with ID:', id);
+    console.log('🚨 Delete URL:', `${this.VEHICLE_ENDPOINTS.list}/${id}`);
     return this.http.delete<void>(`${this.VEHICLE_ENDPOINTS.list}/${id}`);
   }
 
