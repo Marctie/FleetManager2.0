@@ -685,7 +685,7 @@ export class VehicleListComponent implements OnInit {
         this.pageSize.set(response.pageSize || 20);
         this.totalPages.set(Math.ceil((response.total || 0) / (response.pageSize || 20)));
 
-        // Estrai i modelli unici per il filtro dropdown
+        // Estrai i modelli unici per il filtro dropdown menu
         if (response.items.length > 0) {
           const uniqueModels = [...new Set(response.items.map((v: IVehicle) => v.model))].sort();
           this.availableModels.set(uniqueModels);
