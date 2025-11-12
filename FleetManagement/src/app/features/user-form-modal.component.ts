@@ -470,20 +470,14 @@ export class UserFormModalComponent implements OnInit {
   error = signal<string | null>(null);
   isEditMode = false;
 
-  // Mappatura ruoli per il form (valore select -> nome API)
-  private roleMapping: { [key: string]: string } = {
-    '0': 'Administrator',
-    '1': 'Fleet Manager',
-    '2': 'Driver',
-    '3': 'Viewer',
-  };
-
-  // Mappatura inversa (nome API -> valore select)
-  private roleToSelectValue: { [key: string]: string } = {
-    Administrator: '0',
-    'Fleet Manager': '1',
-    Driver: '2',
-    Viewer: '3',
+  // Mappatura ruoli stringa -> numero (come nel backup funzionante)
+  private roleToNumber: { [key: string]: number } = {
+    Admin: 0,
+    Administrator: 0,
+    Manager: 1,
+    'Fleet Manager': 1,
+    Driver: 2,
+    Viewer: 3,
   };
 
   ngOnInit() {
@@ -493,18 +487,13 @@ export class UserFormModalComponent implements OnInit {
 
   private initForm() {
     if (this.isEditMode && this.user) {
-      // Edit mode - converti il role da stringa API a valore select
-      const selectValue = this.roleToSelectValue[this.user.role] || '0';
-      console.log('[UserForm] Edit mode - Role mapping:', {
-        apiRole: this.user.role,
-        selectValue: selectValue,
-        user: this.user,
-      });
+      // Edit mode - converti il role da stringa a numero per il select
+      const roleValue = this.roleToNumber[this.user.role] ?? 0;
 
       this.userForm = this.fb.group({
         email: [this.user.email, [Validators.required, Validators.email]],
         fullName: [this.user.fullName || ''],
-        role: [selectValue, [Validators.required]],
+        role: [roleValue.toString(), [Validators.required]], // Converti in stringa per il select
         isActive: [this.user.isActive],
       });
     } else {
@@ -545,59 +534,42 @@ export class UserFormModalComponent implements OnInit {
       const formValue = this.userForm.value;
 
       if (this.isEditMode && this.user) {
-        // Update existing user - converti valore select in stringa API
-        const roleString = this.roleMapping[formValue.role] || 'Viewer';
+        // Update existing user - converti role in numero (come nel backup funzionante)
         const updateData = {
           email: formValue.email,
-          role: roleString,
+          role: parseInt(formValue.role), // Converte in numero
           ...(formValue.fullName && { fullName: formValue.fullName }),
         };
 
-        console.log('[UserForm] Updating user:', {
-          userId: this.user.id,
-          selectValue: formValue.role,
-          roleString: roleString,
-          fullPayload: updateData,
-        });
-
         this.userService.updateUser(this.user.id, updateData).subscribe({
           next: (updatedUser) => {
-            console.log('[UserForm] User updated successfully:', updatedUser);
             this.isSaving.set(false);
             this.userSaved.emit(updatedUser);
             this.close();
           },
           error: (error) => {
-            console.error('[UserForm] Error updating user:', error);
+            console.error('Error updating user:', error);
             this.error.set(error.error?.message || 'Error updating user. Please try again.');
             this.isSaving.set(false);
           },
         });
       } else {
-        // Create new user - converti valore select in stringa API
-        const roleString = this.roleMapping[formValue.role] || 'Viewer';
+        // Create new user - converti role in numero (come nel backup funzionante)
         const createData = {
           username: formValue.username,
           email: formValue.email,
           password: formValue.password,
-          role: roleString,
+          role: parseInt(formValue.role), // Converte la stringa in numero
         };
-
-        console.log('[UserForm] Creating user:', {
-          selectValue: formValue.role,
-          roleString: roleString,
-          fullPayload: createData,
-        });
 
         this.userService.createUser(createData).subscribe({
           next: (newUser) => {
-            console.log('[UserForm] User created successfully:', newUser);
             this.isSaving.set(false);
             this.userSaved.emit(newUser);
             this.close();
           },
           error: (error) => {
-            console.error('[UserForm] Error creating user:', error);
+            console.error('Error creating user:', error);
             // Mostra gli errori di validazione specifici se disponibili
             if (error.error?.errors) {
               const errorMessages = Object.values(error.error.errors).flat().join(', ');
