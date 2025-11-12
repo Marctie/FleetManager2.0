@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '../shared/main-layout.component';
 import { DocumentService } from '../services/document.service';
@@ -596,6 +596,7 @@ import { IVehicle } from '../models/IVehicle';
 })
 export class DocumentsComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   documentService = inject(DocumentService);
   private vehicleService = inject(VehicleService);
 
@@ -613,6 +614,19 @@ export class DocumentsComponent implements OnInit {
 
   ngOnInit() {
     this.loadVehicles();
+
+    // Controlla se c'è un vehicleId nella query string
+    this.route.queryParams.subscribe((params) => {
+      if (params['vehicleId']) {
+        this.selectedVehicleId = params['vehicleId'];
+        // Aspetta che i veicoli siano caricati prima di caricare i documenti
+        setTimeout(() => {
+          if (this.selectedVehicleId) {
+            this.loadDocuments();
+          }
+        }, 500);
+      }
+    });
   }
 
   loadVehicles() {
