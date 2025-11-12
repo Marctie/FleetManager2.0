@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MainLayoutComponent } from '../shared/main-layout.component';
 import { UserService } from '../services/user.service';
+import { VehicleService } from '../services/vehicle.service';
 import { IUser } from '../models/IUser';
 import { UserFormModalComponent } from './user-form-modal.component';
 import { filter } from 'rxjs';
@@ -353,6 +354,8 @@ import { filter } from 'rxjs';
 export class UserManagementComponent implements OnInit {
   private router = inject(Router);
   private userService = inject(UserService);
+  private vehicleService = inject(VehicleService);
+
   users = signal<IUser[]>([]);
   filteredUsers = signal<IUser[]>([]);
   isLoading = signal(false);
@@ -433,13 +436,42 @@ export class UserManagementComponent implements OnInit {
   }
 
   confirmDelete(user: IUser): void {
-    const confirmed = confirm(
-      `Are you sure you want to delete user "${user.username}"? This action cannot be undone.`
-    );
+    // Step 1: Check if the user has assigned vehicles
+    this.vehicleService.getListVehicles({ pageSize: 1000 }).subscribe({
+      next: (response) => {
+        // Count how many vehicles this user has
+        const assignedVehicles = response.items.filter((v) => v.assignedDriverId === user.id);
 
-    if (confirmed) {
-      this.deleteUser(user.id);
-    }
+        if (assignedVehicles.length > 0) {
+          // User has assigned vehicles - block deletion
+          const message =
+            `Cannot delete user "${user.username}".\n\n` +
+            `This user has ${assignedVehicles.length} vehicle(s) still assigned.\n\n` +
+            `To proceed, go to the "Associations" section and remove the assigned vehicles first.`;
+
+          alert(message);
+
+          // Optional: ask if they want to go to associations page
+          const goToAssociations = confirm('Do you want to go to the Associations page now?');
+          if (goToAssociations) {
+            this.router.navigate(['/associations']);
+          }
+        } else {
+          // No vehicles assigned - proceed with deletion
+          const confirmed = confirm(
+            `Are you sure you want to delete user "${user.username}"?\n\nThis action cannot be undone.`
+          );
+
+          if (confirmed) {
+            this.deleteUser(user.id);
+          }
+        }
+      },
+      error: (error) => {
+        console.error('Error checking user vehicles:', error);
+        alert('Error checking vehicles. Please try again.');
+      },
+    });
   }
 
   private deleteUser(userId: string): void {
