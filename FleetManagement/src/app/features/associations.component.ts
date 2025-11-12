@@ -90,7 +90,7 @@ import { IVehicle } from '../models/IVehicle';
                         (click)="viewVehicleDocuments(vehicle)"
                         title="View Documents"
                       >
-                        📄 Documents
+                        Documents
                       </button>
                     </div>
                     }
@@ -704,7 +704,6 @@ export class AssociationsComponent implements OnInit {
   }
 
   viewVehicleDocuments(vehicle: IVehicle) {
-    // Chiudi il modal e naviga alla pagina documenti
     this.closeModal();
     this.router.navigate(['/documents'], {
       queryParams: { vehicleId: vehicle.id },
