@@ -470,7 +470,6 @@ export class UserFormModalComponent implements OnInit {
   error = signal<string | null>(null);
   isEditMode = false;
 
-  // Mappatura ruoli stringa -> numero (come nel backup funzionante)
   private roleToNumber: { [key: string]: number } = {
     Admin: 0,
     Administrator: 0,
@@ -533,10 +532,10 @@ export class UserFormModalComponent implements OnInit {
       const formValue = this.userForm.value;
 
       if (this.isEditMode && this.user) {
-        // Update existing user - converti role in numero (come nel backup funzionante)
+        // Update existing user - converti role in numero
         const updateData = {
           email: formValue.email,
-          role: parseInt(formValue.role), // Converte in numero
+          role: parseInt(formValue.role),
           ...(formValue.fullName && { fullName: formValue.fullName }),
         };
 
@@ -553,12 +552,12 @@ export class UserFormModalComponent implements OnInit {
           },
         });
       } else {
-        // Create new user - converti role in numero (come nel backup funzionante)
+        // Create new user - converti role in numero
         const createData = {
           username: formValue.username,
           email: formValue.email,
           password: formValue.password,
-          role: parseInt(formValue.role), // Converte la stringa in numero
+          role: parseInt(formValue.role),
         };
 
         this.userService.createUser(createData).subscribe({

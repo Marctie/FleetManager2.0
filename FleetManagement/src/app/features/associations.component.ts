@@ -270,7 +270,7 @@ import { IVehicle } from '../models/IVehicle';
         white-space: nowrap;
       }
 
-      .driver-role-badge {
+      .driver-role-badged {
         display: inline-block;
         margin-top: 0.5rem;
         padding: 0.25rem 0.75rem;

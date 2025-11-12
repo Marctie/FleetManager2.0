@@ -707,9 +707,8 @@ export class VehicleListComponent implements OnInit {
     this.searchVehicles(); // Ricarica i dati
   }
 
-  // Ricerca veicoli tramite API (con debounce)
+  // Ricerca veicoli tramite API
   searchVehicles(): void {
-    // Cancella il timer precedente se esiste
     if (this.searchTimeout) {
       clearTimeout(this.searchTimeout);
     }

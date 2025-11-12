@@ -422,42 +422,35 @@ export class UserManagementComponent implements OnInit {
     const userIndex = currentUsers.findIndex((u) => u.id === savedUser.id);
 
     if (userIndex !== -1) {
-      // Update existing user
       const updatedUsers = [...currentUsers];
       updatedUsers[userIndex] = savedUser;
       this.users.set(updatedUsers);
     } else {
-      // Add new user
       this.users.set([...currentUsers, savedUser]);
     }
 
-    // Update filtered list
     this.applySearch();
   }
 
   confirmDelete(user: IUser): void {
-    // Step 1: Check if the user has assigned vehicles
     this.vehicleService.getListVehicles({ pageSize: 1000 }).subscribe({
       next: (response) => {
-        // Count how many vehicles this user has
+        // controllo sui veicoli associati
         const assignedVehicles = response.items.filter((v) => v.assignedDriverId === user.id);
 
         if (assignedVehicles.length > 0) {
-          // User has assigned vehicles - block deletion
           const message =
             `Cannot delete user "${user.username}".\n\n` +
             `This user has ${assignedVehicles.length} vehicle(s) still assigned.\n\n` +
             `To proceed, go to the "Associations" section and remove the assigned vehicles first.`;
 
           alert(message);
-
-          // Optional: ask if they want to go to associations page
+          //Alert per la cancellazione dell'utente
           const goToAssociations = confirm('Do you want to go to the Associations page now?');
           if (goToAssociations) {
             this.router.navigate(['/associations']);
           }
         } else {
-          // No vehicles assigned - proceed with deletion
           const confirmed = confirm(
             `Are you sure you want to delete user "${user.username}"?\n\nThis action cannot be undone.`
           );
@@ -477,7 +470,7 @@ export class UserManagementComponent implements OnInit {
   private deleteUser(userId: string): void {
     this.userService.deleteUser(userId).subscribe({
       next: () => {
-        // Remove user from lists
+        //rimozione dell'utente dalla lista
         const updatedUsers = this.users().filter((u) => u.id !== userId);
         this.users.set(updatedUsers);
         this.applySearch();

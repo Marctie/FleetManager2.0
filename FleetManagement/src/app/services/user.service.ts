@@ -18,10 +18,7 @@ export class UserService {
       list: `${baseUrl}/api/Users`,
     };
   }
-
-  /**
-   * Get paginated list of users
-   */
+  //paginazione
   getUsers(page: number = 1, pageSize: number = 1000): Observable<IUser[]> {
     console.log('[UserService] Fetching users - page:', page, 'pageSize:', pageSize);
     return this.http.get<any>(`${this.USER_ENDPOINTS.list}?page=${page}&pageSize=${pageSize}`).pipe(
@@ -50,16 +47,11 @@ export class UserService {
       })
     );
   }
-  /**
-   * Get user by ID
-   */
+  //utente by id
   getUserById(id: string): Observable<IUser> {
     return this.http.get<IUser>(`${this.USER_ENDPOINTS.list}/${id}`);
   }
-
-  /**
-   * Create a new user
-   */
+  //creazione
   createUser(user: IUserCreateRequest): Observable<IUser> {
     console.log('[UserService] Creating user with role:', user.role, 'payload:', user);
     return this.http.post<IUser>(this.USER_ENDPOINTS.list, user).pipe(
@@ -71,9 +63,7 @@ export class UserService {
     );
   }
 
-  /**
-   * Update an existing user
-   */
+  //aggiornamento utenti
   updateUser(id: string, user: Partial<IUser>): Observable<IUser> {
     console.log('[UserService] Updating user:', id, 'with role:', user.role, 'payload:', user);
     return this.http.put<IUser>(`${this.USER_ENDPOINTS.list}/${id}`, user).pipe(
@@ -85,9 +75,7 @@ export class UserService {
     );
   }
 
-  /**
-   * Delete a user
-   */
+  //cancellazione dell'utente
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.USER_ENDPOINTS.list}/${id}`);
   }
