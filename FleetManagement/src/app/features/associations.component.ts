@@ -98,7 +98,6 @@ import { IVehicle } from '../models/IVehicle';
                   }
                 </div>
 
-                <!-- Veicoli disponibili per assegnazione -->
                 <div class="section">
                   <h3>Available Vehicles</h3>
                   @if (isLoadingVehicles()) {
@@ -112,7 +111,7 @@ import { IVehicle } from '../models/IVehicle';
                       <div class="vehicle-info">
                         <strong>{{ vehicle.brand }} {{ vehicle.model }}</strong>
                         <span class="vehicle-plate">{{ vehicle.licensePlate }}</span>
-                        <span class="vehicle-status">{{ getStatusLabel(+vehicle.status) }}</span>
+                        <!-- <span class="vehicle-status">{{ getStatusLabel(+vehicle.status) }}</span> -->
                       </div>
                       <button
                         class="btn-assign"
@@ -710,15 +709,15 @@ export class AssociationsComponent implements OnInit {
     });
   }
 
-  getStatusLabel(status: number): string {
-    const labels: { [key: number]: string } = {
-      0: 'Available',
-      1: 'In Use',
-      2: 'Maintenance',
-      3: 'Out of Service',
-    };
-    return labels[status] || 'Unknown';
-  }
+  // getStatusLabel(status: number): string {
+  //   const labels: { [key: number]: string } = {
+  //     0: 'Available',
+  //     1: 'In Use',
+  //     2: 'Maintenance',
+  //     3: 'Out of Service',
+  //   };
+  //   return labels[status];
+  // }
 
   goBack() {
     this.router.navigate(['/home']);

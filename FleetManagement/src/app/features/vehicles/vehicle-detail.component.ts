@@ -23,6 +23,11 @@ import { RoleService } from '../../services/role.service';
         <div class="page-container">
           <header class="page-header">
             <h1>Vehicle Details</h1>
+            <img
+              _ngcontent-ng-c4025827450=""
+              src="https://img.icons8.com/?size=100&amp;id=gyxi94qFz5rS&amp;format=png&amp;color=000000"
+              alt="Fleet Logo"
+            />
           </header>
 
           <main class="page-content">
@@ -850,7 +855,6 @@ export class VehicleDetailComponent {
   };
 
   getFuelTypeName(fuelType: number | string): string {
-    // Se è già una stringa (nome), restituiscila direttamente
     if (typeof fuelType === 'string') {
       return fuelType;
     }
@@ -899,7 +903,7 @@ export class VehicleDetailComponent {
       const formValue = this.vehicleForm.value;
 
       try {
-        // Prepariamo i dati aggiornati mantenendo tutti i campi richiesti
+        //  dati aggiornati mantenendo tutti i campi richiesti
         const updatedVehicle: IVehicle = {
           ...this.vehicle,
           brand: formValue.brand.trim(),
@@ -935,7 +939,6 @@ export class VehicleDetailComponent {
             let errorMessage = 'Error updating vehicle. ';
 
             if (error.error?.errors) {
-              // Se ci sono errori di validazione specifici
               const validationErrors = Object.values(error.error.errors).flat();
               errorMessage += validationErrors.join('\n');
             } else {
@@ -974,7 +977,6 @@ export class VehicleDetailComponent {
       );
       return;
     }
-    // Chiediamo conferma prima di eliminare
     if (
       confirm(
         `Are you sure you want to delete the vehicle ${this.vehicle.brand} ${this.vehicle.model} (${this.vehicle.licensePlate})? This action cannot be undone.`
@@ -983,7 +985,7 @@ export class VehicleDetailComponent {
       this.vehicleService.deleteVehicle(this.vehicle.id).subscribe({
         next: () => {
           alert('Vehicle deleted successfully!');
-          // Emettiamo un evento per notificare la lista che il veicolo è stato eliminato
+          // veicolo è stato eliminato
           this.vehicleUpdated.emit(this.vehicle);
           this.closeModal.emit(true);
         },
