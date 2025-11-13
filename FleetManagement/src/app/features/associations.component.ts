@@ -597,7 +597,6 @@ export class AssociationsComponent implements OnInit {
   availableVehicles = signal<IVehicle[]>([]);
 
   constructor() {
-    // Effect per aggiornare le liste quando cambia il driver selezionato o i veicoli
     effect(() => {
       this.updateVehicleLists();
     });
