@@ -396,7 +396,7 @@ export class DashboardComponent implements OnInit, AfterViewInit {
       },
     });
   }
-
+  // inserimento di chartjs
   private initializeChart(): void {
     const ctx = this.pieChartCanvas.nativeElement.getContext('2d');
     if (!ctx) return;
