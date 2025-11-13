@@ -9,7 +9,7 @@ export enum UserRole {
   Viewer = 'Viewer',
 }
 
-// Enum dei permessi granulari
+// Enum dei permessi
 export enum Permission {
   // Veicoli
   VEHICLES_VIEW = 'vehicles.view',
@@ -52,10 +52,10 @@ export enum Permission {
 export class RoleService {
   private authService = inject(AuthService);
 
-  // Mappa dei permessi per ogni ruolo
+  // Mappa dei permessi per  ruolo
   private rolePermissions: Record<string, Permission[]> = {
     [UserRole.Administrator]: [
-      // Accesso completo
+      // Accesso completo no limitazioni
       Permission.VEHICLES_VIEW,
       Permission.VEHICLES_CREATE,
       Permission.VEHICLES_EDIT,
@@ -88,25 +88,25 @@ export class RoleService {
       Permission.REPORTS_VIEW,
       Permission.DASHBOARD_VIEW,
       Permission.MAP_VIEW,
-      Permission.TELEMETRY_VIEW, // Telemetria real-time
+      Permission.TELEMETRY_VIEW, // Telemetria real-time (quando si riprende mqtt )
       Permission.ASSIGNMENTS_VIEW,
       Permission.ASSIGNMENTS_MANAGE,
     ],
     [UserRole.Driver]: [
       // Solo visualizzazione e gestione proprio veicolo
       Permission.VEHICLES_VIEW,
-      Permission.VEHICLES_CHANGE_STATUS, // Solo per proprio veicolo
+      Permission.VEHICLES_CHANGE_STATUS, // Solo per proprio veicolo (da assegnazione)
       Permission.DOCUMENTS_VIEW,
-      Permission.DOCUMENTS_UPLOAD, // Solo propri documenti
-      Permission.DOCUMENTS_DOWNLOAD, // Download propri documenti
-      Permission.TELEMETRY_VIEW_OWN, // Telemetria solo proprio veicolo
+      Permission.DOCUMENTS_UPLOAD, // Solo propri documenti (da id)
+      Permission.DOCUMENTS_DOWNLOAD, // Download propri documenti (da id veicolo)
+      Permission.TELEMETRY_VIEW_OWN, // Telemetria solo proprio veicolo (appena funziona mqtt)
       Permission.ASSIGNMENTS_VIEW,
     ],
     [UserRole.Viewer]: [
-      // Solo visualizzazione (sola lettura completa)
+      // Solo visualizzazione
       Permission.VEHICLES_VIEW,
       Permission.DOCUMENTS_VIEW,
-      Permission.DOCUMENTS_DOWNLOAD, // Può scaricare documenti
+      Permission.DOCUMENTS_DOWNLOAD, // serve per far scaricare documenti
       Permission.REPORTS_VIEW,
       Permission.DASHBOARD_VIEW,
       Permission.MAP_VIEW,
@@ -125,9 +125,8 @@ export class RoleService {
     return role;
   }
 
-  /**
-   * Verifica se l'utente ha un permesso specifico
-   */
+  // Verifica se l'utente ha un permesso specifico
+
   hasPermission(permission: Permission): boolean {
     const role = this.getCurrentUserRole();
     if (!role) {
@@ -145,10 +144,7 @@ export class RoleService {
     });
     return hasPermission;
   }
-
-  /**
-   * Verifica se l'utente ha TUTTI i permessi specificati
-   */
+  //verifica se l'utente loggato ha quanti e quali permessi
   hasAllPermissions(permissions: Permission[]): boolean {
     return permissions.every((permission) => this.hasPermission(permission));
   }
