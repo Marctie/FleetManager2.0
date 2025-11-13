@@ -498,6 +498,7 @@ import { IVehicle } from '../models/IVehicle';
       }
 
       .doc-description {
+        overflow: auto;
         font-size: 0.875rem;
         color: #4a5568;
         margin: 0.5rem 0 0 0;
