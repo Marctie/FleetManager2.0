@@ -1,12 +1,22 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  ViewChild,
+  ElementRef,
+  AfterViewInit,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SidebarComponent } from '../../shared/sidebar.component';
 import { StatCardComponent } from '../../shared/stat-card.component';
 import { IVehicle } from '../../models/IVehicle';
-import { Observable } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
 import { VehicleService } from '../../services/vehicle.service';
+import { Chart, ArcElement, Tooltip, Legend, PieController } from 'chart.js';
+
+// Register Chart.js components
+Chart.register(ArcElement, Tooltip, Legend, PieController);
 
 @Component({
   selector: 'app-dashboard',
@@ -75,6 +85,16 @@ import { VehicleService } from '../../services/vehicle.service';
             <app-stat-card title="In Maintenance" [value]="maintenanceVehicles"></app-stat-card>
 
             <app-stat-card title="Out of Service" [value]="outOfServiceVehicles"></app-stat-card>
+          </div>
+
+          <!-- Vehicle Status Chart -->
+          <div class="chart-container">
+            <div class="chart-card">
+              <h3 class="chart-title">Vehicle Status Distribution</h3>
+              <div class="chart-wrapper">
+                <canvas #pieChartCanvas></canvas>
+              </div>
+            </div>
           </div>
         </main>
       </div>
@@ -242,6 +262,31 @@ import { VehicleService } from '../../services/vehicle.service';
         margin-bottom: 2rem;
       }
 
+      .chart-container {
+        margin-top: 2rem;
+      }
+
+      .chart-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .chart-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .chart-wrapper {
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 1rem;
+      }
+
       h2 {
         font-size: 1.5rem;
         color: #2d3748;
@@ -302,7 +347,7 @@ import { VehicleService } from '../../services/vehicle.service';
     `,
   ],
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, AfterViewInit {
   authService = inject(AuthService);
   router = inject(Router);
   vehicleList = signal<IVehicle[]>([]);
@@ -310,8 +355,15 @@ export class DashboardComponent implements OnInit {
   currentUser = this.authService.getCurrentUser();
   showSidebar = signal(true);
 
+  @ViewChild('pieChartCanvas') pieChartCanvas!: ElementRef<HTMLCanvasElement>;
+  private chart?: Chart;
+
   ngOnInit() {
     this.loadVehicles();
+  }
+
+  ngAfterViewInit() {
+    this.initializeChart();
   }
 
   // Calcolo dei numeri di veicoli + filtro per stato
@@ -333,16 +385,84 @@ export class DashboardComponent implements OnInit {
     return this.vehicleList().filter((v) => v.status.toLowerCase() === 'outofservice').length;
   }
 
-  private loadVehicles(boolean = false): void {
+  private loadVehicles(): void {
     this.vehicleService.getListVehicles({ page: 1, pageSize: 1000 }).subscribe({
       next: (response) => {
         this.vehicleList.set(response.items);
-        console.log(`Loaded ${response.items.length} vehicles of ${response.total} total`);
+        this.updateChartData();
       },
       error: (error) => {
         console.error('Error loading vehicles:', error);
       },
     });
+  }
+
+  private initializeChart(): void {
+    const ctx = this.pieChartCanvas.nativeElement.getContext('2d');
+    if (!ctx) return;
+
+    this.chart = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: ['Available', 'In Use', 'Maintenance', 'Out of Service'],
+        datasets: [
+          {
+            data: [
+              this.activeVehicles,
+              this.inUseVehicles,
+              this.maintenanceVehicles,
+              this.outOfServiceVehicles,
+            ],
+            backgroundColor: [
+              '#10b981', // Verde - Available
+              '#3b82f6', // Blue - In Use
+              '#f59e0b', // Arancio - Maintenance
+              '#ef4444', // rosso - Out of Service
+            ],
+            borderColor: '#ffffff',
+            borderWidth: 2,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+          legend: {
+            position: 'bottom',
+            labels: {
+              padding: 15,
+              font: {
+                size: 12,
+              },
+            },
+          },
+          tooltip: {
+            callbacks: {
+              label: (context) => {
+                const label = context.label || '';
+                const value = context.parsed;
+                const total = (context.dataset.data as number[]).reduce((a, b) => a + b, 0);
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+                return `${label}: ${value} (${percentage}%)`;
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  private updateChartData(): void {
+    if (!this.chart) return;
+
+    this.chart.data.datasets[0].data = [
+      this.activeVehicles,
+      this.inUseVehicles,
+      this.maintenanceVehicles,
+      this.outOfServiceVehicles,
+    ];
+    this.chart.update();
   }
 
   toggleSidebar() {
