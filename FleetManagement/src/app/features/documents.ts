@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '../shared/main-layout.component';
 import { DocumentService } from '../services/document.service';
 import { VehicleService } from '../services/vehicle.service';
+import { RoleService } from '../services/role.service';
 import { IDocument, DocumentType } from '../models/IDocument';
 import { IVehicle } from '../models/IVehicle';
 
@@ -58,6 +59,7 @@ import { IVehicle } from '../models/IVehicle';
             </div>
           </div>
 
+          @if (!roleService.isViewer()) {
           <div class="upload-section">
             <div class="upload-box">
               <h3>Upload Document</h3>
@@ -112,6 +114,7 @@ import { IVehicle } from '../models/IVehicle';
               </button>
             </div>
           </div>
+          }
 
           <div class="documents-section">
             <h2>Documents ({{ documents().length }})</h2>
@@ -149,9 +152,11 @@ import { IVehicle } from '../models/IVehicle';
                   >
                     Download
                   </button>
+                  @if (!roleService.isViewer()) {
                   <button class="btn-icon btn-delete" (click)="confirmDelete(doc)" title="Delete">
                     Delete
                   </button>
+                  }
                 </div>
               </div>
               }
@@ -595,10 +600,11 @@ import { IVehicle } from '../models/IVehicle';
   ],
 })
 export class DocumentsComponent implements OnInit {
-  private router = inject(Router);
+  router = inject(Router);
   private route = inject(ActivatedRoute);
   documentService = inject(DocumentService);
   private vehicleService = inject(VehicleService);
+  roleService = inject(RoleService);
 
   vehicles = signal<IVehicle[]>([]);
   documents = signal<IDocument[]>([]);

@@ -89,15 +89,15 @@ import { IUser } from '../../models/IUser';
                 </div>
               </div>
               <div class="actions">
+                @if (!roleService.isViewer()) {
                 <button class="btn-status" (click)="openStatusModal()">Change Status</button>
-                @if (roleService.canManageAssignments()) {
+                } @if (roleService.canManageAssignments()) {
                 <button class="btn-status" (click)="openAssignModal()">Assign Driver</button>
                 } @if (vehicle.assignedDriverId && roleService.canManageAssignments()) {
                 <button class="btn-warning" (click)="removeAssignment()">Reassign to Admin</button>
-                }
+                } @if (!roleService.isViewer()) {
                 <button class="btn-status" (click)="startEditing()">Edit Vehicle</button>
-                <!-- <button class="btn-secondary">View History</button> -->
-                @if (roleService.canDeleteVehicles()) {
+                } @if (roleService.canDeleteVehicles()) {
                 <button class="btn-danger" (click)="deleteVehicle()">Delete</button>
                 }
                 <button class="btn-back" (click)="goBack()">Close</button>
