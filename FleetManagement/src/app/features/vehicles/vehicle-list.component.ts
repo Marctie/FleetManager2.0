@@ -676,8 +676,18 @@ export class VehicleListComponent implements OnInit {
           return;
         }
 
+        // Se l'utente è un Driver, filtra solo i veicoli assegnati a lui
+        let vehiclesList = response.items;
+        if (this.roleService.isDriver()) {
+          const currentUser = this.roleService.getCurrentUserRole();
+          const currentUserId = localStorage.getItem('userId');
+          vehiclesList = response.items.filter(
+            (v: IVehicle) => String(v.assignedDriverId) === String(currentUserId)
+          );
+        }
+
         // Imposta i veicoli dalla risposta paginata
-        this.vehicles.set(response.items);
+        this.vehicles.set(vehiclesList);
 
         // Aggiorna i dati di paginazione
         this.totalItems.set(response.total || 0);

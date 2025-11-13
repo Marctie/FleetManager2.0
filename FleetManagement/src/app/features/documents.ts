@@ -59,7 +59,7 @@ import { IVehicle } from '../models/IVehicle';
             </div>
           </div>
 
-          @if (!roleService.isViewer()) {
+          @if (roleService.canUploadDocuments()) {
           <div class="upload-section">
             <div class="upload-box">
               <h3>Upload Document</h3>
@@ -152,7 +152,7 @@ import { IVehicle } from '../models/IVehicle';
                   >
                     Download
                   </button>
-                  @if (!roleService.isViewer()) {
+                  @if (roleService.canDeleteDocuments()) {
                   <button class="btn-icon btn-delete" (click)="confirmDelete(doc)" title="Delete">
                     Delete
                   </button>
@@ -638,7 +638,15 @@ export class DocumentsComponent implements OnInit {
   loadVehicles() {
     this.vehicleService.getListVehicles().subscribe({
       next: (response) => {
-        this.vehicles.set(response.items);
+        // Se l'utente è un Driver, filtra solo i veicoli assegnati a lui
+        let vehiclesList = response.items;
+        if (this.roleService.isDriver()) {
+          const currentUserId = localStorage.getItem('userId');
+          vehiclesList = response.items.filter(
+            (v: IVehicle) => String(v.assignedDriverId) === String(currentUserId)
+          );
+        }
+        this.vehicles.set(vehiclesList);
       },
       error: (error) => {
         console.error('[DocumentsComponent] Error loading vehicles:', error);

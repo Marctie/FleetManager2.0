@@ -229,4 +229,51 @@ export class RoleService {
   canManageAssignments(): boolean {
     return this.hasPermission(Permission.ASSIGNMENTS_MANAGE);
   }
+
+  /**
+   * Verifica se un veicolo è assegnato all'utente corrente (per Driver)
+   */
+  isOwnVehicle(vehicleAssignedDriverId: string | number): boolean {
+    if (!this.isDriver()) {
+      return false;
+    }
+
+    const currentUser = this.authService.getCurrentUser();
+    if (!currentUser) {
+      return false;
+    }
+
+    // Confronta gli ID convertendoli entrambi a stringa per sicurezza
+    return String(vehicleAssignedDriverId) === String(currentUser.userId);
+  }
+
+  /**
+   * Verifica se il driver può modificare lo stato del veicolo
+   * (solo se è il proprio veicolo)
+   */
+  canChangeVehicleStatus(vehicleAssignedDriverId: string | number): boolean {
+    if (this.isAdministrator() || this.isFleetManager()) {
+      return true;
+    }
+
+    if (this.isDriver()) {
+      return this.isOwnVehicle(vehicleAssignedDriverId);
+    }
+
+    return false;
+  }
+
+  /**
+   * Verifica se può eliminare documenti
+   */
+  canDeleteDocuments(): boolean {
+    return this.hasPermission(Permission.DOCUMENTS_DELETE);
+  }
+
+  /**
+   * Verifica se può caricare documenti
+   */
+  canUploadDocuments(): boolean {
+    return this.hasPermission(Permission.DOCUMENTS_UPLOAD);
+  }
 }
